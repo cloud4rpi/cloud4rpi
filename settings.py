@@ -5,4 +5,5 @@ scanInterval = 5
 baseApiUrl = 'http://stage.cloud4rpi.io:3000/api/'
 
 # General
-AccessToken = "551ced7a63639792588607ac"  # "PUT_PERSONAL_ACCESS_TOKEN_HERE"
+# Put your access token here. To get an access token, register at http://stage.cloud4rpi.io
+AccessToken = ""
