@@ -1,5 +1,6 @@
 import glob
 
+
 def extract_temperature(s):
     index = s.find('t=')
     if index > 0:
@@ -7,6 +8,7 @@ def extract_temperature(s):
         res = s[index:]
         return float(res) / 1000
     return 0
+
 
 class Sensor():
     NAME = ''

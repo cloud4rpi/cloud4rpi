@@ -98,7 +98,8 @@ class RpiServer():
                 if not config.has_option('Sensors', deviceFileName):
                     new_sensors.append({'name': deviceFileName})
                 else:
-                    sensors.append(sensor.Sensor(config.get('Sensors', deviceFileName), os.path.join(dirname, deviceFileName)))
+                    sensors.append(
+                        sensor.Sensor(config.get('Sensors', deviceFileName), os.path.join(dirname, deviceFileName)))
             if len(new_sensors) > 0:
                 self.register_sensor(new_sensors)
                 # TODO make it better
@@ -130,6 +131,7 @@ class RpiServer():
         print 'createdDeviceId: ' + created_device_id
         config.set('Config', 'DeviceId', created_device_id)
         return created_device_id
+
 
 if __name__ == "__main__":
     server = RpiServer()
