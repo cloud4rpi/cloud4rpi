@@ -14,7 +14,7 @@ On your rpi:
 3. cd cloud4rpi
 4. sudo pip install -r requirements.txt
 5. nano settings.py
-6. python server.py
+6. sudo python server.py
 ```
 
 Introduction
