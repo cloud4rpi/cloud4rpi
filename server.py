@@ -23,6 +23,11 @@ class RpiServer():
 
     def run(self):
         print 'Rpi data output server running... '
+
+        # probe w1 modules
+        os.system('modprobe w1-gpio')
+        os.system('modprobe w1-therm')
+
         self.load_config()
         self.detect_sensors()
         self.save_config()
