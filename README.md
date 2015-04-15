@@ -6,7 +6,7 @@ cloud4rpi
 For Impatient
 -------------
 
-On your rpi:
+On your raspberry pi:
 
 ```
 1. sudo apt-get install python-pip
