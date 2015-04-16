@@ -1,12 +1,12 @@
 cloud4rpi
 =========
 
-**Easily connect your raspberry pi to the Internet**
+**Easily connect your Raspberry Pi to the Internet**
 
 For Impatient
 -------------
 
-On your raspberry pi:
+On your Raspberry Pi:
 
 ```
 1. sudo apt-get install python-pip
