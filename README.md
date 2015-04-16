@@ -1,7 +1,7 @@
 cloud4rpi
 =========
 
-**Easily connect your raspberry pi to the cloud**
+**Easily connect your raspberry pi to the Internet**
 
 For Impatient
 -------------
