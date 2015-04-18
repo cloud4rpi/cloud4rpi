@@ -50,7 +50,7 @@ class RpiServer():
 
     def post_sensor_data(self, sensors_data):
         url = 'devices/%s/streams' % config.get('Config', 'DeviceId')
-        self.post_data(url, sensors_data)
+        return self.post_data(url, sensors_data)
 
     def create_sensors(self, new_sensors):
         url = 'devices/%s/sensors' % config.get('Config', 'DeviceId')
@@ -117,7 +117,12 @@ class RpiServer():
             try:
                 data = self.get_sensor_data(sensors)
                 print data
-                self.post_sensor_data(data)
+                r = self.post_sensor_data(data)
+                print r.response_code
+                if r.response_code == 401:
+                    print "Error! 401 - Unauthorized request. Please verify AccessToken is valid"
+                    break
+
                 n += 1
             except Exception, err:
                 print traceback.format_exc()
