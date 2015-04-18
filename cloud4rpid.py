@@ -5,6 +5,7 @@ import time
 import json
 import os
 import re
+import sys
 import traceback
 import ConfigParser
 import requests
@@ -118,10 +119,11 @@ class RpiDaemon():
                 data = self.get_sensor_data(sensors)
                 print data
                 r = self.post_sensor_data(data)
-                print r.response_code
-                if r.response_code == 401:
-                    print "Error! 401 - Unauthorized request. Please verify AccessToken is valid"
-                    break
+                print r.status_code
+                if r.status_code == 401:
+                    print "Error! 401 - Unauthorized request."
+                    print "Process interrupted. Please verify your AccessToken is valid"
+                    sys.exit(1)
 
                 n += 1
             except Exception, err:
