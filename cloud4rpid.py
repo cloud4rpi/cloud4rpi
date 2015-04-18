@@ -17,12 +17,12 @@ config = ConfigParser.SafeConfigParser()
 sensors = []
 
 
-class RpiServer():
+class RpiDaemon():
     def __init__(self):
         pass
 
     def run(self):
-        print 'Rpi data output server running... '
+        print 'Rpi data output daemon running... '
 
         # probe w1 modules
         os.system('modprobe w1-gpio')
@@ -144,5 +144,5 @@ class RpiServer():
 
 
 if __name__ == "__main__":
-    server = RpiServer()
-    server.run()
+    daemon = RpiDaemon()
+    daemon.run()
