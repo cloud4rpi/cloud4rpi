@@ -56,7 +56,7 @@ class RpiServer():
         url = 'devices/%s/sensors' % config.get('Config', 'DeviceId')
         r = self.post_data(url, new_sensors)
         if r.status_code != 201:
-            raise Exception('Can\'t register sensor. ' + r.status_code)
+            raise Exception("Can\'t register sensor. Status: %s" % r.status_code)
 
         return r.json()
 
@@ -65,7 +65,7 @@ class RpiServer():
         data = {'name': device_name}
         r = self.post_data(url, data)
         if r.status_code != 201:
-            raise Exception('Can\'t register device. ' + r.status_code)
+            raise Exception("Can\'t register device. Status: %s" % r.status_code)
 
         return r.json()['_id']
 
