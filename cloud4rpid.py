@@ -5,7 +5,6 @@ import time
 import json
 import os
 import re
-import sys
 import traceback
 import ConfigParser
 import requests
@@ -53,9 +52,11 @@ class RpiDaemon():
     def post_sensor_data(self, sensors_data):
         deviceId = config.get('Config', 'DeviceId')
         url = 'devices/%s/streams' % deviceId
-        self.publish_data(deviceId, sensors_data)
-        return 0
-        #return self.post_data(url, sensors_data)
+
+        data = sensors_data
+        data["device"] = deviceId
+        amqp.publish(data)
+        return 0 #TODO
 
     def create_sensors(self, new_sensors):
         url = 'devices/%s/sensors' % config.get('Config', 'DeviceId')
@@ -74,9 +75,6 @@ class RpiDaemon():
 
         return r.json()['_id']
 
-    @staticmethod
-    def publish_data(resource, data):
-        amqp.publish(resource, data)
 
     @staticmethod
     def post_data(url, data):
@@ -127,6 +125,7 @@ class RpiDaemon():
                 data = self.get_sensor_data(sensors)
                 print data
                 r = self.post_sensor_data(data)
+                # TODO catch exceptions
                 #print r.status_code
                 print r
 

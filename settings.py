@@ -1,12 +1,18 @@
 # System
-scanInterval = 15
+scanInterval = 20
 
 # Server parameters
 baseApiUrl = 'http://stage.cloud4rpi.io:3000/api/'
 
-# message broker host
-brokerHost = '172.22.2.150'  #sky3d-macbook.corp.devexpress.com
+# AMQP broker
+brokerHost = '172.22.2.150'
+brokerUser = 'test'
+brokerPass = 'test'
+brokerPort = 5672
+brokerVirtualHost = 'cloud4rpi'
+brokerQueue = 'device_queue'
+
 
 # General
 # Put your access token here. To get an access token, register at http://stage.cloud4rpi.io
-AccessToken = "553a51d9305a805e1abf4698"
+AccessToken = ""
