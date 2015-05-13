@@ -14,11 +14,12 @@ def publish(resource, data):
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
 
-    channel.queue_declare(queue='device_queue', durable=True)
+    #channel.queue_declare(queue='device_queue', durable=True)
+
 
     print '==== publish data ===='
     print resource, data
 
-    channel.basic_publish(exchange='', routing_key=resource, body=json.dumps(data))
+    channel.basic_publish(exchange='', routing_key='device_queue', body=json.dumps(data))
 
     connection.close()
