@@ -10,6 +10,7 @@ import traceback
 import ConfigParser
 import requests
 import settings
+import amqp
 
 import sensorDS18B20 as sensor
 
@@ -50,8 +51,12 @@ class RpiDaemon():
             config.write(configfile)
 
     def post_sensor_data(self, sensors_data):
-        url = 'devices/%s/streams' % config.get('Config', 'DeviceId')
-        return self.post_data(url, sensors_data)
+        deviceId = config.get('Config', 'DeviceId')
+        url = 'devices/%s/streams' % deviceId
+        self.publish_data(deviceId, sensors_data)
+
+
+        #return self.post_data(url, sensors_data)
 
     def create_sensors(self, new_sensors):
         url = 'devices/%s/sensors' % config.get('Config', 'DeviceId')
@@ -66,9 +71,13 @@ class RpiDaemon():
         data = {'name': device_name}
         r = self.post_data(url, data)
         if r.status_code != 201:
-            raise Exception("Can\'t register device. Status: %s" % r.status_code)
+            raise Exception("Can\'t register device. Status: %d" % r.status_code)
 
         return r.json()['_id']
+
+    @staticmethod
+    def publish_data(resource, data):
+        amqp.publish(resource, data);
 
     @staticmethod
     def post_data(url, data):
