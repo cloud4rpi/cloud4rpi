@@ -54,8 +54,7 @@ class RpiDaemon():
         deviceId = config.get('Config', 'DeviceId')
         url = 'devices/%s/streams' % deviceId
         self.publish_data(deviceId, sensors_data)
-
-
+        return 0
         #return self.post_data(url, sensors_data)
 
     def create_sensors(self, new_sensors):
@@ -71,13 +70,13 @@ class RpiDaemon():
         data = {'name': device_name}
         r = self.post_data(url, data)
         if r.status_code != 201:
-            raise Exception("Can\'t register device. Status: %d" % r.status_code)
+            raise Exception("Can\'t register device. Status: %s" % r.status_code)
 
         return r.json()['_id']
 
     @staticmethod
     def publish_data(resource, data):
-        amqp.publish(resource, data);
+        amqp.publish(resource, data)
 
     @staticmethod
     def post_data(url, data):
@@ -128,11 +127,13 @@ class RpiDaemon():
                 data = self.get_sensor_data(sensors)
                 print data
                 r = self.post_sensor_data(data)
-                print r.status_code
-                if r.status_code == 401:
-                    print "Error! 401 - Unauthorized request."
-                    print "Process interrupted. Please verify your AccessToken is valid"
-                    sys.exit(1)
+                #print r.status_code
+                print r
+
+                # if r.status_code == 401:
+                #     print "Error! 401 - Unauthorized request."
+                #     print "Process interrupted. Please verify your AccessToken is valid"
+                #     sys.exit(1)
 
                 n += 1
             except Exception, err:
