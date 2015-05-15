@@ -5,7 +5,7 @@ scanInterval = 20
 baseApiUrl = 'http://stage.cloud4rpi.io:3000/api/'
 
 # AMQP broker
-brokerHost = '172.22.2.150'
+brokerHost = 'http://broker.cloud4rpi.io/'
 brokerUser = 'test'
 brokerPass = 'test'
 brokerPort = 5672
