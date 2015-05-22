@@ -96,7 +96,7 @@ class RpiDaemon():
         for sensor in sensors:
             payload[sensor.get_id()] = sensor.get_data()
 
-        result["data"] = payload
+        result["payload"] = payload
         return result
 
     def detect_sensors(self):
