@@ -9,7 +9,6 @@ import traceback
 import ConfigParser
 import requests
 import settings
-import amqp
 
 import sensorDS18B20 as sensor
 
@@ -50,12 +49,8 @@ class RpiDaemon():
             config.write(configfile)
 
     def post_sensor_data(self, sensors_data):
-        deviceId = config.get('Config', 'DeviceId')
-
-        data = sensors_data
-        data["deviceId"] = deviceId
-        print 'publish :', data
-        amqp.publish(data)
+        url = 'devices/%s/streams' % config.get('Config', 'DeviceId')
+        return self.post_data(url, sensors_data)
 
     def create_sensors(self, new_sensors):
         url = 'devices/%s/sensors' % config.get('Config', 'DeviceId')
@@ -73,7 +68,6 @@ class RpiDaemon():
             raise Exception("Can\'t register device. Status: %s" % r.status_code)
 
         return r.json()['_id']
-
 
     @staticmethod
     def post_data(url, data):
@@ -95,7 +89,7 @@ class RpiDaemon():
         for sensor in sensors:
             payload[sensor.get_id()] = sensor.get_data()
 
-        result["payload"] = payload
+        result["data"] = payload
         return result
 
     def detect_sensors(self):
@@ -122,7 +116,12 @@ class RpiDaemon():
         while 1:
             try:
                 data = self.get_sensor_data(sensors)
-                self.post_sensor_data(data)
+                print data
+                r = self.post_sensor_data(data)
+                print r.response_code
+                if r.response_code == 401:
+                    print "Error! 401 - Unauthorized request. Please verify AccessToken is valid"
+                    break
 
                 n += 1
             except Exception, err:
