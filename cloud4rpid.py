@@ -118,8 +118,8 @@ class RpiDaemon():
                 data = self.get_sensor_data(sensors)
                 print data
                 r = self.post_sensor_data(data)
-                print r.response_code
-                if r.response_code == 401:
+                print r.status_code
+                if r.status_code == 401:
                     print "Error! 401 - Unauthorized request. Please verify AccessToken is valid"
                     break
 
