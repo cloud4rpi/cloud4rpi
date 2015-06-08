@@ -83,7 +83,7 @@ class RpiDaemon():
     @staticmethod
     def get_sensor_data(sensors):
         result = {}
-        result["ts"] = time.time()
+        result["ts"] = int(time.time())
 
         payload = {}
         for sensor in sensors:
