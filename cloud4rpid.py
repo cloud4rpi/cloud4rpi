@@ -1,146 +1,140 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-import json
 import os
 import re
-import traceback
-import ConfigParser
 import requests
-import settings
+import json
+import time
 
-import sensorDS18B20 as sensor
+from settings import DeviceToken
 
-configFileName = 'config.cfg'
-config = ConfigParser.SafeConfigParser()
-sensors = []
+W1_DEVICES = '/sys/bus/w1/devices/'
+W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
 
 
-class RpiDaemon():
+def sensor_full_path(sensor):
+    return os.path.join(W1_DEVICES, sensor)
+
+
+def find_sensors():
+    return [x for x in os.listdir(W1_DEVICES)
+            if W1_SENSOR_PATTERN.match(x) and os.path.isdir(sensor_full_path(x))]
+
+
+def read_sensor(address):
+    readings = read_whole_file(os.path.join(W1_DEVICES, address, 'w1_slave'))
+    temp_token = 't='
+    temp_index = readings.find(temp_token)
+    if temp_index < 0:
+        return 0.0
+    temp = readings[temp_index + len(temp_token):]
+    return address, float(temp) / 1000
+
+
+def read_whole_file(path):
+    with open(path, 'r') as f:
+        return f.read()
+
+
+def read_sensors():
+    return [read_sensor(x) for x in map(lambda x: x, find_sensors())]
+
+
+# TODO: check status_code of the respose and throw exceptions where appropriate. IMPORTANT!
+
+def get_device(token):
+    res = requests.get('http://stage.cloud4rpi.io:3000/api/device/{0}/'.format(token))
+    return ServerDevice(res.json())
+
+
+def put_device(token, device):
+    res = requests.put('http://stage.cloud4rpi.io:3000/api/device/{0}/'.format(token),
+                       headers={'api_key': token},
+                       data=device.dump())
+    return ServerDevice(res.json())
+
+
+def post_stream(token, stream):
+    res = requests.post('http://stage.cloud4rpi.io:3000/api/device/{0}/stream/'.format(token),
+                        headers={'api_key': token},
+                        data=json.dumps(stream))
+    return res.json()
+
+
+class ServerDevice:
+    def __init__(self, device_json):
+        self.json = device_json
+        self.addresses = None
+        self.__extract_addresses()
+
+    def sensor_addrs(self):
+        return self.addresses
+
+    def add_sensors(self, sensors):
+        self.json['sensors'] += map(lambda x: {'address': x}, sensors)
+        self.__extract_addresses()
+
+    def whats_new(self, sensors):
+        existing = self.sensor_addrs()
+        return set(sensors) - set(existing)
+
+    def dump(self):
+        return json.dumps(self.json)
+
+    def map_sensors(self, readings):
+        # FIXME: Add checks on key presence in index
+        index = {sensor['address']: sensor['_id'] for sensor in self.json.get('sensors')}
+        return [{index[address]: reading} for address, reading in readings]
+
+    def __extract_addresses(self):
+        self.addresses = [sensor['address'] for sensor in self.json['sensors']]
+
+
+class RpiDaemon:
     def __init__(self):
-        pass
+        self.sensors = None
+        self.me = None
+        self.token = DeviceToken
 
     def run(self):
-        print 'Rpi data output daemon running... '
+        print 'Running...'
 
-        # probe w1 modules
-        os.system('modprobe w1-gpio')
-        os.system('modprobe w1-therm')
+        self.prepare_sensors()
+        self.poll()
 
-        self.load_config()
-        self.detect_sensors()
-        self.save_config()
-        self.poll_sensors()
-        print 'Done'
+    def prepare_sensors(self):
+        self.know_thyself()
+        self.find_sensors()
+        self.register_new_sensors()  # if any
 
-    def load_config(self):
-        config.read(configFileName)
-        if not config.has_section('Sensors'):
-            config.add_section('Sensors')
-        if not config.has_section('Config'):
-            config.add_section('Config')
-        if not config.has_option('Config', 'DeviceId'):
-            self.register_device()
+    def know_thyself(self):
+        self.me = get_device(self.token)
 
-    @staticmethod
-    def save_config():
-        with open(configFileName, 'wb') as configfile:
-            config.write(configfile)
+    def find_sensors(self):
+        self.sensors = find_sensors()
 
-    def post_sensor_data(self, sensors_data):
-        url = 'devices/%s/streams' % config.get('Config', 'DeviceId')
-        return self.post_data(url, sensors_data)
+    def register_new_sensors(self):
+        new_sensors = self.me.whats_new(self.sensors)
+        if len(new_sensors) > 0:
+            self.me.add_sensors(new_sensors)
+            self.me = put_device(self.token, self.me)
 
-    def create_sensors(self, new_sensors):
-        url = 'devices/%s/sensors' % config.get('Config', 'DeviceId')
-        r = self.post_data(url, new_sensors)
-        if r.status_code != 201:
-            raise Exception("Can\'t register sensor. Status: %s" % r.status_code)
+    def poll(self):
+        # TODO:
+        # run an infinite loop with sleep
+        # catch exceptions, break the on unauth exceptions
+        pass
 
-        return r.json()
-
-    def create_device(self, device_name):
-        url = 'devices'
-        data = {'name': device_name}
-        r = self.post_data(url, data)
-        if r.status_code != 201:
-            raise Exception("Can\'t register device. Status: %s" % r.status_code)
-
-        return r.json()['_id']
-
-    @staticmethod
-    def post_data(url, data):
-        try:
-            headers = {"Content-type": "application/json", "api_key": settings.AccessToken}
-            r = requests.post(settings.baseApiUrl + url, headers=headers, data=json.dumps(data))
-
-            return r
-
-        except Exception, err:
-            print traceback.format_exc()
-
-    @staticmethod
-    def get_sensor_data(sensors):
-        result = {}
-        result["ts"] = int(time.time())
-
-        payload = {}
-        for sensor in sensors:
-            payload[sensor.get_id()] = sensor.get_data()
-
-        result["payload"] = payload
-        return result
-
-    def detect_sensors(self):
-        r = re.compile('(10|22|28)-.*')
-        for dirname, dirnames, filenames in os.walk('/sys/bus/w1/devices/'):
-            new_sensors = []
-            for deviceFileName in dirnames:
-                if not r.match(deviceFileName):
-                    print 'Unknown device type. Skipping. ' + deviceFileName
-                    continue
-                if not config.has_option('Sensors', deviceFileName):
-                    new_sensors.append({'name': deviceFileName})
-                else:
-                    sensors.append(
-                        sensor.Sensor(config.get('Sensors', deviceFileName), os.path.join(dirname, deviceFileName)))
-            if len(new_sensors) > 0:
-                self.register_sensor(new_sensors)
-                # TODO make it better
-                sensors[:] = []
-                self.detect_sensors()
-
-    def poll_sensors(self):
-        n = 1
-        while 1:
-            try:
-                data = self.get_sensor_data(sensors)
-                print data
-                r = self.post_sensor_data(data)
-                print r.status_code
-                if r.status_code == 401:
-                    print "Error! 401 - Unauthorized request. Please verify AccessToken is valid"
-                    break
-
-                n += 1
-            except Exception, err:
-                print traceback.format_exc()
-            time.sleep(settings.scanInterval)
-
-    def register_sensor(self, new_sensors):
-        print '%s new devices found' % len(new_sensors)
-        created_sensors = self.create_sensors(new_sensors)
-        for sensor in created_sensors:
-            print '%s: %s' % (sensor['name'], sensor['_id'])
-            config.set('Sensors', sensor['name'], sensor['_id'])
-
-    def register_device(self):
-        print 'No DeviceId found. Registering device'
-        created_device_id = self.create_device('New device')
-        print 'createdDeviceId: ' + created_device_id
-        config.set('Config', 'DeviceId', created_device_id)
-        return created_device_id
+    def tick(self):
+        ts = int(time.time())
+        readings = read_sensors()
+        payload = self.me.map_sensors(readings)
+        stream = {
+            'ts': ts,
+            'payload': payload
+        }
+        post_stream(self.token, stream)
 
 
 if __name__ == "__main__":
