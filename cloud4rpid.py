@@ -7,8 +7,10 @@ import requests
 import json
 import time
 
-from settings import DeviceToken
 from datetime import datetime
+from settings import DeviceToken
+
+import settings_vendor as config
 
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
@@ -132,10 +134,9 @@ class RpiDaemon:
             self.me = put_device(self.token, self.me)
 
     def poll(self):
-        # TODO:
-        # run an infinite loop with sleep
-        # catch exceptions, break the on unauth exceptions
-        pass
+        while True:
+            self.tick()
+            time.sleep(config.scanInterval)
 
     def tick(self):
         ts = int(time.time())
