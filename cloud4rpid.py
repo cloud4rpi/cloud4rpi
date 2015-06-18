@@ -45,13 +45,13 @@ def read_sensors():
 
 
 def get_device(token):
-    res = requests.get('http://stage.cloud4rpi.io:3000/api/device/{0}/'.format(token))
+    res = requests.get('{0}/device/{1}/'.format(config.baseApiUrl, token))
     ensure_authenticated(res)
     return ServerDevice(res.json())
 
 
 def put_device(token, device):
-    res = requests.put('http://stage.cloud4rpi.io:3000/api/device/{0}/'.format(token),
+    res = requests.put('{0}/device/{1}/'.format(config.baseApiUrl, token),
                        headers={'api_key': token},
                        data=device.dump())
     ensure_authenticated(res)
@@ -61,7 +61,7 @@ def put_device(token, device):
 def post_stream(token, stream):
     print 'sending {0} at {1}'.format(stream['payload'], datetime.fromtimestamp(stream['ts']).isoformat())
 
-    res = requests.post('http://stage.cloud4rpi.io:3000/api/device/{0}/stream/'.format(token),
+    res = requests.post('{0}/device/{1}/stream/'.format(config.baseApiUrl, token),
                         headers={'api_key': token},
                         data=json.dumps(stream))
     ensure_authenticated(res)
