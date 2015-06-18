@@ -8,6 +8,7 @@ import json
 import time
 
 from settings import DeviceToken
+from datetime import datetime
 
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
@@ -43,10 +44,7 @@ def read_sensors():
 
 def get_device(token):
     res = requests.get('http://stage.cloud4rpi.io:3000/api/device/{0}/'.format(token))
-
-    if res.status_code == 401:
-        raise AuthenticationError
-
+    ensure_authenticated(res)
     return ServerDevice(res.json())
 
 
@@ -54,22 +52,23 @@ def put_device(token, device):
     res = requests.put('http://stage.cloud4rpi.io:3000/api/device/{0}/'.format(token),
                        headers={'api_key': token},
                        data=device.dump())
-
-    if res.status_code == 401:
-        raise AuthenticationError
-
+    ensure_authenticated(res)
     return ServerDevice(res.json())
 
 
 def post_stream(token, stream):
+    print 'sending {0} at {1}'.format(stream['payload'], datetime.fromtimestamp(stream['ts']).isoformat())
+
     res = requests.post('http://stage.cloud4rpi.io:3000/api/device/{0}/stream/'.format(token),
                         headers={'api_key': token},
                         data=json.dumps(stream))
+    ensure_authenticated(res)
+    return res.json()
 
+
+def ensure_authenticated(res):
     if res.status_code == 401:
         raise AuthenticationError
-
-    return res.json()
 
 
 class AuthenticationError(Exception):

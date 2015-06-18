@@ -117,7 +117,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
 
-        time.return_value = 11111111111111.1111
+        time.return_value = 1111111111.1111
 
         daemon = cloud4rpid.RpiDaemon()
         daemon.token = '000000000000000000000001'
@@ -125,7 +125,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         daemon.tick()
 
         stream = json.dumps({
-            'ts': 11111111111111,
+            'ts': 1111111111,
             'payload': [
                 {'000000000000000000000000': 22.25},
                 {'000000000000000000000001': 25.25},
@@ -145,7 +145,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
         self.setUpStatusCode(post, 401)
-        time.return_value = 11111111111111.1111
+        time.return_value = 1111111111.1111
 
         daemon = cloud4rpid.RpiDaemon()
         daemon.token = '000000000000000000000001'
