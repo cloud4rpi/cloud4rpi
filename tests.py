@@ -54,6 +54,11 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         r_mock.json.return_value = response
         method_mock.return_value = r_mock
 
+    def setUpStatusCode(self, post, code):
+        r_mock = MagicMock()
+        r_mock.status_code = code
+        post.return_value = r_mock
+
     def setUp(self):
         self.setUpPyfakefs()
         self.setUpSensor(self.fs, '10-000802824e58', sensor_10)
@@ -131,6 +136,23 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         post.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/stream/',
                                      headers={'api_key': '000000000000000000000001'},
                                      data=stream)
+
+    @patch('time.time')
+    @patch('requests.post')
+    @patch('requests.put')
+    @patch('requests.get')
+    def testRaiseExceptionOnUnAuthStreamPostRequest(self, get, put, post, time):
+        self.setUpResponse(get, self.DEVICE)
+        self.setUpResponse(put, self.DEVICE)
+        self.setUpStatusCode(post, 401)
+        time.return_value = 11111111111111.1111
+
+        daemon = cloud4rpid.RpiDaemon()
+        daemon.token = '000000000000000000000001'
+        daemon.prepare_sensors()
+
+        with self.assertRaises(cloud4rpid.AuthenticationError):
+            daemon.tick()
 
 
 class TestServerDevice(unittest.TestCase):

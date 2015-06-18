@@ -59,7 +59,15 @@ def post_stream(token, stream):
     res = requests.post('http://stage.cloud4rpi.io:3000/api/device/{0}/stream/'.format(token),
                         headers={'api_key': token},
                         data=json.dumps(stream))
+    
+    if res.status_code == 401:
+        raise AuthenticationError
+
     return res.json()
+
+
+class AuthenticationError(Exception):
+    pass
 
 
 class ServerDevice:
