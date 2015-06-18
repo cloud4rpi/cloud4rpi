@@ -41,7 +41,7 @@ def read_whole_file(path):
 
 
 def read_sensors():
-    return [read_sensor(x) for x in map(lambda s: s, find_sensors())]
+    return [read_sensor(x) for x in find_sensors()]
 
 
 def get_device(token):
