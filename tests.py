@@ -78,6 +78,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         self.setUpResponse(put, self.DEVICE)
 
         daemon = cloud4rpid.RpiDaemon()
+        daemon.token = '000000000000000000000001'
         daemon.prepare_sensors()
 
         device = json.dumps({
@@ -114,6 +115,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         time.return_value = 11111111111111.1111
 
         daemon = cloud4rpid.RpiDaemon()
+        daemon.token = '000000000000000000000001'
         daemon.prepare_sensors()
         daemon.tick()
 
