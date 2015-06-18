@@ -72,7 +72,7 @@ class ServerDevice:
         return self.addresses
 
     def add_sensors(self, sensors):
-        self.json['sensors'] += map(lambda x: {'address': x}, sensors)
+        self.json['sensors'] += map(lambda x: {'name': x, 'address': x}, sensors)
         self.__extract_addresses()
 
     def whats_new(self, sensors):

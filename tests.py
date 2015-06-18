@@ -86,7 +86,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
             'sensors': [
                 {'_id': '000000000000000000000000', 'address': '10-000802824e58'},
                 {'_id': '000000000000000000000002', 'address': '28-000802824e58'},
-                {'address': '22-000802824e58'},
+                {'name': '22-000802824e58', 'address': '22-000802824e58'},
             ]
         })
         put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/',
