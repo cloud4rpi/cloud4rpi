@@ -50,7 +50,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
 
     @staticmethod
     def setUpResponse(method_mock, response):
-        r_mock = MagicMock(['json'])
+        r_mock = MagicMock(['json', 'status_code'])
         r_mock.json.return_value = response
         method_mock.return_value = r_mock
 

@@ -38,13 +38,15 @@ def read_whole_file(path):
 
 
 def read_sensors():
-    return [read_sensor(x) for x in map(lambda x: x, find_sensors())]
+    return [read_sensor(x) for x in map(lambda s: s, find_sensors())]
 
-
-# TODO: check status_code of the respose and throw exceptions where appropriate. IMPORTANT!
 
 def get_device(token):
     res = requests.get('http://stage.cloud4rpi.io:3000/api/device/{0}/'.format(token))
+
+    if res.status_code == 401:
+        raise AuthenticationError
+
     return ServerDevice(res.json())
 
 
@@ -52,6 +54,10 @@ def put_device(token, device):
     res = requests.put('http://stage.cloud4rpi.io:3000/api/device/{0}/'.format(token),
                        headers={'api_key': token},
                        data=device.dump())
+
+    if res.status_code == 401:
+        raise AuthenticationError
+
     return ServerDevice(res.json())
 
 
@@ -143,12 +149,22 @@ class RpiDaemon:
         post_stream(self.token, stream)
 
 
+def modprobe(module):
+    ret = os.system('modprobe {0}'.format(module))
+    if ret != 0:
+        raise EnvironmentError
+
+
 if __name__ == "__main__":
     try:
-        os.system('modprobe w1-gpio')
-        os.system('modprobe w1-therm')
-    except:
+        modprobe('w1-gpio')
+        modprobe('w1-therm')
+    except EnvironmentError:
         print 'Try "sudo python cloud4rpi.py"'
+        exit(1)
+    except Exception as e:
+        print 'Unexpected error: {0}'.format(e.message)
+        print 'Terminating...'
         exit(1)
 
     print 'Starting...'
@@ -158,6 +174,8 @@ if __name__ == "__main__":
     except AuthenticationError:
         print 'Authentication failed. Check your device token.'
         print 'Terminating...'
+        exit(1)
     except Exception as e:
         print 'Unexpected error: {0}'.format(e.message)
         print 'Terminating...'
+        exit(1)
