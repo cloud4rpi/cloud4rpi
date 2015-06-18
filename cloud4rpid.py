@@ -59,7 +59,7 @@ def post_stream(token, stream):
     res = requests.post('http://stage.cloud4rpi.io:3000/api/device/{0}/stream/'.format(token),
                         headers={'api_key': token},
                         data=json.dumps(stream))
-    
+
     if res.status_code == 401:
         raise AuthenticationError
 
@@ -106,8 +106,6 @@ class RpiDaemon:
         self.token = DeviceToken
 
     def run(self):
-        print 'Running...'
-
         self.prepare_sensors()
         self.poll()
 
@@ -146,5 +144,20 @@ class RpiDaemon:
 
 
 if __name__ == "__main__":
+    try:
+        os.system('modprobe w1-gpio')
+        os.system('modprobe w1-therm')
+    except:
+        print 'Try "sudo python cloud4rpi.py"'
+        exit(1)
+
+    print 'Starting...'
     daemon = RpiDaemon()
-    daemon.run()
+    try:
+        daemon.run()
+    except AuthenticationError:
+        print 'Authentication failed. Check your device token.'
+        print 'Terminating...'
+    except Exception as e:
+        print 'Unexpected error: {0}'.format(e.message)
+        print 'Terminating...'
