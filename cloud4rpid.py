@@ -4,7 +4,6 @@
 import os
 import re
 import requests
-import json
 import time
 
 from datetime import datetime
@@ -53,7 +52,7 @@ def get_device(token):
 def put_device(token, device):
     res = requests.put('{0}/device/{1}/'.format(config.baseApiUrl, token),
                        headers={'api_key': token},
-                       data=device.dump())
+                       json=device.dump())
     ensure_authenticated(res)
     return ServerDevice(res.json())
 
@@ -63,7 +62,7 @@ def post_stream(token, stream):
 
     res = requests.post('{0}/device/{1}/stream/'.format(config.baseApiUrl, token),
                         headers={'api_key': token},
-                        data=json.dumps(stream))
+                        json=stream)
     ensure_authenticated(res)
     return res.json()
 
@@ -97,7 +96,7 @@ class ServerDevice:
         return set(sensors) - set(existing)
 
     def dump(self):
-        return json.dumps(self.json)
+        return self.json
 
     def map_sensors(self, readings):
         index = self.sensor_index
@@ -134,7 +133,7 @@ class RpiDaemon:
     def register_new_sensors(self):
         new_sensors = self.me.whats_new(self.sensors)
         if len(new_sensors) > 0:
-            self.me.add_sensors(new_sensors)
+            self.me.add_sensors(sorted(new_sensors))
             self.me = put_device(self.token, self.me)
 
     def poll(self):

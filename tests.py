@@ -1,5 +1,4 @@
 import os
-import json
 
 import unittest
 import fake_filesystem_unittest
@@ -74,6 +73,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         self.setUpSensor(self.fs, 'qw-sasasasasasa', 'garbage garbage garbage')
         self.DEVICE = create_device()
         self.OTHER_DEVICE = create_other_device()
+        self.DEVICE_WITHOUT_SENSORS = create_devices_without_sensors()
 
     @patch('requests.get')
     def testGetDevice(self, get):
@@ -84,11 +84,11 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         daemon.prepare_sensors()
 
         get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/')
-        self.assertEqual(daemon.me.dump(), json.dumps(self.DEVICE))
+        self.assertEqual(daemon.me.dump(), self.DEVICE)
 
     @patch('requests.put')
     @patch('requests.get')
-    def testNewSensorCreation(self, get, put):
+    def testCreateNewlyFoundSensorsOnExistingDevice(self, get, put):
         self.setUpResponse(get, self.OTHER_DEVICE)
         self.setUpResponse(put, self.DEVICE)
 
@@ -96,18 +96,41 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         daemon.token = '000000000000000000000001'
         daemon.prepare_sensors()
 
-        device = json.dumps({
+        expected_device = {
             'name': 'Test Device',
             'sensors': [
                 {'_id': '000000000000000000000000', 'address': '10-000802824e58'},
                 {'_id': '000000000000000000000002', 'address': '28-000802824e58'},
                 {'name': '22-000802824e58', 'address': '22-000802824e58'},
             ]
-        })
+        }
         put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/',
                                     headers={'api_key': '000000000000000000000001'},
-                                    data=device)
-        self.assertEqual(daemon.me.dump(), json.dumps(self.DEVICE))
+                                    json=expected_device)
+        self.assertEqual(daemon.me.dump(), self.DEVICE)
+
+    @patch('requests.put')
+    @patch('requests.get')
+    def testConnectNewDevice(self, get, put):
+        self.setUpResponse(get, self.DEVICE_WITHOUT_SENSORS)
+        self.setUpResponse(put, self.DEVICE)
+
+        daemon = cloud4rpid.RpiDaemon()
+        daemon.token = '000000000000000000000002'
+        daemon.prepare_sensors()
+
+        expected_device = {
+            'name': 'Test Device',
+            'sensors': [
+                {'name': '10-000802824e58', 'address': '10-000802824e58'},
+                {'name': '22-000802824e58', 'address': '22-000802824e58'},
+                {'name': '28-000802824e58', 'address': '28-000802824e58'},
+            ]
+        }
+        put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000002/',
+                                    headers={'api_key': '000000000000000000000002'},
+                                    json=expected_device)
+        self.assertEqual(daemon.me.dump(), self.DEVICE)
 
     @patch('time.time')
     @patch('requests.post')
@@ -124,18 +147,18 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         daemon.prepare_sensors()
         daemon.tick()
 
-        stream = json.dumps({
+        stream = {
             'ts': 1111111111,
             'payload': [
                 {'000000000000000000000000': 22.25},
                 {'000000000000000000000001': 25.25},
                 {'000000000000000000000002': 28.25},
             ]
-        })
+        }
 
         post.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/stream/',
                                      headers={'api_key': '000000000000000000000001'},
-                                     data=stream)
+                                     json=stream)
 
     @patch('time.time')
     @patch('requests.post')
