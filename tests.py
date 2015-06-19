@@ -157,7 +157,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
             ]
         }
 
-        post.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/stream/',
+        post.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
                                      headers={'api_key': '000000000000000000000001'},
                                      json=stream)
 

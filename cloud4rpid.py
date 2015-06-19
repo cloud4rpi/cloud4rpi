@@ -61,7 +61,7 @@ def put_device(token, device):
 def post_stream(token, stream):
     print 'sending {0} at {1}'.format(stream['payload'], datetime.fromtimestamp(stream['ts']).isoformat())
 
-    res = requests.post('{0}/devices/{1}/stream/'.format(config.baseApiUrl, token),
+    res = requests.post('{0}/devices/{1}/streams/'.format(config.baseApiUrl, token),
                         headers={'api_key': token},
                         json=stream)
     ensure_authenticated(res)
