@@ -84,6 +84,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         daemon.prepare_sensors()
 
         get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/')
+        self.assertEqual(daemon.me.dump(), json.dumps(self.DEVICE))
 
     @patch('requests.put')
     @patch('requests.get')
