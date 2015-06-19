@@ -43,6 +43,13 @@ def create_other_device():
     }
 
 
+def create_devices_without_sensors():
+    return {
+        'name': 'Test Device',
+        'sensors': []
+    }
+
+
 class TestEndToEnd(fake_filesystem_unittest.TestCase):
     @staticmethod
     def setUpSensor(fs, address, content):
@@ -167,12 +174,8 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
 
 
 class TestServerDevice(unittest.TestCase):
-    def setUp(self):
-        self.DEVICE = create_device()
-        self.device = cloud4rpid.ServerDevice(self.DEVICE)
-
     def testSensorAddrs(self):
-        sensors = self.device.sensor_addrs()
+        sensors = cloud4rpid.ServerDevice(create_device()).sensor_addrs()
         self.assertListEqual(sorted(sensors), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
 
     def testWhatsNew(self):
