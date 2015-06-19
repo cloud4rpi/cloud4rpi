@@ -150,11 +150,11 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
 
         stream = {
             'ts': 1111111111,
-            'payload': [
-                {'000000000000000000000000': 22.25},
-                {'000000000000000000000001': 25.25},
-                {'000000000000000000000002': 28.25},
-            ]
+            'payload': {
+                '000000000000000000000000': 22.25,
+                '000000000000000000000001': 25.25,
+                '000000000000000000000002': 28.25
+            }
         }
 
         post.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
@@ -197,11 +197,11 @@ class TestServerDevice(unittest.TestCase):
             ('28-000802824e58', 28.25)
         ]
         payload = device.map_sensors(readings)
-        self.assertListEqual(payload, [
-            {'000000000000000000000000': 22.25},
-            {'000000000000000000000001': 25.25},
-            {'000000000000000000000002': 28.25},
-        ])
+        self.assertDictEqual(payload, {
+            '000000000000000000000000': 22.25,
+            '000000000000000000000001': 25.25,
+            '000000000000000000000002': 28.25
+        })
 
 
 class TestDeviceWithoutSensors(unittest.TestCase):

@@ -101,7 +101,7 @@ class ServerDevice:
 
     def map_sensors(self, readings):
         index = self.sensor_index
-        return [{index[address]: reading} for address, reading in readings if address in index]
+        return {index[address]: reading for address, reading in readings if address in index}
 
     def __extract_addresses(self):
         self.addresses = self.sensor_index.keys()
