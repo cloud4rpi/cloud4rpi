@@ -44,7 +44,8 @@ def read_sensors():
 
 
 def get_device(token):
-    res = requests.get('{0}/devices/{1}/'.format(config.baseApiUrl, token))
+    res = requests.get('{0}/devices/{1}/'.format(config.baseApiUrl, token),
+                       headers={'api_key': token})
     ensure_authenticated(res)
     return ServerDevice(res.json())
 

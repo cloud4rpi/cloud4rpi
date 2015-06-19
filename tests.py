@@ -83,7 +83,8 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         daemon.token = '000000000000000000000001'
         daemon.prepare_sensors()
 
-        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/')
+        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
+                                    headers={'api_key': '000000000000000000000001'})
         self.assertEqual(daemon.me.dump(), self.DEVICE)
 
     @patch('requests.put')
@@ -268,7 +269,8 @@ class TestUtils(fake_filesystem_unittest.TestCase):
 
         device = cloud4rpid.get_device('000000000000000000000000')
 
-        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000000/')
+        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000000/',
+                                    headers={'api_key': '000000000000000000000000'})
         self.assertListEqual(sorted(device.sensor_addrs()), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
 
 
