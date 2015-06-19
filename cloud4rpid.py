@@ -81,6 +81,8 @@ class ServerDevice:
     def __init__(self, device_json):
         self.json = device_json
         self.addresses = None
+        self.sensor_index = None
+        self.__build_sensor_index()
         self.__extract_addresses()
 
     def sensor_addrs(self):
@@ -98,12 +100,14 @@ class ServerDevice:
         return json.dumps(self.json)
 
     def map_sensors(self, readings):
-        # TODO: Don't build index on each call
-        index = {sensor['address']: sensor['_id'] for sensor in self.json['sensors']}
+        index = self.sensor_index
         return [{index[address]: reading} for address, reading in readings if address in index]
 
     def __extract_addresses(self):
-        self.addresses = [sensor['address'] for sensor in self.json['sensors']]
+        self.addresses = self.sensor_index.keys()
+
+    def __build_sensor_index(self):
+        self.sensor_index = {sensor['address']: sensor['_id'] for sensor in self.json['sensors']}
 
 
 class RpiDaemon:
