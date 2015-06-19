@@ -79,15 +79,6 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
     def testGetDevice(self, get):
         self.setUpResponse(get, self.DEVICE)
 
-        device = cloud4rpid.get_device('000000000000000000000000')
-
-        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000000/')
-        self.assertListEqual(sorted(device.sensor_addrs()), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
-
-    @patch('requests.get')
-    def testGetDevice(self, get):
-        self.setUpResponse(get, self.DEVICE)
-
         daemon = cloud4rpid.RpiDaemon()
         daemon.token = '000000000000000000000001'
         daemon.prepare_sensors()
@@ -115,16 +106,6 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/',
                                     headers={'api_key': '000000000000000000000001'},
                                     data=device)
-
-    @patch('requests.put')
-    @patch('requests.get')
-    def testNewSensorCreation2(self, get, put):
-        self.setUpResponse(get, self.OTHER_DEVICE)
-        self.setUpResponse(put, self.DEVICE)
-
-        daemon = cloud4rpid.RpiDaemon()
-        daemon.prepare_sensors()
-
         self.assertEqual(daemon.me.dump(), json.dumps(self.DEVICE))
 
     @patch('time.time')
@@ -224,6 +205,12 @@ class TestUtils(fake_filesystem_unittest.TestCase):
     def setUpSensor(fs, address, content):
         fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'w1_slave'), contents=content)
 
+    @staticmethod
+    def setUpResponse(method_mock, response):
+        r_mock = MagicMock(['json', 'status_code'])
+        r_mock.json.return_value = response
+        method_mock.return_value = r_mock
+
     def setUp(self):
         self.setUpPyfakefs()
         self.setUpSensor(self.fs, '10-000802824e58', sensor_10)
@@ -250,6 +237,15 @@ class TestUtils(fake_filesystem_unittest.TestCase):
             ('22-000802824e58', 25.25),
             ('28-000802824e58', 28.25)
         ])
+
+    @patch('requests.get')
+    def testGetDevice(self, get):
+        self.setUpResponse(get, create_device())
+
+        device = cloud4rpid.get_device('000000000000000000000000')
+
+        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000000/')
+        self.assertListEqual(sorted(device.sensor_addrs()), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
 
 
 if __name__ == '__main__':
