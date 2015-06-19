@@ -183,6 +183,41 @@ class TestServerDevice(unittest.TestCase):
         new_sensors = device.whats_new(['10-000802824e58', '22-000802824e58', '28-000802824e58'])
         self.assertSetEqual(new_sensors, {'22-000802824e58'})
 
+    def testMapSensors(self):
+        device = cloud4rpid.ServerDevice(create_device())
+        readings = [
+            ('10-000802824e58', 22.25),
+            ('22-000802824e58', 25.25),
+            ('28-000802824e58', 28.25)
+        ]
+        payload = device.map_sensors(readings)
+        self.assertListEqual(payload, [
+            {'000000000000000000000000': 22.25},
+            {'000000000000000000000001': 25.25},
+            {'000000000000000000000002': 28.25},
+        ])
+
+
+class TestDeviceWithoutSensors(unittest.TestCase):
+    def setUp(self):
+        self.device = cloud4rpid.ServerDevice(create_devices_without_sensors())
+
+    def testSensorAddrs(self):
+        self.assertEqual(0, len(self.device.sensor_addrs()))
+
+    def testWhatsNew(self):
+        new_sensors = self.device.whats_new(['10-000802824e58', '22-000802824e58', '28-000802824e58'])
+        self.assertSetEqual(new_sensors, {'10-000802824e58', '22-000802824e58', '28-000802824e58'})
+
+    def testMapSensors(self):
+        readings = [
+            ('10-000802824e58', 22.25),
+            ('22-000802824e58', 25.25),
+            ('28-000802824e58', 28.25)
+        ]
+        payload = self.device.map_sensors(readings)
+        self.assertEqual(0, len(payload))
+
 
 class TestUtils(fake_filesystem_unittest.TestCase):
     @staticmethod

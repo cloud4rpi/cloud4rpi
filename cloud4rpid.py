@@ -98,9 +98,9 @@ class ServerDevice:
         return json.dumps(self.json)
 
     def map_sensors(self, readings):
-        # FIXME: Add checks on key presence in index
-        index = {sensor['address']: sensor['_id'] for sensor in self.json.get('sensors')}
-        return [{index[address]: reading} for address, reading in readings]
+        # TODO: Don't build index on each call
+        index = {sensor['address']: sensor['_id'] for sensor in self.json['sensors']}
+        return [{index[address]: reading} for address, reading in readings if address in index]
 
     def __extract_addresses(self):
         self.addresses = [sensor['address'] for sensor in self.json['sensors']]
