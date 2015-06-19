@@ -178,6 +178,26 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         with self.assertRaises(cloud4rpid.AuthenticationError):
             daemon.tick()
 
+    @patch('requests.get')
+    def testRaiseExceptionOnUnAuthDeviceGetRequest(self, get):
+        self.setUpStatusCode(get, 401)
+        daemon = cloud4rpid.RpiDaemon()
+        daemon.token = '000000000000000000000001'
+
+        with self.assertRaises(cloud4rpid.AuthenticationError):
+            daemon.prepare_sensors()
+
+    @patch('requests.put')
+    @patch('requests.get')
+    def testRaisesExceptionOnUnAuthDevicePutRequest(self, get, put):
+        self.setUpResponse(get, self.DEVICE_WITHOUT_SENSORS)
+        self.setUpStatusCode(put, 401)
+        daemon = cloud4rpid.RpiDaemon()
+        daemon.token = '000000000000000000000001'
+
+        with self.assertRaises(cloud4rpid.AuthenticationError):
+            daemon.prepare_sensors()
+
 
 class TestServerDevice(unittest.TestCase):
     def testSensorAddrs(self):
