@@ -25,7 +25,7 @@ def find_sensors():
 
 
 def read_sensor(address):
-    readings = read_whole_file(os.path.join(W1_DEVICES, address, 'w1_slave'))
+    readings = read_whole_file(os.path.join(sensor_full_path(address), 'w1_slave'))
     temp_token = 't='
     temp_index = readings.find(temp_token)
     if temp_index < 0:
