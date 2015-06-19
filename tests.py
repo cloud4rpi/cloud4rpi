@@ -83,7 +83,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
         daemon.token = '000000000000000000000001'
         daemon.prepare_sensors()
 
-        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/')
+        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/')
         self.assertEqual(daemon.me.dump(), self.DEVICE)
 
     @patch('requests.put')
@@ -104,7 +104,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
                 {'name': '22-000802824e58', 'address': '22-000802824e58'},
             ]
         }
-        put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/',
+        put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
                                     headers={'api_key': '000000000000000000000001'},
                                     json=expected_device)
         self.assertEqual(daemon.me.dump(), self.DEVICE)
@@ -127,7 +127,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
                 {'name': '28-000802824e58', 'address': '28-000802824e58'},
             ]
         }
-        put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000002/',
+        put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000002/',
                                     headers={'api_key': '000000000000000000000002'},
                                     json=expected_device)
         self.assertEqual(daemon.me.dump(), self.DEVICE)
@@ -156,7 +156,7 @@ class TestEndToEnd(fake_filesystem_unittest.TestCase):
             ]
         }
 
-        post.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000001/stream/',
+        post.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/stream/',
                                      headers={'api_key': '000000000000000000000001'},
                                      json=stream)
 
@@ -268,7 +268,7 @@ class TestUtils(fake_filesystem_unittest.TestCase):
 
         device = cloud4rpid.get_device('000000000000000000000000')
 
-        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/device/000000000000000000000000/')
+        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000000/')
         self.assertListEqual(sorted(device.sensor_addrs()), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
 
 
