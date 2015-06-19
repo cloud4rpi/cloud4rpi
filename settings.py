@@ -1,2 +1,2 @@
-# Put your device token here. To get an device token, register at http://stage.cloud4rpi.io
+# Put your device token here. To get a device token, register at http://stage.cloud4rpi.io
 DeviceToken = ""
