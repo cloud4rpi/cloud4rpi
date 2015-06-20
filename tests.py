@@ -66,6 +66,9 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUpSensor(self, address, content):
         self.fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'w1_slave'), contents=content)
 
+    def setUpBogusSensor(self, address, content):
+        self.fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'bogus_readings_source'), contents=content)
+
 
 class TestEndToEnd(TestFileSystemAndRequests):
     def setUp(self):
@@ -74,6 +77,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpSensor('28-000802824e58', sensor_28)
         self.setUpSensor('22-000802824e58', sensor_22)
         self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
+        self.setUpBogusSensor('22-000000000000', "I look just like a real sensor, but I'm not")
         self.DEVICE = create_device()
         self.OTHER_DEVICE = create_other_device()
         self.DEVICE_WITHOUT_SENSORS = create_devices_without_sensors()

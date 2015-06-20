@@ -16,16 +16,16 @@ W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
 
 
 def sensor_full_path(sensor):
-    return os.path.join(W1_DEVICES, sensor)
+    return os.path.join(W1_DEVICES, sensor, 'w1_slave')
 
 
 def find_sensors():
     return [x for x in os.listdir(W1_DEVICES)
-            if W1_SENSOR_PATTERN.match(x) and os.path.isdir(sensor_full_path(x))]
+            if W1_SENSOR_PATTERN.match(x) and os.path.isfile(sensor_full_path(x))]
 
 
 def read_sensor(address):
-    readings = read_whole_file(os.path.join(sensor_full_path(address), 'w1_slave'))
+    readings = read_whole_file(sensor_full_path(address))
     temp_token = 't='
     temp_index = readings.find(temp_token)
     if temp_index < 0:
