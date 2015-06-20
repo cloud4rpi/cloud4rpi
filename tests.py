@@ -49,28 +49,31 @@ def create_devices_without_sensors():
     }
 
 
-class TestEndToEnd(fake_filesystem_unittest.TestCase):
-    @staticmethod
-    def setUpSensor(fs, address, content):
-        fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'w1_slave'), contents=content)
-
-    @staticmethod
-    def setUpResponse(method_mock, response):
-        r_mock = MagicMock(['json', 'status_code'])
-        r_mock.json.return_value = response
-        method_mock.return_value = r_mock
-
-    def setUpStatusCode(self, post, code):
-        r_mock = MagicMock()
-        r_mock.status_code = code
-        post.return_value = r_mock
-
+class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUp(self):
         self.setUpPyfakefs()
-        self.setUpSensor(self.fs, '10-000802824e58', sensor_10)
-        self.setUpSensor(self.fs, '28-000802824e58', sensor_28)
-        self.setUpSensor(self.fs, '22-000802824e58', sensor_22)
-        self.setUpSensor(self.fs, 'qw-sasasasasasa', 'garbage garbage garbage')
+
+    def setUpResponse(self, verb, response):
+        r_mock = MagicMock(['json', 'status_code'])
+        r_mock.json.return_value = response
+        verb.return_value = r_mock
+
+    def setUpStatusCode(self, verb, code):
+        r_mock = MagicMock()
+        r_mock.status_code = code
+        verb.return_value = r_mock
+
+    def setUpSensor(self, address, content):
+        self.fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'w1_slave'), contents=content)
+
+
+class TestEndToEnd(TestFileSystemAndRequests):
+    def setUp(self):
+        super(TestEndToEnd, self).setUp()
+        self.setUpSensor('10-000802824e58', sensor_10)
+        self.setUpSensor('28-000802824e58', sensor_28)
+        self.setUpSensor('22-000802824e58', sensor_22)
+        self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
         self.DEVICE = create_device()
         self.OTHER_DEVICE = create_other_device()
         self.DEVICE_WITHOUT_SENSORS = create_devices_without_sensors()
@@ -245,23 +248,13 @@ class TestDeviceWithoutSensors(unittest.TestCase):
         self.assertEqual(0, len(payload))
 
 
-class TestUtils(fake_filesystem_unittest.TestCase):
-    @staticmethod
-    def setUpSensor(fs, address, content):
-        fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'w1_slave'), contents=content)
-
-    @staticmethod
-    def setUpResponse(method_mock, response):
-        r_mock = MagicMock(['json', 'status_code'])
-        r_mock.json.return_value = response
-        method_mock.return_value = r_mock
-
+class TestUtils(TestFileSystemAndRequests):
     def setUp(self):
-        self.setUpPyfakefs()
-        self.setUpSensor(self.fs, '10-000802824e58', sensor_10)
-        self.setUpSensor(self.fs, '28-000802824e58', sensor_28)
-        self.setUpSensor(self.fs, '22-000802824e58', sensor_22)
-        self.setUpSensor(self.fs, 'qw-sasasasasasa', 'garbage garbage garbage')
+        super(TestUtils, self).setUp()
+        self.setUpSensor('10-000802824e58', sensor_10)
+        self.setUpSensor('28-000802824e58', sensor_28)
+        self.setUpSensor('22-000802824e58', sensor_22)
+        self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
 
     def testFindSensors(self):
         sensors = cloud4rpid.find_sensors()
@@ -282,16 +275,6 @@ class TestUtils(fake_filesystem_unittest.TestCase):
             ('22-000802824e58', 25.25),
             ('28-000802824e58', 28.25)
         ])
-
-    @patch('requests.get')
-    def testGetDevice(self, get):
-        self.setUpResponse(get, create_device())
-
-        device = cloud4rpid.get_device('000000000000000000000000')
-
-        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000000/',
-                                    headers={'api_key': '000000000000000000000000'})
-        self.assertListEqual(sorted(device.sensor_addrs()), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
 
 
 if __name__ == '__main__':
