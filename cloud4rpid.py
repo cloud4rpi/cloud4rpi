@@ -149,6 +149,7 @@ class RpiDaemon:
         self.register_new_sensors()  # if any
 
     def know_thyself(self):
+        print 'Getting a device configuration...'
         self.me = get_device(self.token)
 
     def find_sensors(self):
