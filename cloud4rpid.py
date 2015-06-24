@@ -85,10 +85,15 @@ def check_response(res):
     if res.status_code == 401:
         raise AuthenticationError
 
+def verify_token(token):
+    r = re.compile('[0-9a-f]{24}')
+    return len(token) == 24 and r.match(token)
 
 class AuthenticationError(Exception):
     pass
 
+class InvalidTokenError(Exception):
+    pass
 
 class ServerDevice:
     def __init__(self, device_json):
@@ -124,10 +129,12 @@ class ServerDevice:
 
 
 class RpiDaemon:
-    def __init__(self):
+    def __init__(self, token):
         self.sensors = None
         self.me = None
-        self.token = DeviceToken
+        if not verify_token(token):
+            raise InvalidTokenError
+        self.token = token
 
     def run(self):
         self.prepare_sensors()
@@ -185,13 +192,16 @@ if __name__ == "__main__":
         exit(1)
 
     print 'Starting...'
-    daemon = RpiDaemon()
+    daemon = RpiDaemon(DeviceToken)
     try:
         daemon.run()
     except AuthenticationError:
         print 'Authentication failed. Check your device token.'
         print 'Terminating...'
         exit(1)
+    except InvalidTokenError:
+        print 'Device Access Token "%s" is incorrect. Please verify it' % DeviceToken
+
     except Exception as e:
         print 'Unexpected error: {0}'.format(e.message)
         print 'Terminating...'

@@ -86,8 +86,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testGetDevice(self, get):
         self.setUpResponse(get, self.DEVICE)
 
-        daemon = cloud4rpid.RpiDaemon()
-        daemon.token = '000000000000000000000001'
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
 
         get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
@@ -100,8 +99,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpResponse(get, self.OTHER_DEVICE)
         self.setUpResponse(put, self.DEVICE)
 
-        daemon = cloud4rpid.RpiDaemon()
-        daemon.token = '000000000000000000000001'
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
 
         expected_device = {
@@ -123,8 +121,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpResponse(get, self.DEVICE_WITHOUT_SENSORS)
         self.setUpResponse(put, self.DEVICE)
 
-        daemon = cloud4rpid.RpiDaemon()
-        daemon.token = '000000000000000000000002'
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000002')
         daemon.prepare_sensors()
 
         expected_device = {
@@ -150,8 +147,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
         time.return_value = 1111111111.1111
 
-        daemon = cloud4rpid.RpiDaemon()
-        daemon.token = '000000000000000000000001'
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
         daemon.tick()
 
@@ -178,8 +174,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpStatusCode(post, 401)
         time.return_value = 1111111111.1111
 
-        daemon = cloud4rpid.RpiDaemon()
-        daemon.token = '000000000000000000000001'
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
 
         with self.assertRaises(cloud4rpid.AuthenticationError):
@@ -188,8 +183,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
     @patch('requests.get')
     def testRaiseExceptionOnUnAuthDeviceGetRequest(self, get):
         self.setUpStatusCode(get, 401)
-        daemon = cloud4rpid.RpiDaemon()
-        daemon.token = '000000000000000000000001'
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
 
         with self.assertRaises(cloud4rpid.AuthenticationError):
             daemon.prepare_sensors()
@@ -199,8 +193,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testRaisesExceptionOnUnAuthDevicePutRequest(self, get, put):
         self.setUpResponse(get, self.DEVICE_WITHOUT_SENSORS)
         self.setUpStatusCode(put, 401)
-        daemon = cloud4rpid.RpiDaemon()
-        daemon.token = '000000000000000000000001'
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
 
         with self.assertRaises(cloud4rpid.AuthenticationError):
             daemon.prepare_sensors()
