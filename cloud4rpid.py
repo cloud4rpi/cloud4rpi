@@ -67,6 +67,9 @@ def put_device(token, device):
                        headers=request_headers(token),
                        json=device.dump())
     check_response(res)
+    if res.status_code != 200:
+        print "Can\'t register sensor. Status: %s" % res.status_code
+
     return ServerDevice(res.json())
 
 
@@ -154,6 +157,7 @@ class RpiDaemon:
     def register_new_sensors(self):
         new_sensors = self.me.whats_new(self.sensors)
         if len(new_sensors) > 0:
+            print 'New sensors found:', list(new_sensors)
             self.me.add_sensors(sorted(new_sensors))
             self.me = put_device(self.token, self.me)
 

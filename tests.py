@@ -56,6 +56,7 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUpResponse(self, verb, response):
         r_mock = MagicMock(['json', 'status_code'])
         r_mock.json.return_value = response
+        r_mock.status_code = 200
         verb.return_value = r_mock
 
     def setUpStatusCode(self, verb, code):
