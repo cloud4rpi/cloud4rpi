@@ -58,7 +58,7 @@ def stream_request_url(token):
 def get_device(token):
     res = requests.get(device_request_url(token),
                        headers=request_headers(token))
-    ensure_authenticated(res)
+    check_response(res)
     return ServerDevice(res.json())
 
 
@@ -66,7 +66,7 @@ def put_device(token, device):
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
                        json=device.dump())
-    ensure_authenticated(res)
+    check_response(res)
     return ServerDevice(res.json())
 
 
@@ -76,11 +76,12 @@ def post_stream(token, stream):
     res = requests.post(stream_request_url(token),
                         headers=request_headers(token),
                         json=stream)
-    ensure_authenticated(res)
+    check_response(res)
     return res.json()
 
 
-def ensure_authenticated(res):
+def check_response(res):
+    print res.status_code
     if res.status_code == 401:
         raise AuthenticationError
 
