@@ -43,16 +43,28 @@ def read_sensors():
     return [read_sensor(x) for x in find_sensors()]
 
 
+def request_headers(token):
+    return {'api_key': token}
+
+
+def device_request_url(token):
+    return '{0}/devices/{1}/'.format(config.baseApiUrl, token)
+
+
+def stream_request_url(token):
+    return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, token)
+
+
 def get_device(token):
-    res = requests.get('{0}/devices/{1}/'.format(config.baseApiUrl, token),
-                       headers={'api_key': token})
+    res = requests.get(device_request_url(token),
+                       headers=request_headers(token))
     ensure_authenticated(res)
     return ServerDevice(res.json())
 
 
 def put_device(token, device):
-    res = requests.put('{0}/devices/{1}/'.format(config.baseApiUrl, token),
-                       headers={'api_key': token},
+    res = requests.put(device_request_url(token),
+                       headers=request_headers(token),
                        json=device.dump())
     ensure_authenticated(res)
     return ServerDevice(res.json())
@@ -61,8 +73,8 @@ def put_device(token, device):
 def post_stream(token, stream):
     print 'sending {0} at {1}'.format(stream['payload'], datetime.fromtimestamp(stream['ts']).isoformat())
 
-    res = requests.post('{0}/devices/{1}/streams/'.format(config.baseApiUrl, token),
-                        headers={'api_key': token},
+    res = requests.post(stream_request_url(token),
+                        headers=request_headers(token),
                         json=stream)
     ensure_authenticated(res)
     return res.json()
