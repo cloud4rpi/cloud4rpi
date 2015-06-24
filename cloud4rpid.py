@@ -192,16 +192,18 @@ if __name__ == "__main__":
         exit(1)
 
     print 'Starting...'
-    daemon = RpiDaemon(DeviceToken)
+    try:
+        daemon = RpiDaemon(DeviceToken)
+    except InvalidTokenError:
+        print 'Device Access Token "%s" is incorrect. Please verify it' % DeviceToken
+        exit(1)
+
     try:
         daemon.run()
     except AuthenticationError:
         print 'Authentication failed. Check your device token.'
         print 'Terminating...'
         exit(1)
-    except InvalidTokenError:
-        print 'Device Access Token "%s" is incorrect. Please verify it' % DeviceToken
-
     except Exception as e:
         print 'Unexpected error: {0}'.format(e.message)
         print 'Terminating...'
