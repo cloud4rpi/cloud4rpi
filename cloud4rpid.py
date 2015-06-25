@@ -172,14 +172,17 @@ class RpiDaemon:
             time.sleep(config.scanInterval)
 
     def tick(self):
+        stream = self.create_stream()
+        post_stream(self.token, stream)
+
+    def create_stream(self):
         ts = int(time.time())
         readings = read_sensors()
         payload = self.me.map_sensors(readings)
-        stream = {
+        return {
             'ts': ts,
             'payload': payload
         }
-        post_stream(self.token, stream)
 
 
 def modprobe(module):
