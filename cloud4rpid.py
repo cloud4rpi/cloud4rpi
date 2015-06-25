@@ -192,19 +192,14 @@ if __name__ == "__main__":
     try:
         modprobe('w1-gpio')
         modprobe('w1-therm')
+
+        print 'Starting...'
+
+        daemon = RpiDaemon(DeviceToken)
+        daemon.run()
     except EnvironmentError:
         print 'Try "sudo python cloud4rpi.py"'
         exit(1)
-    except Exception as e:
-        print 'Unexpected error: {0}'.format(e.message)
-        print 'Terminating...'
-        exit(1)
-
-    print 'Starting...'
-
-    try:
-        daemon = RpiDaemon(DeviceToken)
-        daemon.run()
     except InvalidTokenError:
         print 'Device Access Token {0} is incorrect. Please verify it'.format(DeviceToken)
         print 'Terminating...'
