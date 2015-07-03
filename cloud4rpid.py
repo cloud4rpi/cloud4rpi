@@ -5,14 +5,23 @@ import os
 import re
 import requests
 import time
+import datetime
 
-from datetime import datetime
 from settings import DeviceToken
 
 import settings_vendor as config
 
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
+
+
+class MutableDatetime(datetime.datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return super(MutableDatetime, cls).now(tz)
+
+
+datetime.datetime = MutableDatetime
 
 
 def sensor_full_path(sensor):
@@ -74,7 +83,7 @@ def put_device(token, device):
 
 
 def post_stream(token, stream):
-    print 'sending {0} at {1}'.format(stream['payload'], datetime.fromtimestamp(stream['ts']).isoformat())
+    print 'sending {0}'.format(stream)
 
     res = requests.post(stream_request_url(token),
                         headers=request_headers(token),
@@ -176,7 +185,7 @@ class RpiDaemon:
         post_stream(self.token, stream)
 
     def create_stream(self):
-        ts = int(time.time())
+        ts = datetime.datetime.now().isoformat()
         readings = read_sensors()
         payload = self.me.map_sensors(readings)
         return {

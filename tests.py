@@ -1,6 +1,7 @@
 import os
 
 import unittest
+import datetime
 import fake_filesystem_unittest
 
 from mock import MagicMock
@@ -138,22 +139,22 @@ class TestEndToEnd(TestFileSystemAndRequests):
                                     json=expected_device)
         self.assertEqual(daemon.me.dump(), self.DEVICE)
 
-    @patch('time.time')
+    @patch('datetime.datetime.now')
     @patch('requests.post')
     @patch('requests.put')
     @patch('requests.get')
-    def testStreamPost(self, get, put, post, time):
+    def testStreamPost(self, get, put, post, now):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
 
-        time.return_value = 1111111111.1111
+        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
         daemon.tick()
 
         stream = {
-            'ts': 1111111111,
+            'ts': '2015-07-03T11:43:47.197339',
             'payload': {
                 '000000000000000000000000': 22.25,
                 '000000000000000000000001': 25.25,
