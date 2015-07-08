@@ -146,7 +146,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testStreamPost(self, get, put, post, now):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
-
+        self.setUpStatusCode(post, 201)
         now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
@@ -166,15 +166,15 @@ class TestEndToEnd(TestFileSystemAndRequests):
                                      headers={'api_key': '000000000000000000000001'},
                                      json=stream)
 
-    @patch('time.time')
+    @patch('datetime.datetime.now')
     @patch('requests.post')
     @patch('requests.put')
     @patch('requests.get')
-    def testRaiseExceptionOnUnAuthStreamPostRequest(self, get, put, post, time):
+    def testRaiseExceptionOnUnAuthStreamPostRequest(self, get, put, post, now):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
         self.setUpStatusCode(post, 401)
-        time.return_value = 1111111111.1111
+        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
