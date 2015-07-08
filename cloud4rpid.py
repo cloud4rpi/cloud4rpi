@@ -6,10 +6,13 @@ import re
 import requests
 import time
 import datetime
+import logging
 
 from settings import DeviceToken
 
 import settings_vendor as config
+
+logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
@@ -77,13 +80,13 @@ def put_device(token, device):
                        json=device.dump())
     check_response(res)
     if res.status_code != 200:
-        print "Can\'t register sensor. Status: %s" % res.status_code
+        logging.error("Can't register sensor. Status: %s".format(res.status_code))
 
     return ServerDevice(res.json())
 
 
 def post_stream(token, stream):
-    print 'sending {0}'.format(stream)
+    logging.info('sending {0}'.format(stream))
 
     res = requests.post(stream_request_url(token),
                         headers=request_headers(token),
@@ -93,7 +96,7 @@ def post_stream(token, stream):
 
 
 def check_response(res):
-    print res.status_code
+    logging.info(res.status_code)
     if res.status_code == 401:
         raise AuthenticationError
 
@@ -162,7 +165,7 @@ class RpiDaemon:
         self.register_new_sensors()  # if any
 
     def know_thyself(self):
-        print 'Getting device configuration...'
+        logging.info('Getting device configuration...')
         self.me = get_device(self.token)
 
     def find_sensors(self):
@@ -171,7 +174,7 @@ class RpiDaemon:
     def register_new_sensors(self):
         new_sensors = self.me.whats_new(self.sensors)
         if len(new_sensors) > 0:
-            print 'New sensors found:', list(new_sensors)
+            logging.info('New sensors found: {0}'.format(list(new_sensors)))
             self.me.add_sensors(sorted(new_sensors))
             self.me = put_device(self.token, self.me)
 
