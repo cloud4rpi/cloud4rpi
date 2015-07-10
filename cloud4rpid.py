@@ -75,9 +75,12 @@ def get_device(token):
 
 
 def put_device(token, device):
+    logging.info('Sending device configuration...')
+    config = device.dump()
+    logging.info(config)
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
-                       json=device.dump())
+                       json=config)
     check_response(res)
     if res.status_code != 200:
         logging.error("Can't register sensor. Status: %s".format(res.status_code))
