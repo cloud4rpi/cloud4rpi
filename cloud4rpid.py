@@ -83,7 +83,7 @@ def put_device(token, device):
                        json=config)
     check_response(res)
     if res.status_code != 200:
-        logging.error("Can't register sensor. Status: %s".format(res.status_code))
+        logging.error("Can't register sensor. Status: {0}".format(res.status_code))
 
     return ServerDevice(res.json())
 
