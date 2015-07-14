@@ -7,6 +7,9 @@ import fake_filesystem_unittest
 from mock import MagicMock
 from mock import patch
 
+from teamcity import is_running_under_teamcity
+from teamcity.unittestpy import TeamcityTestRunner
+
 import cloud4rpid
 
 sensor_10 = \
@@ -277,4 +280,8 @@ class TestUtils(TestFileSystemAndRequests):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    if is_running_under_teamcity():
+            runner = TeamcityTestRunner()
+    else:
+        runner = unittest.TextTestRunner()
+    unittest.main(testRunner=runner)
