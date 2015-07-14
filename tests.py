@@ -1,7 +1,7 @@
-import os
+import os   # should be imported before fake_filesystem_unittest
+import datetime
 
 import unittest
-import datetime
 import fake_filesystem_unittest
 
 from mock import MagicMock
