@@ -334,7 +334,7 @@ class TestUtils(TestFileSystemAndRequests):
 
 if __name__ == '__main__':
     if is_running_under_teamcity():
-            runner = TeamcityTestRunner()
+        runner = TeamcityTestRunner()
     else:
         runner = unittest.TextTestRunner()
     unittest.main(testRunner=runner)
