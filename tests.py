@@ -1,5 +1,6 @@
 import os  # should be imported before fake_filesystem_unittest
 import datetime
+import subprocess
 
 import unittest
 import fake_filesystem_unittest
@@ -215,6 +216,24 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
         with self.assertRaises(cloud4rpid.AuthenticationError):
             daemon.tick()
+
+    @patch('subprocess.check_output')
+    @patch('datetime.datetime.now')
+    @patch('requests.post')
+    @patch('requests.put')
+    @patch('requests.get')
+    def testDontSendSystemParametersOnTheirRetrievingError(self, get, put, post, now, check_output):
+        self.setUpResponse(get, self.DEVICE)
+        self.setUpResponse(put, self.DEVICE)
+        self.setUpStatusCode(post, 201)
+        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
+        check_output.side_effect = subprocess.CalledProcessError(1, 'any cmd')
+
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
+        daemon.prepare_sensors()
+        daemon.tick()
+
+        self.assertEqual(1, post.call_count)
 
     @patch('requests.get')
     def testRaiseExceptionOnUnAuthDeviceGetRequest(self, get):

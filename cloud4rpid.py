@@ -231,8 +231,11 @@ class RpiDaemon:
         }
 
     def send_system_parameters(self):
-        params = get_system_parameters()
-        post_system_parameters(self.token, params)
+        try:
+            params = get_system_parameters()
+            post_system_parameters(self.token, params)
+        except subprocess.CalledProcessError:
+            pass
 
 
 def modprobe(module):
