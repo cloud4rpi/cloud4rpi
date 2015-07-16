@@ -13,7 +13,11 @@ from settings import DeviceToken
 
 import settings_vendor as config
 
-logging.basicConfig(format='%(message)s', level=logging.INFO)
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+console = logging.StreamHandler()
+console.setFormatter(logging.Formatter('%(message)s'))
+log.addHandler(console)
 
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
@@ -94,21 +98,21 @@ def get_device(token):
 
 
 def put_device(token, device):
-    logging.info('Sending device configuration...')
+    log.info('Sending device configuration...')
     config = device.dump()
-    logging.info(config)
+    log.info(config)
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
                        json=config)
     check_response(res)
     if res.status_code != 200:
-        logging.error("Can't register sensor. Status: {0}".format(res.status_code))
+        log.error("Can't register sensor. Status: {0}".format(res.status_code))
 
     return ServerDevice(res.json())
 
 
 def post_stream(token, stream):
-    logging.info('sending {0}'.format(stream))
+    log.info('sending {0}'.format(stream))
 
     res = requests.post(stream_request_url(token),
                         headers=request_headers(token),
@@ -126,7 +130,7 @@ def post_system_parameters(token, params):
 
 
 def check_response(res):
-    logging.info(res.status_code)
+    log.info(res.status_code)
     if res.status_code == 401:
         raise AuthenticationError
 
@@ -195,7 +199,7 @@ class RpiDaemon:
         self.register_new_sensors()  # if any
 
     def know_thyself(self):
-        logging.info('Getting device configuration...')
+        log.info('Getting device configuration...')
         self.me = get_device(self.token)
 
     def find_sensors(self):
@@ -204,7 +208,7 @@ class RpiDaemon:
     def register_new_sensors(self):
         new_sensors = self.me.whats_new(self.sensors)
         if len(new_sensors) > 0:
-            logging.info('New sensors found: {0}'.format(list(new_sensors)))
+            log.info('New sensors found: {0}'.format(list(new_sensors)))
             self.me.add_sensors(sorted(new_sensors))
             self.me = put_device(self.token, self.me)
 
