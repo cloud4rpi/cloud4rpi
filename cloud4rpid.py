@@ -122,6 +122,8 @@ def post_stream(token, stream):
 
 
 def post_system_parameters(token, params):
+    log.info('sending {0}'.format(params))
+
     res = requests.post(system_parameters_request_url(token),
                         headers=request_headers(token),
                         json=params)
