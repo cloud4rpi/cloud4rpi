@@ -1,4 +1,4 @@
-import os   # should be imported before fake_filesystem_unittest
+import os  # should be imported before fake_filesystem_unittest
 import datetime
 
 import unittest
@@ -139,11 +139,12 @@ class TestEndToEnd(TestFileSystemAndRequests):
                                     json=expected_device)
         self.assertEqual(daemon.me.dump(), self.DEVICE)
 
+    @patch('subprocess.check_output')
     @patch('datetime.datetime.now')
     @patch('requests.post')
     @patch('requests.put')
     @patch('requests.get')
-    def testStreamPost(self, get, put, post, now):
+    def testStreamPost(self, get, put, post, now, _):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
         self.setUpStatusCode(post, 201)
@@ -162,9 +163,42 @@ class TestEndToEnd(TestFileSystemAndRequests):
             }
         }
 
-        post.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
-                                     headers={'api_key': '000000000000000000000001'},
-                                     json=stream)
+        post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
+                             headers={'api_key': '000000000000000000000001'},
+                             json=stream)
+
+    @patch('subprocess.check_output')
+    @patch('datetime.datetime.now')
+    @patch('requests.post')
+    @patch('requests.put')
+    @patch('requests.get')
+    def testSystemParametersSending(self, get, put, post, now, check_output):
+        def side_effect(*args, **kwargs):
+            if args[0] == cloud4rpid.CPU_USAGE_CMD:
+                return "4.2\n"
+            else:
+                return "temp=37.9'C\n"
+
+        self.setUpResponse(get, self.DEVICE)
+        self.setUpResponse(put, self.DEVICE)
+        self.setUpStatusCode(post, 201)
+        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
+        check_output.side_effect = side_effect
+
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
+        daemon.prepare_sensors()
+        daemon.tick()
+
+        parameters = {
+            'cpuUsage': 4.2,
+            'cpuTemperature': 37.9
+        }
+
+        post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/params/',
+                             headers={'api_key': '000000000000000000000001'},
+                             json=parameters)
+        check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
+        check_output.assert_any_call(cloud4rpid.CPU_TEMPERATURE_CMD, shell=True)
 
     @patch('datetime.datetime.now')
     @patch('requests.post')

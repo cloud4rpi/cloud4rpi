@@ -7,6 +7,7 @@ import requests
 import time
 import datetime
 import logging
+import subprocess
 
 from settings import DeviceToken
 
@@ -16,6 +17,20 @@ logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
+
+CPU_USAGE_CMD = "top -n1 | awk '/Cpu\(s\):/ {print $2}'"
+CPU_TEMPERATURE_CMD = "vcgencmd measure_temp"
+
+
+def get_system_parameters():
+    cpu_usage_str = subprocess.check_output(CPU_USAGE_CMD, shell=True)
+    cpu_temperature_str = subprocess.check_output(CPU_TEMPERATURE_CMD, shell=True).lstrip("temp=").rstrip("'C\n")
+    cpu_usage = float(cpu_usage_str)
+    cpu_temperature = float(cpu_temperature_str)
+    return {
+        'cpuUsage': cpu_usage,
+        'cpuTemperature': cpu_temperature
+    }
 
 
 class MutableDatetime(datetime.datetime):
@@ -67,6 +82,10 @@ def stream_request_url(token):
     return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, token)
 
 
+def system_parameters_request_url(token):
+    return '{0}/devices/{1}/params/'.format(config.baseApiUrl, token)
+
+
 def get_device(token):
     res = requests.get(device_request_url(token),
                        headers=request_headers(token))
@@ -94,6 +113,14 @@ def post_stream(token, stream):
     res = requests.post(stream_request_url(token),
                         headers=request_headers(token),
                         json=stream)
+    check_response(res)
+    return res.json()
+
+
+def post_system_parameters(token, params):
+    res = requests.post(system_parameters_request_url(token),
+                        headers=request_headers(token),
+                        json=params)
     check_response(res)
     return res.json()
 
@@ -187,6 +214,10 @@ class RpiDaemon:
             time.sleep(config.scanInterval)
 
     def tick(self):
+        self.send_stream()
+        self.send_system_parameters()
+
+    def send_stream(self):
         stream = self.create_stream()
         post_stream(self.token, stream)
 
@@ -198,6 +229,10 @@ class RpiDaemon:
             'ts': ts,
             'payload': payload
         }
+
+    def send_system_parameters(self):
+        params = get_system_parameters()
+        post_system_parameters(self.token, params)
 
 
 def modprobe(module):
