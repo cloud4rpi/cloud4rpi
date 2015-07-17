@@ -88,6 +88,19 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.OTHER_DEVICE = create_other_device()
         self.DEVICE_WITHOUT_SENSORS = create_devices_without_sensors()
 
+    def setUpNow(self, now):
+        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
+
+    def setUpShellOutput(self, shell_func):
+        def side_effect(*args, **kwargs):
+            if args[0] == cloud4rpid.CPU_USAGE_CMD:
+                return '%Cpu(s):\x1b(B\x1b[m\x1b[39;49m\x1b[1m  2.0 \x1b(B\x1b[m\x1b[39;49mus\n' \
+                       '%Cpu(s):\x1b(B\x1b[m\x1b[39;49m\x1b[1m  4.2 \x1b(B\x1b[m\x1b[39;49mus\n'
+            else:
+                return "temp=37.9'C\n"
+
+        shell_func.side_effect = side_effect
+
     @patch('requests.get')
     def testGetDevice(self, get):
         self.setUpResponse(get, self.DEVICE)
@@ -148,11 +161,12 @@ class TestEndToEnd(TestFileSystemAndRequests):
     @patch('requests.post')
     @patch('requests.put')
     @patch('requests.get')
-    def testStreamPost(self, get, put, post, now, _):
+    def testStreamPost(self, get, put, post, now, check_output):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
         self.setUpStatusCode(post, 201)
-        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
+        self.setUpNow(now)
+        self.setUpShellOutput(check_output)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
@@ -177,17 +191,11 @@ class TestEndToEnd(TestFileSystemAndRequests):
     @patch('requests.put')
     @patch('requests.get')
     def testSystemParametersSending(self, get, put, post, now, check_output):
-        def side_effect(*args, **kwargs):
-            if args[0] == cloud4rpid.CPU_USAGE_CMD:
-                return "4.2\n"
-            else:
-                return "temp=37.9'C\n"
-
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
         self.setUpStatusCode(post, 201)
-        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
-        check_output.side_effect = side_effect
+        self.setUpNow(now)
+        self.setUpShellOutput(check_output)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
@@ -212,7 +220,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
         self.setUpStatusCode(post, 401)
-        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
+        self.setUpNow(now)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
@@ -229,7 +237,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpResponse(get, self.DEVICE)
         self.setUpResponse(put, self.DEVICE)
         self.setUpStatusCode(post, 201)
-        now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
+        self.setUpNow(now)
         check_output.side_effect = subprocess.CalledProcessError(1, 'any cmd')
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
@@ -330,6 +338,12 @@ class TestUtils(TestFileSystemAndRequests):
             ('22-000802824e58', 25.25),
             ('28-000802824e58', 28.25)
         ])
+
+    def testCpuUsageCmd(self):
+        self.assertEqual("top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'", cloud4rpid.CPU_USAGE_CMD)
+
+    def testCpuTemperatureCmd(self):
+        self.assertEqual("vcgencmd measure_temp", cloud4rpid.CPU_TEMPERATURE_CMD)
 
 
 if __name__ == '__main__':

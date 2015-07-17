@@ -22,19 +22,39 @@ log.addHandler(console)
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
 
-CPU_USAGE_CMD = "top -n1 | awk '/Cpu\(s\):/ {print $2}'"
+CPU_USAGE_CMD = "top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'"
 CPU_TEMPERATURE_CMD = "vcgencmd measure_temp"
+
+ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
 
 
 def get_system_parameters():
-    cpu_usage_str = subprocess.check_output(CPU_USAGE_CMD, shell=True)
-    cpu_temperature_str = subprocess.check_output(CPU_TEMPERATURE_CMD, shell=True).lstrip("temp=").rstrip("'C\n")
-    cpu_usage = float(cpu_usage_str)
-    cpu_temperature = float(cpu_temperature_str)
+    cpu_usage = get_cpu_usage()
+    cpu_temperature = get_cpu_temperature()
     return {
         'cpuUsage': cpu_usage,
         'cpuTemperature': cpu_temperature
     }
+
+
+def get_cpu_usage():
+    cpu_usage_str = subprocess.check_output(CPU_USAGE_CMD, shell=True).splitlines()[-1]
+    stripped = strip_escape_codes(cpu_usage_str)
+    return extract_usage(stripped)
+
+
+def get_cpu_temperature():
+    cpu_temperature_str = subprocess.check_output(CPU_TEMPERATURE_CMD, shell=True).lstrip("temp=").rstrip("'C\n")
+    cpu_temperature = float(cpu_temperature_str)
+    return cpu_temperature
+
+
+def strip_escape_codes(s):
+    return ANSI_ESCAPE.sub('', s)
+
+
+def extract_usage(s):
+    return float(s.lstrip('%Cpu(s): ').rstrip(' us'))
 
 
 class MutableDatetime(datetime.datetime):
