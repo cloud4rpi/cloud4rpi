@@ -157,7 +157,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.assertEqual(daemon.me.dump(), self.DEVICE)
 
     @patch('subprocess.check_output')
-    @patch('datetime.datetime.now')
+    @patch('datetime.datetime.utcnow')
     @patch('requests.post')
     @patch('requests.put')
     @patch('requests.get')
@@ -186,7 +186,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
                              json=stream)
 
     @patch('subprocess.check_output')
-    @patch('datetime.datetime.now')
+    @patch('datetime.datetime.utcnow')
     @patch('requests.post')
     @patch('requests.put')
     @patch('requests.get')
@@ -212,7 +212,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
         check_output.assert_any_call(cloud4rpid.CPU_TEMPERATURE_CMD, shell=True)
 
-    @patch('datetime.datetime.now')
+    @patch('datetime.datetime.utcnow')
     @patch('requests.post')
     @patch('requests.put')
     @patch('requests.get')
@@ -229,7 +229,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
             daemon.tick()
 
     @patch('subprocess.check_output')
-    @patch('datetime.datetime.now')
+    @patch('datetime.datetime.utcnow')
     @patch('requests.post')
     @patch('requests.put')
     @patch('requests.get')

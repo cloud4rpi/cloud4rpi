@@ -59,8 +59,8 @@ def extract_usage(s):
 
 class MutableDatetime(datetime.datetime):
     @classmethod
-    def now(cls, tz=None):
-        return super(MutableDatetime, cls).now(tz)
+    def utcnow(cls):
+        return super(MutableDatetime, cls).utcnow()
 
 
 datetime.datetime = MutableDatetime
@@ -248,7 +248,7 @@ class RpiDaemon:
         post_stream(self.token, stream)
 
     def create_stream(self):
-        ts = datetime.datetime.now().isoformat()
+        ts = datetime.datetime.utcnow().isoformat()
         readings = read_sensors()
         payload = self.me.map_sensors(readings)
         return {
