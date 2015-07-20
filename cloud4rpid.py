@@ -264,7 +264,7 @@ class RpiDaemon:
         try:
             params = get_system_parameters()
             post_system_parameters(self.token, params)
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, RequestException):
             pass
 
 
