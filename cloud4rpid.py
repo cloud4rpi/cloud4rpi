@@ -9,6 +9,7 @@ import datetime
 import logging
 import subprocess
 
+from requests import RequestException
 from settings import DeviceToken
 
 import settings_vendor as config
@@ -245,7 +246,10 @@ class RpiDaemon:
 
     def send_stream(self):
         stream = self.create_stream()
-        post_stream(self.token, stream)
+        try:
+            post_stream(self.token, stream)
+        except RequestException:
+            pass
 
     def create_stream(self):
         ts = datetime.datetime.utcnow().isoformat()
@@ -260,7 +264,7 @@ class RpiDaemon:
         try:
             params = get_system_parameters()
             post_system_parameters(self.token, params)
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, RequestException):
             pass
 
 

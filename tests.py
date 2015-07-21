@@ -11,6 +11,8 @@ from mock import patch
 from teamcity import is_running_under_teamcity
 from teamcity.unittestpy import TeamcityTestRunner
 
+from requests import RequestException
+
 import cloud4rpid
 
 sensor_10 = \
@@ -263,6 +265,38 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
         with self.assertRaises(cloud4rpid.AuthenticationError):
             daemon.prepare_sensors()
+
+    @patch('subprocess.check_output')
+    @patch('datetime.datetime.now')
+    @patch('requests.post')
+    @patch('requests.put')
+    @patch('requests.get')
+    def testSkipFailedStreams(self, get, put, post, now, check_output):
+        self.setUpResponse(get, self.DEVICE)
+        self.setUpResponse(put, self.DEVICE)
+        post.side_effect = RequestException
+        self.setUpNow(now)
+        self.setUpShellOutput(check_output)
+
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
+        daemon.prepare_sensors()
+        daemon.tick()
+
+    @patch('subprocess.check_output')
+    @patch('datetime.datetime.now')
+    @patch('requests.post')
+    @patch('requests.put')
+    @patch('requests.get')
+    def testSkipFailedSystemParameters(self, get, put, post, now, check_output):
+        self.setUpResponse(get, self.DEVICE)
+        self.setUpResponse(put, self.DEVICE)
+        post.side_effect = [MagicMock(), RequestException]
+        self.setUpNow(now)
+        self.setUpShellOutput(check_output)
+
+        daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
+        daemon.prepare_sensors()
+        daemon.tick()
 
 
 class TestServerDevice(unittest.TestCase):
