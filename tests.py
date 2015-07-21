@@ -81,11 +81,35 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
 class TestEndToEnd(TestFileSystemAndRequests):
     def setUp(self):
         super(TestEndToEnd, self).setUp()
+        self.setUpSensors()
+        self.patchRequests()
+        self.patchTime()
+        self.patchShell()
+        self.createTestData()
+
+    def setUpSensors(self):
         self.setUpSensor('10-000802824e58', sensor_10)
         self.setUpSensor('28-000802824e58', sensor_28)
         self.setUpSensor('22-000802824e58', sensor_22)
         self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
         self.setUpBogusSensor('22-000000000000', "I look just like a real sensor, but I'm not")
+
+    def patchRequests(self):
+        self.get = self.startPatching('requests.get')
+        self.put = self.startPatching('requests.put')
+        self.post = self.startPatching('requests.post')
+
+    def patchTime(self):
+        self.now = self.startPatching('datetime.datetime.utcnow')
+
+    def patchShell(self):
+        self.check_output = self.startPatching('subprocess.check_output')
+
+    @staticmethod
+    def startPatching(target):
+        return patch(target).start()
+
+    def createTestData(self):
         self.DEVICE = create_device()
         self.OTHER_DEVICE = create_other_device()
         self.DEVICE_WITHOUT_SENSORS = create_devices_without_sensors()
@@ -103,22 +127,19 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
         shell_func.side_effect = side_effect
 
-    @patch('requests.get')
-    def testGetDevice(self, get):
-        self.setUpResponse(get, self.DEVICE)
+    def testGetDevice(self):
+        self.setUpResponse(self.get, self.DEVICE)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
 
-        get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
-                                    headers={'api_key': '000000000000000000000001'})
+        self.get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
+                                         headers={'api_key': '000000000000000000000001'})
         self.assertEqual(daemon.me.dump(), self.DEVICE)
 
-    @patch('requests.put')
-    @patch('requests.get')
-    def testCreateNewlyFoundSensorsOnExistingDevice(self, get, put):
-        self.setUpResponse(get, self.OTHER_DEVICE)
-        self.setUpResponse(put, self.DEVICE)
+    def testCreateNewlyFoundSensorsOnExistingDevice(self):
+        self.setUpResponse(self.get, self.OTHER_DEVICE)
+        self.setUpResponse(self.put, self.DEVICE)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
@@ -131,16 +152,14 @@ class TestEndToEnd(TestFileSystemAndRequests):
                 {'name': '22-000802824e58', 'address': '22-000802824e58'},
             ]
         }
-        put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
-                                    headers={'api_key': '000000000000000000000001'},
-                                    json=expected_device)
+        self.put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
+                                         headers={'api_key': '000000000000000000000001'},
+                                         json=expected_device)
         self.assertEqual(daemon.me.dump(), self.DEVICE)
 
-    @patch('requests.put')
-    @patch('requests.get')
-    def testConnectNewDevice(self, get, put):
-        self.setUpResponse(get, self.DEVICE_WITHOUT_SENSORS)
-        self.setUpResponse(put, self.DEVICE)
+    def testConnectNewDevice(self):
+        self.setUpResponse(self.get, self.DEVICE_WITHOUT_SENSORS)
+        self.setUpResponse(self.put, self.DEVICE)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000002')
         daemon.prepare_sensors()
@@ -153,22 +172,17 @@ class TestEndToEnd(TestFileSystemAndRequests):
                 {'name': '28-000802824e58', 'address': '28-000802824e58'},
             ]
         }
-        put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000002/',
-                                    headers={'api_key': '000000000000000000000002'},
-                                    json=expected_device)
+        self.put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000002/',
+                                         headers={'api_key': '000000000000000000000002'},
+                                         json=expected_device)
         self.assertEqual(daemon.me.dump(), self.DEVICE)
 
-    @patch('subprocess.check_output')
-    @patch('datetime.datetime.utcnow')
-    @patch('requests.post')
-    @patch('requests.put')
-    @patch('requests.get')
-    def testStreamPost(self, get, put, post, now, check_output):
-        self.setUpResponse(get, self.DEVICE)
-        self.setUpResponse(put, self.DEVICE)
-        self.setUpStatusCode(post, 201)
-        self.setUpNow(now)
-        self.setUpShellOutput(check_output)
+    def testStreamPost(self):
+        self.setUpResponse(self.get, self.DEVICE)
+        self.setUpResponse(self.put, self.DEVICE)
+        self.setUpStatusCode(self.post, 201)
+        self.setUpNow(self.now)
+        self.setUpShellOutput(self.check_output)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
@@ -183,21 +197,16 @@ class TestEndToEnd(TestFileSystemAndRequests):
             }
         }
 
-        post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
-                             headers={'api_key': '000000000000000000000001'},
-                             json=stream)
+        self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
+                                  headers={'api_key': '000000000000000000000001'},
+                                  json=stream)
 
-    @patch('subprocess.check_output')
-    @patch('datetime.datetime.utcnow')
-    @patch('requests.post')
-    @patch('requests.put')
-    @patch('requests.get')
-    def testSystemParametersSending(self, get, put, post, now, check_output):
-        self.setUpResponse(get, self.DEVICE)
-        self.setUpResponse(put, self.DEVICE)
-        self.setUpStatusCode(post, 201)
-        self.setUpNow(now)
-        self.setUpShellOutput(check_output)
+    def testSystemParametersSending(self):
+        self.setUpResponse(self.get, self.DEVICE)
+        self.setUpResponse(self.put, self.DEVICE)
+        self.setUpStatusCode(self.post, 201)
+        self.setUpNow(self.now)
+        self.setUpShellOutput(self.check_output)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
@@ -208,21 +217,17 @@ class TestEndToEnd(TestFileSystemAndRequests):
             'cpuTemperature': 37.9
         }
 
-        post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/params/',
-                             headers={'api_key': '000000000000000000000001'},
-                             json=parameters)
-        check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
-        check_output.assert_any_call(cloud4rpid.CPU_TEMPERATURE_CMD, shell=True)
+        self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/params/',
+                                  headers={'api_key': '000000000000000000000001'},
+                                  json=parameters)
+        self.check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
+        self.check_output.assert_any_call(cloud4rpid.CPU_TEMPERATURE_CMD, shell=True)
 
-    @patch('datetime.datetime.utcnow')
-    @patch('requests.post')
-    @patch('requests.put')
-    @patch('requests.get')
-    def testRaiseExceptionOnUnAuthStreamPostRequest(self, get, put, post, now):
-        self.setUpResponse(get, self.DEVICE)
-        self.setUpResponse(put, self.DEVICE)
-        self.setUpStatusCode(post, 401)
-        self.setUpNow(now)
+    def testRaiseExceptionOnUnAuthStreamPostRequest(self):
+        self.setUpResponse(self.get, self.DEVICE)
+        self.setUpResponse(self.put, self.DEVICE)
+        self.setUpStatusCode(self.post, 401)
+        self.setUpNow(self.now)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
@@ -230,69 +235,51 @@ class TestEndToEnd(TestFileSystemAndRequests):
         with self.assertRaises(cloud4rpid.AuthenticationError):
             daemon.tick()
 
-    @patch('subprocess.check_output')
-    @patch('datetime.datetime.utcnow')
-    @patch('requests.post')
-    @patch('requests.put')
-    @patch('requests.get')
-    def testDontSendSystemParametersOnTheirRetrievingError(self, get, put, post, now, check_output):
-        self.setUpResponse(get, self.DEVICE)
-        self.setUpResponse(put, self.DEVICE)
-        self.setUpStatusCode(post, 201)
-        self.setUpNow(now)
-        check_output.side_effect = subprocess.CalledProcessError(1, 'any cmd')
+    def testDontSendSystemParametersOnTheirRetrievingError(self):
+        self.setUpResponse(self.get, self.DEVICE)
+        self.setUpResponse(self.put, self.DEVICE)
+        self.setUpStatusCode(self.post, 201)
+        self.setUpNow(self.now)
+        self.check_output.side_effect = subprocess.CalledProcessError(1, 'any cmd')
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
         daemon.tick()
 
-        self.assertEqual(1, post.call_count)
+        self.assertEqual(1, self.post.call_count)
 
-    @patch('requests.get')
-    def testRaiseExceptionOnUnAuthDeviceGetRequest(self, get):
-        self.setUpStatusCode(get, 401)
+    def testRaiseExceptionOnUnAuthDeviceGetRequest(self):
+        self.setUpStatusCode(self.get, 401)
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
 
         with self.assertRaises(cloud4rpid.AuthenticationError):
             daemon.prepare_sensors()
 
-    @patch('requests.put')
-    @patch('requests.get')
-    def testRaisesExceptionOnUnAuthDevicePutRequest(self, get, put):
-        self.setUpResponse(get, self.DEVICE_WITHOUT_SENSORS)
-        self.setUpStatusCode(put, 401)
+    def testRaisesExceptionOnUnAuthDevicePutRequest(self):
+        self.setUpResponse(self.get, self.DEVICE_WITHOUT_SENSORS)
+        self.setUpStatusCode(self.put, 401)
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
 
         with self.assertRaises(cloud4rpid.AuthenticationError):
             daemon.prepare_sensors()
 
-    @patch('subprocess.check_output')
-    @patch('datetime.datetime.now')
-    @patch('requests.post')
-    @patch('requests.put')
-    @patch('requests.get')
-    def testSkipFailedStreams(self, get, put, post, now, check_output):
-        self.setUpResponse(get, self.DEVICE)
-        self.setUpResponse(put, self.DEVICE)
-        post.side_effect = RequestException
-        self.setUpNow(now)
-        self.setUpShellOutput(check_output)
+    def testSkipFailedStreams(self):
+        self.setUpResponse(self.get, self.DEVICE)
+        self.setUpResponse(self.put, self.DEVICE)
+        self.post.side_effect = RequestException
+        self.setUpNow(self.now)
+        self.setUpShellOutput(self.check_output)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
         daemon.tick()
 
-    @patch('subprocess.check_output')
-    @patch('datetime.datetime.now')
-    @patch('requests.post')
-    @patch('requests.put')
-    @patch('requests.get')
-    def testSkipFailedSystemParameters(self, get, put, post, now, check_output):
-        self.setUpResponse(get, self.DEVICE)
-        self.setUpResponse(put, self.DEVICE)
-        post.side_effect = [MagicMock(), RequestException]
-        self.setUpNow(now)
-        self.setUpShellOutput(check_output)
+    def testSkipFailedSystemParameters(self):
+        self.setUpResponse(self.get, self.DEVICE)
+        self.setUpResponse(self.put, self.DEVICE)
+        self.post.side_effect = [MagicMock(), RequestException]
+        self.setUpNow(self.now)
+        self.setUpShellOutput(self.check_output)
 
         daemon = cloud4rpid.RpiDaemon('000000000000000000000001')
         daemon.prepare_sensors()
