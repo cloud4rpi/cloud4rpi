@@ -283,18 +283,18 @@ if __name__ == "__main__":
 
         daemon = RpiDaemon(DeviceToken)
         daemon.run()
+    except RequestException as e:
+        print('Connection failed. Please try again later. Error: {0}'.format(e.message))
+        exit(1)
     except EnvironmentError:
-        print 'Try "sudo python cloud4rpi.py"'
+        print('Try "sudo python cloud4rpi.py"')
         exit(1)
     except InvalidTokenError:
-        print 'Device Access Token {0} is incorrect. Please verify it'.format(DeviceToken)
-        print 'Terminating...'
+        print('Device Access Token {0} is incorrect. Please verify it.'.format(DeviceToken))
         exit(1)
     except AuthenticationError:
-        print 'Authentication failed. Check your device token.'
-        print 'Terminating...'
+        print('Authentication failed. Check your device token.')
         exit(1)
     except Exception as e:
-        print 'Unexpected error: {0}'.format(e.message)
-        print 'Terminating...'
+        print('Unexpected error: {0}'.format(e.message))
         exit(1)
