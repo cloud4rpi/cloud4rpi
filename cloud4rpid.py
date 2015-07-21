@@ -279,7 +279,7 @@ if __name__ == "__main__":
         modprobe('w1-gpio')
         modprobe('w1-therm')
 
-        print 'Starting...'
+        print('Starting...')
 
         daemon = RpiDaemon(DeviceToken)
         daemon.run()
