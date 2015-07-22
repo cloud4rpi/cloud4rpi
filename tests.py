@@ -60,6 +60,7 @@ def create_devices_without_sensors():
 class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUp(self):
         self.setUpPyfakefs()
+        self.patchRequests()
 
     def setUpResponse(self, verb, response, status_code=200):
         r_mock = MagicMock(['json', 'status_code'])
@@ -79,6 +80,21 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def startPatching(target):
         return patch(target).start()
 
+    def setUpGET(self, res_body):
+        self.setUpResponse(self.get, res_body)
+
+    def setUpPUT(self, res_body):
+        self.setUpResponse(self.put, res_body)
+
+    def setUpGETStatus(self, code):
+        self.setUpStatusCode(self.get, code)
+
+    def setUpPUTStatus(self, code):
+        self.setUpStatusCode(self.put, code)
+
+    def setUpPOSTStatus(self, code):
+        self.setUpStatusCode(self.post, code)
+
     def setUpSensor(self, address, content):
         self.fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'w1_slave'), contents=content)
 
@@ -90,7 +106,6 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def setUp(self):
         super(TestEndToEnd, self).setUp()
         self.setUpSensors()
-        self.patchRequests()
         self.setUpNow()
         self.setUpShellOutput()
         self.createTestData()
@@ -108,21 +123,6 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpGET(self.DEVICE)
         self.setUpPUT(self.DEVICE)
         self.setUpPOSTStatus(201)
-
-    def setUpGET(self, res_body):
-        self.setUpResponse(self.get, res_body)
-
-    def setUpPUT(self, res_body):
-        self.setUpResponse(self.put, res_body)
-
-    def setUpGETStatus(self, code):
-        self.setUpStatusCode(self.get, code)
-
-    def setUpPUTStatus(self, code):
-        self.setUpStatusCode(self.put, code)
-
-    def setUpPOSTStatus(self, code):
-        self.setUpStatusCode(self.post, code)
 
     def createTestData(self):
         self.DEVICE = create_device()
