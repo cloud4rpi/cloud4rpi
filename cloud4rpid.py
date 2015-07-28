@@ -249,7 +249,7 @@ class RpiDaemon:
         try:
             post_stream(self.token, stream)
         except RequestException:
-            pass
+            log.error('Failed. Skipping...')
 
     def create_stream(self):
         ts = datetime.datetime.utcnow().isoformat()
@@ -265,7 +265,7 @@ class RpiDaemon:
             params = get_system_parameters()
             post_system_parameters(self.token, params)
         except (subprocess.CalledProcessError, RequestException):
-            pass
+            log.error('Failed. Skipping...')
 
 
 def modprobe(module):
