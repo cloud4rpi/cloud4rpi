@@ -213,13 +213,13 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.tick()
 
         expected_parameters = {
-            'cpuUsage': 4.2,
+            # 'cpuUsage': 4.2,
             'cpuTemperature': 37.9
         }
         self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/params/',
                                   headers={'api_key': '000000000000000000000001'},
                                   json=expected_parameters)
-        self.check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
+        # self.check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
         self.check_output.assert_any_call(cloud4rpid.CPU_TEMPERATURE_CMD, shell=True)
 
     def testRaiseExceptionOnUnAuthStreamPostRequest(self):

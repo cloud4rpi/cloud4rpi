@@ -30,10 +30,10 @@ ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
 
 
 def get_system_parameters():
-    cpu_usage = get_cpu_usage()
+    # cpu_usage = get_cpu_usage()
     cpu_temperature = get_cpu_temperature()
     return {
-        'cpuUsage': cpu_usage,
+        # 'cpuUsage': cpu_usage,
         'cpuTemperature': cpu_temperature
     }
 
