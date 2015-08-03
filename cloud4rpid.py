@@ -44,18 +44,18 @@ def get_cpu_usage():
     return extract_usage(stripped)
 
 
-def get_cpu_temperature():
-    cpu_temperature_str = subprocess.check_output(CPU_TEMPERATURE_CMD, shell=True).lstrip("temp=").rstrip("'C\n")
-    cpu_temperature = float(cpu_temperature_str)
-    return cpu_temperature
-
-
 def strip_escape_codes(s):
     return ANSI_ESCAPE.sub('', s)
 
 
 def extract_usage(s):
     return float(s.lstrip('%Cpu(s): ').rstrip(' us'))
+
+
+def get_cpu_temperature():
+    cpu_temperature_str = subprocess.check_output(CPU_TEMPERATURE_CMD, shell=True).lstrip("temp=").rstrip("'C\n")
+    cpu_temperature = float(cpu_temperature_str)
+    return cpu_temperature
 
 
 class MutableDatetime(datetime.datetime):
