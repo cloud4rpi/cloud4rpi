@@ -298,3 +298,5 @@ if __name__ == "__main__":
     except Exception as e:
         print('Unexpected error: {0}'.format(e.message))
         exit(1)
+    except KeyboardInterrupt:
+        print('Interrupted')
