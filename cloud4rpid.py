@@ -218,8 +218,7 @@ class RpiDaemon:
 
     def run(self):
         self.prepare_sensors()
-        if len(self.sensors) == 0:
-            raise NoSensorsError
+        self.ensure_there_are_sensors()
         self.poll()
 
     def prepare_sensors(self):
@@ -240,6 +239,10 @@ class RpiDaemon:
             log.info('New sensors found: {0}'.format(list(new_sensors)))
             self.me.add_sensors(sorted(new_sensors))
             self.me = put_device(self.token, self.me)
+
+    def ensure_there_are_sensors(self):
+        if len(self.sensors) == 0:
+            raise NoSensorsError
 
     def poll(self):
         while True:

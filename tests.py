@@ -17,6 +17,7 @@ from requests import RequestException
 
 import cloud4rpid
 from cloud4rpid import RpiDaemon
+from cloud4rpid import W1_DEVICES
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -98,13 +99,16 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
         self.setUpStatusCode(self.post, code)
 
     def setUpSensor(self, address, content):
-        self.fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'w1_slave'), contents=content)
+        self.fs.CreateFile(os.path.join(W1_DEVICES, address, 'w1_slave'), contents=content)
 
     def setUpBogusSensor(self, address, content):
-        self.fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'bogus_readings_source'), contents=content)
+        self.fs.CreateFile(os.path.join(W1_DEVICES, address, 'bogus_readings_source'), contents=content)
 
     def removeSensor(self, address):
-        shutil.rmtree(os.path.join('/sys/bus/w1/devices/', address))
+        shutil.rmtree(os.path.join(W1_DEVICES, address))
+
+    def listW1Devices(self):
+        return os.listdir(W1_DEVICES)
 
 
 class TestEndToEnd(TestFileSystemAndRequests):
@@ -125,8 +129,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpBogusSensor('22-000000000000', "I look just like a real sensor, but I'm not")
 
     def setUpNoSensors(self):
-        addresses = os.listdir('/sys/bus/w1/devices/')
-        for address in addresses:
+        for address in self.listW1Devices():
             self.removeSensor(address)
 
     def setUpDefaultResponses(self):
@@ -355,6 +358,9 @@ class TestUtils(TestFileSystemAndRequests):
 
     def testCpuTemperatureCmd(self):
         self.assertEqual("vcgencmd measure_temp", cloud4rpid.CPU_TEMPERATURE_CMD)
+
+    def testW1DevicesPath(self):
+        self.assertEqual('/sys/bus/w1/devices/', cloud4rpid.W1_DEVICES)
 
 
 if __name__ == '__main__':
