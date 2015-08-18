@@ -1,10 +1,12 @@
 import os  # should be imported before fake_filesystem_unittest
+import shutil
 import datetime
 import subprocess
 
 import unittest
 import fake_filesystem_unittest
 
+from timeout_decorator import timeout
 from mock import MagicMock
 from mock import patch
 
@@ -101,6 +103,9 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUpBogusSensor(self, address, content):
         self.fs.CreateFile(os.path.join('/sys/bus/w1/devices/', address, 'bogus_readings_source'), contents=content)
 
+    def removeSensor(self, address):
+        shutil.rmtree(os.path.join('/sys/bus/w1/devices/', address))
+
 
 class TestEndToEnd(TestFileSystemAndRequests):
     def setUp(self):
@@ -118,6 +123,11 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpSensor('22-000802824e58', sensor_22)
         self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
         self.setUpBogusSensor('22-000000000000', "I look just like a real sensor, but I'm not")
+
+    def setUpNoSensors(self):
+        addresses = os.listdir('/sys/bus/w1/devices/')
+        for address in addresses:
+            self.removeSensor(address)
 
     def setUpDefaultResponses(self):
         self.setUpGET(self.DEVICE)
@@ -257,6 +267,13 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.post.side_effect = [MagicMock(), RequestException]
 
         self.tick()
+
+    @timeout(1)
+    def testRaisesExceptionWhenThereAreNoSensors(self):
+        self.setUpNoSensors()
+
+        with self.assertRaises(cloud4rpid.NoSensorsError):
+            self.daemon.run()
 
 
 class TestServerDevice(unittest.TestCase):

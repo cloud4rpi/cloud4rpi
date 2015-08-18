@@ -171,6 +171,10 @@ class InvalidTokenError(Exception):
     pass
 
 
+class NoSensorsError(Exception):
+    pass
+
+
 class ServerDevice:
     def __init__(self, device_json):
         self.json = device_json
@@ -214,6 +218,8 @@ class RpiDaemon:
 
     def run(self):
         self.prepare_sensors()
+        if len(self.sensors) == 0:
+            raise NoSensorsError
         self.poll()
 
     def prepare_sensors(self):
@@ -295,6 +301,8 @@ if __name__ == "__main__":
     except AuthenticationError:
         print('Authentication failed. Check your device token.')
         exit(1)
+    except NoSensorsError:
+        print('No sensors found... Exiting')
     except Exception as e:
         print('Unexpected error: {0}'.format(e.message))
         exit(1)
