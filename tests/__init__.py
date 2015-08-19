@@ -15,9 +15,9 @@ from teamcity.unittestpy import TeamcityTestRunner
 
 from requests import RequestException
 
-import cloud4rpid
-from cloud4rpid import RpiDaemon
-from cloud4rpid import W1_DEVICES
+import cloud4rpi
+from cloud4rpi import RpiDaemon
+from cloud4rpi import W1_DEVICES
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -148,7 +148,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
     def setUpShellOutput(self):
         def side_effect(*args, **kwargs):
-            if args[0] == cloud4rpid.CPU_USAGE_CMD:
+            if args[0] == cloud4rpi.CPU_USAGE_CMD:
                 return '%Cpu(s):\x1b(B\x1b[m\x1b[39;49m\x1b[1m  2.0 \x1b(B\x1b[m\x1b[39;49mus\n' \
                        '%Cpu(s):\x1b(B\x1b[m\x1b[39;49m\x1b[1m  4.2 \x1b(B\x1b[m\x1b[39;49mus\n'
             else:
@@ -232,13 +232,13 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/params/',
                                   headers={'api_key': '000000000000000000000001'},
                                   json=expected_parameters)
-        # self.check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
-        self.check_output.assert_any_call(cloud4rpid.CPU_TEMPERATURE_CMD, shell=True)
+        # self.check_output.assert_any_call(cloud4rpi.CPU_USAGE_CMD, shell=True)
+        self.check_output.assert_any_call(cloud4rpi.CPU_TEMPERATURE_CMD, shell=True)
 
     def testRaiseExceptionOnUnAuthStreamPostRequest(self):
         self.setUpPOSTStatus(401)
 
-        with self.assertRaises(cloud4rpid.AuthenticationError):
+        with self.assertRaises(cloud4rpi.AuthenticationError):
             self.tick()
 
     def testDoNotSendSystemParametersOnTheirRetrievingError(self):
@@ -251,14 +251,14 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testRaiseExceptionOnUnAuthDeviceGetRequest(self):
         self.setUpGETStatus(401)
 
-        with self.assertRaises(cloud4rpid.AuthenticationError):
+        with self.assertRaises(cloud4rpi.AuthenticationError):
             self.tick()
 
     def testRaisesExceptionOnUnAuthDevicePutRequest(self):
         self.setUpGET(self.DEVICE_WITHOUT_SENSORS)
         self.setUpPUTStatus(401)
 
-        with self.assertRaises(cloud4rpid.AuthenticationError):
+        with self.assertRaises(cloud4rpi.AuthenticationError):
             self.tick()
 
     def testSkipFailedStreams(self):
@@ -275,22 +275,22 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testRaisesExceptionWhenThereAreNoSensors(self):
         self.setUpNoSensors()
 
-        with self.assertRaises(cloud4rpid.NoSensorsError):
+        with self.assertRaises(cloud4rpi.NoSensorsError):
             self.daemon.run()
 
 
 class TestServerDevice(unittest.TestCase):
     def testSensorAddrs(self):
-        sensors = cloud4rpid.ServerDevice(create_device()).sensor_addrs()
+        sensors = cloud4rpi.ServerDevice(create_device()).sensor_addrs()
         self.assertListEqual(sorted(sensors), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
 
     def testWhatsNew(self):
-        device = cloud4rpid.ServerDevice(create_other_device())
+        device = cloud4rpi.ServerDevice(create_other_device())
         new_sensors = device.whats_new(['10-000802824e58', '22-000802824e58', '28-000802824e58'])
         self.assertSetEqual(new_sensors, {'22-000802824e58'})
 
     def testMapSensors(self):
-        device = cloud4rpid.ServerDevice(create_device())
+        device = cloud4rpi.ServerDevice(create_device())
         readings = [
             ('10-000802824e58', 22.25),
             ('22-000802824e58', 25.25),
@@ -306,7 +306,7 @@ class TestServerDevice(unittest.TestCase):
 
 class TestDeviceWithoutSensors(unittest.TestCase):
     def setUp(self):
-        self.device = cloud4rpid.ServerDevice(create_devices_without_sensors())
+        self.device = cloud4rpi.ServerDevice(create_devices_without_sensors())
 
     def testSensorAddrs(self):
         self.assertEqual(0, len(self.device.sensor_addrs()))
@@ -334,7 +334,7 @@ class TestUtils(TestFileSystemAndRequests):
         self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
 
     def testFindSensors(self):
-        sensors = cloud4rpid.find_sensors()
+        sensors = cloud4rpi.find_sensors()
         self.assertListEqual(sorted(sensors), [
             '10-000802824e58',
             '22-000802824e58',
@@ -342,11 +342,11 @@ class TestUtils(TestFileSystemAndRequests):
         ])
 
     def testReadSensor(self):
-        data = cloud4rpid.read_sensor('22-000802824e58')
+        data = cloud4rpi.read_sensor('22-000802824e58')
         self.assertEqual(data, ('22-000802824e58', 25.250))
 
     def testReadSensors(self):
-        readings = cloud4rpid.read_sensors()
+        readings = cloud4rpi.read_sensors()
         self.assertListEqual(sorted(readings), [
             ('10-000802824e58', 22.25),
             ('22-000802824e58', 25.25),
@@ -354,13 +354,13 @@ class TestUtils(TestFileSystemAndRequests):
         ])
 
     def testCpuUsageCmd(self):
-        self.assertEqual("top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'", cloud4rpid.CPU_USAGE_CMD)
+        self.assertEqual("top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'", cloud4rpi.CPU_USAGE_CMD)
 
     def testCpuTemperatureCmd(self):
-        self.assertEqual("vcgencmd measure_temp", cloud4rpid.CPU_TEMPERATURE_CMD)
+        self.assertEqual("vcgencmd measure_temp", cloud4rpi.CPU_TEMPERATURE_CMD)
 
     def testW1DevicesPath(self):
-        self.assertEqual('/sys/bus/w1/devices/', cloud4rpid.W1_DEVICES)
+        self.assertEqual('/sys/bus/w1/devices/', cloud4rpi.W1_DEVICES)
 
 
 if __name__ == '__main__':
