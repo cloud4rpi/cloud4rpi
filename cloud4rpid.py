@@ -329,6 +329,7 @@ if __name__ == "__main__":
         exit(1)
     except NoSensorsError:
         print('No sensors found... Exiting')
+        exit(1)
     except Exception as e:
         print('Unexpected error: {0}'.format(e.message))
         log.exception(e)
