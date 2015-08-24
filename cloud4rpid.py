@@ -221,6 +221,9 @@ class ServerDevice:
         index = self.sensor_index
         return {index[address]: reading for address, reading in readings if address in index}
 
+    def set_type(self, new_type):
+        self.json['type'] = new_type
+
     def __extract_addresses(self):
         self.addresses = self.sensor_index.keys()
 
@@ -244,7 +247,7 @@ class RpiDaemon:
     def prepare_sensors(self):
         self.know_thyself()
         self.find_sensors()
-        self.register_new_sensors()  # if any
+        self.send_device_config()
 
     def know_thyself(self):
         log.info('Getting device configuration...')
@@ -253,12 +256,16 @@ class RpiDaemon:
     def find_sensors(self):
         self.sensors = find_sensors()
 
+    def send_device_config(self):
+        self.register_new_sensors()
+        self.me.set_type('Raspberry PI')
+        self.me = put_device(self.token, self.me)
+
     def register_new_sensors(self):
         new_sensors = self.me.whats_new(self.sensors)
         if len(new_sensors) > 0:
             log.info('New sensors found: {0}'.format(list(new_sensors)))
             self.me.add_sensors(sorted(new_sensors))
-            self.me = put_device(self.token, self.me)
 
     def ensure_there_are_sensors(self):
         if len(self.sensors) == 0:

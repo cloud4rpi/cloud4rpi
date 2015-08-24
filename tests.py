@@ -178,6 +178,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
         expected_device = {
             'name': 'Test Device',
+            'type': 'Raspberry PI',
             'sensors': [
                 {'_id': '000000000000000000000000', 'address': '10-000802824e58'},
                 {'_id': '000000000000000000000002', 'address': '28-000802824e58'},
@@ -196,6 +197,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
         expected_device = {
             'name': 'Test Device',
+            'type': 'Raspberry PI',
             'sensors': [
                 {'name': '10-000802824e58', 'address': '10-000802824e58'},
                 {'name': '22-000802824e58', 'address': '22-000802824e58'},
@@ -302,6 +304,11 @@ class TestServerDevice(unittest.TestCase):
             '000000000000000000000001': 25.25,
             '000000000000000000000002': 28.25
         })
+
+    def testSetType(self):
+        device = cloud4rpid.ServerDevice(create_device())
+        device.set_type('Raspberry PI')
+        self.assertEqual(device.dump()['type'], 'Raspberry PI')
 
 
 class TestDeviceWithoutSensors(unittest.TestCase):
