@@ -336,3 +336,4 @@ if __name__ == "__main__":
         exit(1)
     except KeyboardInterrupt:
         print('Interrupted')
+        exit(1)
