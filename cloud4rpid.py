@@ -7,6 +7,7 @@ import requests
 import time
 import datetime
 import logging
+import logging.handlers
 import subprocess
 
 from subprocess import CalledProcessError
@@ -15,12 +16,6 @@ from settings import DeviceToken
 
 import settings_vendor as config
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
-console = logging.StreamHandler()
-console.setFormatter(logging.Formatter('%(message)s'))
-log.addHandler(console)
-
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
 
@@ -28,6 +23,30 @@ CPU_USAGE_CMD = "top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'"
 CPU_TEMPERATURE_CMD = "vcgencmd measure_temp"
 
 ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
+
+
+def create_logger():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    config_logging_to_console(logger)
+    return logger
+
+
+def config_logging_to_console(logger):
+    console = logging.StreamHandler()
+    console.setFormatter(logging.Formatter('%(message)s'))
+    logger.addHandler(console)
+
+
+def config_logging_to_file(logger):
+    log_file = logging.handlers.RotatingFileHandler(
+        os.path.join('/', 'var', 'log', 'cloud4rpid.log'),
+        maxBytes=1024 * 1024)
+    log_file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(log_file)
+
+
+log = create_logger()
 
 
 def get_system_parameters():
@@ -290,6 +309,8 @@ if __name__ == "__main__":
         modprobe('w1-gpio')
         modprobe('w1-therm')
 
+        config_logging_to_file(log)
+
         print('Starting...')
 
         daemon = RpiDaemon(DeviceToken)
@@ -310,6 +331,7 @@ if __name__ == "__main__":
         print('No sensors found... Exiting')
     except Exception as e:
         print('Unexpected error: {0}'.format(e.message))
+        log.exception(e)
         exit(1)
     except KeyboardInterrupt:
         print('Interrupted')
