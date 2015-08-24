@@ -9,6 +9,7 @@ import datetime
 import logging
 import subprocess
 
+from subprocess import CalledProcessError
 from requests import RequestException
 from settings import DeviceToken
 
@@ -273,14 +274,15 @@ class RpiDaemon:
         try:
             params = get_system_parameters()
             post_system_parameters(self.token, params)
-        except (subprocess.CalledProcessError, RequestException):
+        except (CalledProcessError, RequestException):
             log.error('Failed. Skipping...')
 
 
 def modprobe(module):
-    ret = os.system('modprobe {0}'.format(module))
+    cmd = 'modprobe {0}'.format(module)
+    ret = os.system(cmd)
     if ret != 0:
-        raise EnvironmentError
+        raise CalledProcessError(ret, cmd)
 
 
 if __name__ == "__main__":
@@ -295,7 +297,7 @@ if __name__ == "__main__":
     except RequestException as e:
         print('Connection failed. Please try again later. Error: {0}'.format(e.message))
         exit(1)
-    except EnvironmentError:
+    except CalledProcessError:
         print('Try "sudo python cloud4rpi.py"')
         exit(1)
     except InvalidTokenError:
