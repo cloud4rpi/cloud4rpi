@@ -369,6 +369,9 @@ class TestUtils(TestFileSystemAndRequests):
     def testW1DevicesPath(self):
         self.assertEqual('/sys/bus/w1/devices/', cloud4rpid.W1_DEVICES)
 
+    def testLogFilePath(self):
+        self.assertEqual('/var/log/cloud4rpid.log', cloud4rpid.LOG_FILE_PATH)
+
 
 if __name__ == '__main__':
     if is_running_under_teamcity():

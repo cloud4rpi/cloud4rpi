@@ -24,6 +24,8 @@ CPU_TEMPERATURE_CMD = "vcgencmd measure_temp"
 
 ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
 
+LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpid.log')
+
 
 def create_logger():
     logger = logging.getLogger(__name__)
@@ -39,9 +41,7 @@ def config_logging_to_console(logger):
 
 
 def config_logging_to_file(logger):
-    log_file = logging.handlers.RotatingFileHandler(
-        os.path.join('/', 'var', 'log', 'cloud4rpid.log'),
-        maxBytes=1024 * 1024)
+    log_file = logging.handlers.RotatingFileHandler(LOG_FILE_PATH, maxBytes=1024 * 1024)
     log_file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
     logger.addHandler(log_file)
 
