@@ -14,6 +14,7 @@ from subprocess import CalledProcessError
 from requests import RequestException
 from settings import DeviceToken
 
+import settings
 import settings_vendor as config
 
 W1_DEVICES = '/sys/bus/w1/devices/'
@@ -274,7 +275,7 @@ class RpiDaemon:
     def poll(self):
         while True:
             self.tick()
-            time.sleep(config.scanInterval)
+            time.sleep(settings.scanIntervalSeconds)
 
     def tick(self):
         self.send_stream()
