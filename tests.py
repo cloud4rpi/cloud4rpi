@@ -168,7 +168,8 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.daemon.prepare_sensors()
 
         self.get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
-                                         headers={'api_key': '000000000000000000000001'})
+                                         headers={'api_key': '000000000000000000000001'},
+                                         timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testCreateNewlyFoundSensorsOnExistingDevice(self):
@@ -187,7 +188,8 @@ class TestEndToEnd(TestFileSystemAndRequests):
         }
         self.put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
-                                         json=expected_device)
+                                         json=expected_device,
+                                         timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testConnectNewDevice(self):
@@ -206,7 +208,8 @@ class TestEndToEnd(TestFileSystemAndRequests):
         }
         self.put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
-                                         json=expected_device)
+                                         json=expected_device,
+                                         timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testStreamPost(self):
@@ -222,7 +225,8 @@ class TestEndToEnd(TestFileSystemAndRequests):
         }
         self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
                                   headers={'api_key': '000000000000000000000001'},
-                                  json=expected_stream)
+                                  json=expected_stream,
+                                  timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
 
     def testSystemParametersSending(self):
         self.tick()
@@ -233,7 +237,8 @@ class TestEndToEnd(TestFileSystemAndRequests):
         }
         self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/params/',
                                   headers={'api_key': '000000000000000000000001'},
-                                  json=expected_parameters)
+                                  json=expected_parameters,
+                                  timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
         # self.check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
         self.check_output.assert_any_call(cloud4rpid.CPU_TEMPERATURE_CMD, shell=True)
 
@@ -371,6 +376,9 @@ class TestUtils(TestFileSystemAndRequests):
 
     def testLogFilePath(self):
         self.assertEqual('/var/log/cloud4rpid.log', cloud4rpid.LOG_FILE_PATH)
+
+    def testRequestTimeout(self):
+        self.assertEqual(3 * 60 + 0.05, cloud4rpid.REQUEST_TIMEOUT_SECONDS)
 
 
 if __name__ == '__main__':

@@ -27,6 +27,8 @@ ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
 
 LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpid.log')
 
+REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
+
 
 def create_logger():
     logger = logging.getLogger(__name__)
@@ -134,7 +136,8 @@ def system_parameters_request_url(token):
 
 def get_device(token):
     res = requests.get(device_request_url(token),
-                       headers=request_headers(token))
+                       headers=request_headers(token),
+                       timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     return ServerDevice(res.json())
 
@@ -145,7 +148,8 @@ def put_device(token, device):
     log.info(config)
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
-                       json=config)
+                       json=config,
+                       timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     if res.status_code != 200:
         log.error("Can't register sensor. Status: {0}".format(res.status_code))
@@ -158,7 +162,8 @@ def post_stream(token, stream):
 
     res = requests.post(stream_request_url(token),
                         headers=request_headers(token),
-                        json=stream)
+                        json=stream,
+                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     return res.json()
 
@@ -168,7 +173,8 @@ def post_system_parameters(token, params):
 
     res = requests.post(system_parameters_request_url(token),
                         headers=request_headers(token),
-                        json=params)
+                        json=params,
+                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     return res.json()
 
