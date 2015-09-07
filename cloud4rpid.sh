@@ -12,8 +12,8 @@
 ### END INIT INFO
 
 # Daemon name, where is the actual executable
-CURRUSER=pi
-DAEMON=/home/$CURRUSER/cloud4rpi/cloud4rpid.py
+DIR=%%CLOUD4RPI_DIR%%
+DAEMON=$DIR/cloud4rpid.py
 DAEMON_NAME=cloud4rpid
 
 # Process name ( For display )
