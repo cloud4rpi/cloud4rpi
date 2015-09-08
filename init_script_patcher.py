@@ -16,5 +16,5 @@ def patch(fileName, fromString, toString):
         os.rename(out_fname, fileName)
 
 if __name__ == "__main__":
-    print CURRENT_DIR
+    print 'Current directory: ', CURRENT_DIR
     patch(FILE_NAME, PATTERN, CURRENT_DIR)
