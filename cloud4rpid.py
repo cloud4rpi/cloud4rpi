@@ -325,29 +325,28 @@ if __name__ == "__main__":
 
         config_logging_to_file(log)
 
-        print('Starting...')
+        log.info('Starting...')
 
         daemon = RpiDaemon(DeviceToken)
         daemon.run()
     except RequestException as e:
-        print('Connection failed. Please try again later. Error: {0}'.format(e.message))
+        log.exception('Connection failed. Please try again later. Error: {0}'.format(e.message))
         exit(1)
     except CalledProcessError:
-        print('Try "sudo python cloud4rpi.py"')
+        log.exception('Try "sudo python cloud4rpi.py"')
         exit(1)
     except InvalidTokenError:
-        print('Device Access Token {0} is incorrect. Please verify it.'.format(DeviceToken))
+        log.exception('Device Access Token {0} is incorrect. Please verify it.'.format(DeviceToken))
         exit(1)
     except AuthenticationError:
-        print('Authentication failed. Check your device token.')
+        log.exception('Authentication failed. Check your device token.')
         exit(1)
     except NoSensorsError:
-        print('No sensors found... Exiting')
+        log.exception('No sensors found... Exiting')
         exit(1)
     except Exception as e:
-        print('Unexpected error: {0}'.format(e.message))
-        log.exception(e)
+        log.exception('Unexpected error: {0}'.format(e.message))
         exit(1)
     except KeyboardInterrupt:
-        print('Interrupted')
+        log.info('Interrupted')
         exit(1)
