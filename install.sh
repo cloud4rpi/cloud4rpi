@@ -15,10 +15,6 @@ echo "Set permissions of files"
 sudo chmod 755 /etc/init.d/$SERVICE_NAME
 sudo chmod 755 $BASEDIR/cloud4rpid.py
 
-echo "Validating unix newline strings"
-sudo apt-get install dos2unix
-sudo dos2unix $BASEDIR/cloud4rpid.py
-
 echo "Updating rc.d"
 sudo update-rc.d $SERVICE_NAME defaults
 
