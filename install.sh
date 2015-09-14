@@ -6,7 +6,7 @@ SERVICE_NAME=cloud4rpid.sh
 echo "Installing Cloud4rpi daemon service..."
 
 echo "Preparing Init-script from ${BASEDIR}"
-python $BASEDIR/init_script_patcher.py
+python $BASEDIR/init_script_gen.py
 
 echo "Copying Init-script to /etc/init.d"
 sudo cp $BASEDIR/$SERVICE_NAME /etc/init.d/$SERVICE_NAME
