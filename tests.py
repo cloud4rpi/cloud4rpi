@@ -1,4 +1,8 @@
 import os  # should be imported before fake_filesystem_unittest
+from os import listdir
+from os.path import isfile, join
+import fnmatch
+import re
 import shutil
 import datetime
 import subprocess
@@ -58,7 +62,6 @@ def create_devices_without_sensors():
         'name': 'Test Device',
         'sensors': []
     }
-
 
 class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUp(self):
@@ -379,6 +382,22 @@ class TestUtils(TestFileSystemAndRequests):
 
     def testRequestTimeout(self):
         self.assertEqual(3 * 60 + 0.05, cloud4rpid.REQUEST_TIMEOUT_SECONDS)
+
+class TestFileLineSeparator(fake_filesystem_unittest.TestCase):
+    def extractFiles(self, dir):
+        files = os.listdir(dir)
+        return filter(lambda x: x.endswith(('.txt', '.py', '.sh', '.tmpl')), files)
+
+    def checkFiles(self, dir):
+        CR = re.compile('\r')
+        files = self.extractFiles(dir)
+        for file in files:
+            with open(file) as f:
+                for line in f:
+                    self.assertFalse(CR.match(line))
+
+    def testUnixLineEnding(self):
+        self.checkFiles(os.curdir)
 
 
 if __name__ == '__main__':
