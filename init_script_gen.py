@@ -2,8 +2,8 @@
 import os
 import re
 
-TEMPLATE_FILE_NAME = 'cloud4rpid.sh.tmpl'
-FILE_NAME = 'cloud4rpid.sh'
+TEMPLATE_FILE_NAME = 'cloud4rpi.tmpl'
+FILE_NAME = 'cloud4rpi'
 
 PATTERN = '%%CLOUD4RPI_DIR%%'
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
