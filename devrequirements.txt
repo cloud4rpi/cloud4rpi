@@ -1,3 +1,4 @@
 git+https://github.com/jmcgeheeiv/pyfakefs.git
 teamcity-messages
 timeout-decorator
+pylint
