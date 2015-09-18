@@ -319,6 +319,21 @@ def modprobe(module):
     if ret != 0:
         raise CalledProcessError(ret, cmd)
 
+def safeRuntDaemon():
+    maxTryCount = 5
+    waitSecs = 10
+    n = 0
+    while n < maxTryCount:
+        try:
+            daemon.run()
+            break
+        except requests.ConnectionError as ex:
+            log.exception('Daemon running ERROR: {0}'.format(ex.message))
+            log.exception('Waiting for {5} sec...').format(waitSecs)
+            time.sleep(waitSecs)
+            n += 1
+            waitSecs *= 2
+
 
 if __name__ == "__main__":
     try:
@@ -330,7 +345,9 @@ if __name__ == "__main__":
         log.info('Starting...')
 
         daemon = RpiDaemon(DeviceToken)
-        daemon.run()
+        safeRuntDaemon()
+
+
     except RequestException as e:
         log.exception('Connection failed. Please try again later. Error: {0}'.format(e.message))
         exit(1)
