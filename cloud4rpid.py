@@ -319,7 +319,7 @@ def modprobe(module):
     if ret != 0:
         raise CalledProcessError(ret, cmd)
 
-def safeRuntDaemon():
+def safeRunDaemon():
     maxTryCount = 5
     waitSecs = 10
     n = 0
@@ -345,7 +345,7 @@ if __name__ == "__main__":
         log.info('Starting...')
 
         daemon = RpiDaemon(DeviceToken)
-        safeRuntDaemon()
+        safeRunDaemon()
 
 
     except RequestException as e:
