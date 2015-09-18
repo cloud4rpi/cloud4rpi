@@ -329,7 +329,7 @@ def safeRunDaemon():
             break
         except requests.ConnectionError as ex:
             log.exception('Daemon running ERROR: {0}'.format(ex.message))
-            log.exception('Waiting for {5} sec...').format(waitSecs)
+            log.exception('Waiting for {0} sec...').format(waitSecs)
             time.sleep(waitSecs)
             n += 1
             waitSecs *= 2
