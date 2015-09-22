@@ -5,6 +5,7 @@ import subprocess
 
 CPU_TEMPERATURE_CMD = "vcgencmd measure_temp"
 #CPU_USAGE_CMD = "top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'"
+#ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
 
 def read():
     cpu_temperature_str = subprocess.check_output(CPU_TEMPERATURE_CMD, shell=True) \

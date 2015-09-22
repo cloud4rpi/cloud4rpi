@@ -14,17 +14,12 @@ from requests import RequestException
 from settings import DeviceToken
 
 from sensors import cpu as cpuSensor
+from sensors import ds18b20 as tempSensor
 
 import settings
 import settings_vendor as config
 
-W1_DEVICES = '/sys/bus/w1/devices/'
-W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
-
-ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
-
 LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpid.log')
-
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 
 
@@ -65,28 +60,13 @@ class MutableDatetime(datetime.datetime):
 datetime.datetime = MutableDatetime
 
 
-def sensor_full_path(sensor):
-    return os.path.join(W1_DEVICES, sensor, 'w1_slave')
-
-
 def find_sensors():
-    return [x for x in os.listdir(W1_DEVICES)
-            if W1_SENSOR_PATTERN.match(x) and os.path.isfile(sensor_full_path(x))]
+    return tempSensor.findAll()
 
 
 def read_sensor(address):
-    readings = read_whole_file(sensor_full_path(address))
-    temp_token = 't='
-    temp_index = readings.find(temp_token)
-    if temp_index < 0:
-        return None
-    temp = readings[temp_index + len(temp_token):]
-    return address, float(temp) / 1000
+    return tempSensor.read(address)
 
-
-def read_whole_file(path):
-    with open(path, 'r') as f:
-        return f.read()
 
 def request_headers(token):
     return {'api_key': token}
