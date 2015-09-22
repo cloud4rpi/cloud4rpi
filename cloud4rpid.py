@@ -8,20 +8,18 @@ import time
 import datetime
 import logging
 import logging.handlers
-import subprocess
 
 from subprocess import CalledProcessError
 from requests import RequestException
 from settings import DeviceToken
+
+from sensors import cpu as cpuSensor
 
 import settings
 import settings_vendor as config
 
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
-
-#CPU_USAGE_CMD = "top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'"
-CPU_TEMPERATURE_CMD = "vcgencmd measure_temp"
 
 ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
 
@@ -53,35 +51,10 @@ log = create_logger()
 
 
 def get_system_parameters():
-    # cpu_usage = get_cpu_usage()
-    cpu_temperature = get_cpu_temperature()
+    cpu_temperature = cpuSensor.read()
     return {
-        # 'cpuUsage': cpu_usage,
         'cpuTemperature': cpu_temperature
     }
-
-
-# def get_cpu_usage():
-#     cpu_usage_str = subprocess.check_output(CPU_USAGE_CMD, shell=True).splitlines()[-1]
-#     stripped = strip_escape_codes(cpu_usage_str)
-#     return extract_usage(stripped)
-
-
-def strip_escape_codes(s):
-    return ANSI_ESCAPE.sub('', s)
-
-
-# def extract_usage(s):
-#     return float(s.lstrip('%Cpu(s): ').rstrip(' us'))
-
-
-def get_cpu_temperature():
-    cpu_temperature_str = subprocess.check_output(CPU_TEMPERATURE_CMD, shell=True) \
-        .lstrip("temp=").rstrip("'C\n")
-
-    cpu_temperature = float(cpu_temperature_str)
-    return cpu_temperature
-
 
 class MutableDatetime(datetime.datetime):
     @classmethod

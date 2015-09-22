@@ -22,6 +22,7 @@ from requests import RequestException
 import cloud4rpid
 from cloud4rpid import RpiDaemon
 from cloud4rpid import W1_DEVICES
+from sensors import cpu
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -246,7 +247,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
                                   json=expected_parameters,
                                   timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
         # self.check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
-        self.check_output.assert_any_call(cloud4rpid.CPU_TEMPERATURE_CMD, shell=True)
+        self.check_output.assert_any_call(cpu.CPU_TEMPERATURE_CMD, shell=True)
 
     def testRaiseExceptionOnUnAuthStreamPostRequest(self):
         self.setUpPOSTStatus(401)
@@ -377,7 +378,7 @@ class TestUtils(TestFileSystemAndRequests):
     #     self.assertEqual("top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'", cloud4rpid.CPU_USAGE_CMD)
 
     def testCpuTemperatureCmd(self):
-        self.assertEqual("vcgencmd measure_temp", cloud4rpid.CPU_TEMPERATURE_CMD)
+        self.assertEqual("vcgencmd measure_temp", cpu.CPU_TEMPERATURE_CMD)
 
     def testW1DevicesPath(self):
         self.assertEqual('/sys/bus/w1/devices/', cloud4rpid.W1_DEVICES)
