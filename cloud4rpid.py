@@ -106,7 +106,7 @@ def read_sensor(address):
     temp_token = 't='
     temp_index = readings.find(temp_token)
     if temp_index < 0:
-        return 0.0
+        return None
     temp = readings[temp_index + len(temp_token):]
     return address, float(temp) / 1000
 
@@ -114,11 +114,6 @@ def read_sensor(address):
 def read_whole_file(path):
     with open(path, 'r') as f:
         return f.read()
-
-
-def read_sensors():
-    return [read_sensor(x) for x in find_sensors()]
-
 
 def request_headers(token):
     return {'api_key': token}
@@ -280,6 +275,19 @@ class RpiDaemon(object):
         if len(self.sensors) == 0:
             raise NoSensorsError
 
+    def read_sensors(self):
+        payload = []
+        for x in self.sensors:
+            try:
+                val = read_sensor(x)
+                if val is not None:
+                    payload.append(val)
+            except Exception as ex:
+                log.error('Reading sensor error:' + ex.message)
+
+        return payload
+
+
     def poll(self):
         while True:
             self.tick()
@@ -298,7 +306,7 @@ class RpiDaemon(object):
 
     def create_stream(self):
         ts = datetime.datetime.utcnow().isoformat()
-        readings = read_sensors()
+        readings = self.read_sensors()
         payload = self.me.map_sensors(readings)
         return {
             'ts': ts,

@@ -291,6 +291,16 @@ class TestEndToEnd(TestFileSystemAndRequests):
         with self.assertRaises(cloud4rpid.NoSensorsError):
             self.daemon.run()
 
+    def testReadSensors(self):
+        self.tick()
+
+        readings = self.daemon.read_sensors()
+        self.assertListEqual(sorted(readings), [
+            ('10-000802824e58', 22.25),
+            ('22-000802824e58', 25.25),
+            ('28-000802824e58', 28.25)
+        ])
+
 
 class TestServerDevice(unittest.TestCase):
     def testSensorAddrs(self):
@@ -362,15 +372,6 @@ class TestUtils(TestFileSystemAndRequests):
     def testReadSensor(self):
         data = cloud4rpid.read_sensor('22-000802824e58')
         self.assertEqual(data, ('22-000802824e58', 25.250))
-
-    def testReadSensors(self):
-
-        readings = cloud4rpid.read_sensors()
-        self.assertListEqual(sorted(readings), [
-            ('10-000802824e58', 22.25),
-            ('22-000802824e58', 25.25),
-            ('28-000802824e58', 28.25)
-        ])
 
     # def testCpuUsageCmd(self):
     #     self.assertEqual("top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'", cloud4rpid.CPU_USAGE_CMD)
