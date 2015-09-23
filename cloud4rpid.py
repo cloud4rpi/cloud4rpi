@@ -229,16 +229,14 @@ class RpiDaemon(object):
             raise NoSensorsError
 
     def read_sensors(self):
-        payload = []
+        data = []
         for x in self.sensors:
             try:
-                val = read_sensor(x)
-                if val is not None:
-                    payload.append(val)
+                data.append(read_sensor(x))
             except Exception as ex:
-                log.error('Reading sensor error:' + ex.message)
+                log.error('Reading sensor error: ' + ex.message)
 
-        return payload
+        return data
 
 
     def poll(self):

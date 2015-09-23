@@ -37,6 +37,10 @@ sensor_28 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
     '2d 00 4d 46 ff ff 08 10 fe : t=28250'
 
+sensor_no_temp = \
+    '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
+    '2d 00 4d 46 ff ff 08 10 fe : blabla=22250'
+
 
 def create_device():
     return {
@@ -303,6 +307,34 @@ class TestEndToEnd(TestFileSystemAndRequests):
             ('28-000802824e58', 28.25)
         ])
 
+    @patch('sensors.ds18b20.read')
+    def testReadSensorsWithException(self, m_read):
+        m_read.side_effect = Exception('Boom!')
+
+        self.daemon.prepare_sensors()
+
+        readings = self.daemon.read_sensors()
+        self.assertListEqual(sorted(readings), [])
+
+    def testReadSensorsWithNoneReading(self):
+        self.removeSensor('10-000802824e58')
+        self.removeSensor('22-000802824e58')
+        self.removeSensor('28-000802824e58')
+
+        self.setUpSensor('10-000802824e58', sensor_no_temp)
+        self.setUpSensor('28-000802824e58', sensor_no_temp)
+
+
+        self.daemon.prepare_sensors()
+
+        readings = self.daemon.read_sensors()
+
+        self.assertListEqual(sorted(readings), [
+            ('10-000802824e58', None),
+            ('28-000802824e58', None)
+        ])
+
+
 
 class TestServerDevice(unittest.TestCase):
     def testSensorAddrs(self):
@@ -389,6 +421,7 @@ class TestUtils(TestFileSystemAndRequests):
 
     def testRequestTimeout(self):
         self.assertEqual(3 * 60 + 0.05, cloud4rpid.REQUEST_TIMEOUT_SECONDS)
+
 
 class TestFileLineSeparator(fake_filesystem_unittest.TestCase):
     @staticmethod
