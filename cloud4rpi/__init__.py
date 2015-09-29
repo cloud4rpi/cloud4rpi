@@ -7,56 +7,49 @@ import requests
 import time
 import datetime
 import logging
-import subprocess
+import logging.handlers
 
+from subprocess import CalledProcessError
 from requests import RequestException
 from settings import DeviceToken
 
+from sensors import cpu as cpuSensor
+from sensors import ds18b20 as tempSensor
+
+import settings
 import settings_vendor as config
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
-console = logging.StreamHandler()
-console.setFormatter(logging.Formatter('%(message)s'))
-log.addHandler(console)
+LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpid.log')
+REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 
-W1_DEVICES = '/sys/bus/w1/devices/'
-W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
 
-CPU_USAGE_CMD = "top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'"
-CPU_TEMPERATURE_CMD = "vcgencmd measure_temp"
+def create_logger():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    config_logging_to_console(logger)
+    return logger
 
-ANSI_ESCAPE = re.compile(r'\x1b[^m]*m')
+
+def config_logging_to_console(logger):
+    console = logging.StreamHandler()
+    console.setFormatter(logging.Formatter('%(message)s'))
+    logger.addHandler(console)
+
+
+def config_logging_to_file(logger):
+    log_file = logging.handlers.RotatingFileHandler(LOG_FILE_PATH, maxBytes=1024 * 1024)
+    log_file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(log_file)
+
+
+log = create_logger()
 
 
 def get_system_parameters():
-    # cpu_usage = get_cpu_usage()
-    cpu_temperature = get_cpu_temperature()
+    cpu_temperature = cpuSensor.read()
     return {
-        # 'cpuUsage': cpu_usage,
         'cpuTemperature': cpu_temperature
     }
-
-
-def get_cpu_usage():
-    cpu_usage_str = subprocess.check_output(CPU_USAGE_CMD, shell=True).splitlines()[-1]
-    stripped = strip_escape_codes(cpu_usage_str)
-    return extract_usage(stripped)
-
-
-def strip_escape_codes(s):
-    return ANSI_ESCAPE.sub('', s)
-
-
-def extract_usage(s):
-    return float(s.lstrip('%Cpu(s): ').rstrip(' us'))
-
-
-def get_cpu_temperature():
-    cpu_temperature_str = subprocess.check_output(CPU_TEMPERATURE_CMD, shell=True).lstrip("temp=").rstrip("'C\n")
-    cpu_temperature = float(cpu_temperature_str)
-    return cpu_temperature
-
 
 class MutableDatetime(datetime.datetime):
     @classmethod
@@ -67,32 +60,12 @@ class MutableDatetime(datetime.datetime):
 datetime.datetime = MutableDatetime
 
 
-def sensor_full_path(sensor):
-    return os.path.join(W1_DEVICES, sensor, 'w1_slave')
-
-
 def find_sensors():
-    return [x for x in os.listdir(W1_DEVICES)
-            if W1_SENSOR_PATTERN.match(x) and os.path.isfile(sensor_full_path(x))]
+    return tempSensor.findAll()
 
 
 def read_sensor(address):
-    readings = read_whole_file(sensor_full_path(address))
-    temp_token = 't='
-    temp_index = readings.find(temp_token)
-    if temp_index < 0:
-        return 0.0
-    temp = readings[temp_index + len(temp_token):]
-    return address, float(temp) / 1000
-
-
-def read_whole_file(path):
-    with open(path, 'r') as f:
-        return f.read()
-
-
-def read_sensors():
-    return [read_sensor(x) for x in find_sensors()]
+    return tempSensor.read(address)
 
 
 def request_headers(token):
@@ -113,18 +86,20 @@ def system_parameters_request_url(token):
 
 def get_device(token):
     res = requests.get(device_request_url(token),
-                       headers=request_headers(token))
+                       headers=request_headers(token),
+                       timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     return ServerDevice(res.json())
 
 
 def put_device(token, device):
     log.info('Sending device configuration...')
-    config = device.dump()
-    log.info(config)
+    deviceJSON = device.dump()
+    log.info(deviceJSON)
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
-                       json=config)
+                       json=deviceJSON,
+                       timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     if res.status_code != 200:
         log.error("Can't register sensor. Status: {0}".format(res.status_code))
@@ -137,7 +112,8 @@ def post_stream(token, stream):
 
     res = requests.post(stream_request_url(token),
                         headers=request_headers(token),
-                        json=stream)
+                        json=stream,
+                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     return res.json()
 
@@ -147,7 +123,8 @@ def post_system_parameters(token, params):
 
     res = requests.post(system_parameters_request_url(token),
                         headers=request_headers(token),
-                        json=params)
+                        json=params,
+                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     return res.json()
 
@@ -175,7 +152,7 @@ class NoSensorsError(Exception):
     pass
 
 
-class ServerDevice:
+class ServerDevice(object):
     def __init__(self, device_json):
         self.json = device_json
         self.addresses = None
@@ -187,7 +164,7 @@ class ServerDevice:
         return self.addresses
 
     def add_sensors(self, sensors):
-        self.json['sensors'] += map(lambda x: {'name': x, 'address': x}, sensors)
+        self.json['sensors'] += [{'name': x, 'address': x} for x in sensors]
         self.__extract_addresses()
 
     def whats_new(self, sensors):
@@ -201,6 +178,9 @@ class ServerDevice:
         index = self.sensor_index
         return {index[address]: reading for address, reading in readings if address in index}
 
+    def set_type(self, new_type):
+        self.json['type'] = new_type
+
     def __extract_addresses(self):
         self.addresses = self.sensor_index.keys()
 
@@ -208,7 +188,7 @@ class ServerDevice:
         self.sensor_index = {sensor['address']: sensor['_id'] for sensor in self.json['sensors']}
 
 
-class RpiDaemon:
+class RpiDaemon(object):
     def __init__(self, token):
         self.sensors = None
         self.me = None
@@ -224,7 +204,7 @@ class RpiDaemon:
     def prepare_sensors(self):
         self.know_thyself()
         self.find_sensors()
-        self.register_new_sensors()  # if any
+        self.send_device_config()
 
     def know_thyself(self):
         log.info('Getting device configuration...')
@@ -233,21 +213,36 @@ class RpiDaemon:
     def find_sensors(self):
         self.sensors = find_sensors()
 
+    def send_device_config(self):
+        self.register_new_sensors()
+        self.me.set_type('Raspberry PI')
+        self.me = put_device(self.token, self.me)
+
     def register_new_sensors(self):
         new_sensors = self.me.whats_new(self.sensors)
         if len(new_sensors) > 0:
             log.info('New sensors found: {0}'.format(list(new_sensors)))
             self.me.add_sensors(sorted(new_sensors))
-            self.me = put_device(self.token, self.me)
 
     def ensure_there_are_sensors(self):
         if len(self.sensors) == 0:
             raise NoSensorsError
 
+    def read_sensors(self):
+        data = []
+        for x in self.sensors:
+            try:
+                data.append(read_sensor(x))
+            except Exception as ex:
+                log.error('Reading sensor error: ' + ex.message)
+
+        return data
+
+
     def poll(self):
         while True:
             self.tick()
-            time.sleep(config.scanInterval)
+            time.sleep(settings.scanIntervalSeconds)
 
     def tick(self):
         self.send_stream()
@@ -262,7 +257,7 @@ class RpiDaemon:
 
     def create_stream(self):
         ts = datetime.datetime.utcnow().isoformat()
-        readings = read_sensors()
+        readings = self.read_sensors()
         payload = self.me.map_sensors(readings)
         return {
             'ts': ts,
@@ -273,14 +268,30 @@ class RpiDaemon:
         try:
             params = get_system_parameters()
             post_system_parameters(self.token, params)
-        except (subprocess.CalledProcessError, RequestException):
+        except (CalledProcessError, RequestException):
             log.error('Failed. Skipping...')
 
 
 def modprobe(module):
-    ret = os.system('modprobe {0}'.format(module))
+    cmd = 'modprobe {0}'.format(module)
+    ret = os.system(cmd)
     if ret != 0:
-        raise EnvironmentError
+        raise CalledProcessError(ret, cmd)
+
+def safeRunDaemon():
+    maxTryCount = 5
+    waitSecs = 10
+    n = 0
+    while n < maxTryCount:
+        try:
+            daemon.run()
+            break
+        except requests.ConnectionError as ex:
+            log.exception('Daemon running ERROR: {0}'.format(ex.message))
+            log.exception('Waiting for {0} sec...'.format(waitSecs))
+            time.sleep(waitSecs)
+            n += 1
+            waitSecs *= 2
 
 
 def main():
@@ -288,29 +299,35 @@ def main():
         modprobe('w1-gpio')
         modprobe('w1-therm')
 
-        print('Starting...')
+        config_logging_to_file(log)
+
+        log.info('Starting...')
 
         daemon = RpiDaemon(DeviceToken)
-        daemon.run()
+        safeRunDaemon()
+
+
     except RequestException as e:
-        print('Connection failed. Please try again later. Error: {0}'.format(e.message))
+        log.exception('Connection failed. Please try again later. Error: {0}'.format(e.message))
         exit(1)
-    except EnvironmentError:
-        print('Try "sudo python cloud4rpi.py"')
+    except CalledProcessError:
+        log.exception('Try "sudo python cloud4rpi.py"')
         exit(1)
     except InvalidTokenError:
-        print('Device Access Token {0} is incorrect. Please verify it.'.format(DeviceToken))
+        log.exception('Device Access Token {0} is incorrect. Please verify it.'.format(DeviceToken))
         exit(1)
     except AuthenticationError:
-        print('Authentication failed. Check your device token.')
+        log.exception('Authentication failed. Check your device token.')
         exit(1)
     except NoSensorsError:
-        print('No sensors found... Exiting')
+        log.exception('No sensors found... Exiting')
+        exit(1)
     except Exception as e:
-        print('Unexpected error: {0}'.format(e.message))
+        log.exception('Unexpected error: {0}'.format(e.message))
         exit(1)
     except KeyboardInterrupt:
-        print('Interrupted')
+        log.info('Interrupted')
+        exit(1)
 
 
 if __name__ == "__main__":
