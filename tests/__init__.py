@@ -442,9 +442,13 @@ class TestFileLineSeparator(fake_filesystem_unittest.TestCase):
         self.checkFiles(os.curdir)
 
 
-if __name__ == '__main__':
+def main():
     if is_running_under_teamcity():
         runner = TeamcityTestRunner()
     else:
         runner = unittest.TextTestRunner()
     unittest.main(testRunner=runner)
+
+
+if __name__ == '__main__':
+    main()

@@ -19,7 +19,7 @@ from sensors import ds18b20 as tempSensor
 import settings
 import settings_vendor as config
 
-LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpid.log')
+LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpi.log')
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 
 
