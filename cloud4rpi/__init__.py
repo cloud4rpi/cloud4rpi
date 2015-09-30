@@ -3,21 +3,21 @@
 
 import os
 import re
-import requests
 import time
-import datetime
 import logging
 import logging.handlers
-
 from subprocess import CalledProcessError
-from requests import RequestException
-from settings import DeviceToken
 
+import requests
+import datetime
+from requests import RequestException
+
+from settings import DeviceToken
 from sensors import cpu as cpuSensor
 from sensors import ds18b20 as tempSensor
-
 import settings
 import settings_vendor as config
+
 
 LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpi.log')
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
