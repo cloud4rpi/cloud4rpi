@@ -417,7 +417,7 @@ class TestUtils(TestFileSystemAndRequests):
         self.assertEqual('/sys/bus/w1/devices/', W1_DEVICES)
 
     def testLogFilePath(self):
-        self.assertEqual('/var/log/cloud4rpid.log', cloud4rpid.LOG_FILE_PATH)
+        self.assertEqual('/var/log/cloud4rpi.log', cloud4rpid.LOG_FILE_PATH)
 
     def testRequestTimeout(self):
         self.assertEqual(3 * 60 + 0.05, cloud4rpid.REQUEST_TIMEOUT_SECONDS)

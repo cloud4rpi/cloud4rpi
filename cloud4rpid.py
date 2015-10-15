@@ -12,14 +12,12 @@ import logging.handlers
 from subprocess import CalledProcessError
 from requests import RequestException
 from settings import DeviceToken
-
-from sensors import cpu as cpuSensor
-from sensors import ds18b20 as tempSensor
-
+from sensors import cpu as cpu_sensor
+from sensors import ds18b20 as temperature_sensor
 import settings
 import settings_vendor as config
 
-LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpid.log')
+LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpi.log')
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 
 
@@ -46,10 +44,11 @@ log = create_logger()
 
 
 def get_system_parameters():
-    cpu_temperature = cpuSensor.read()
+    cpu_temperature = cpu_sensor.read()
     return {
         'cpuTemperature': cpu_temperature
     }
+
 
 class MutableDatetime(datetime.datetime):
     @classmethod
@@ -61,11 +60,11 @@ datetime.datetime = MutableDatetime
 
 
 def find_sensors():
-    return tempSensor.findAll()
+    return temperature_sensor.findAll()
 
 
 def read_sensor(address):
-    return tempSensor.read(address)
+    return temperature_sensor.read(address)
 
 
 def request_headers(token):
@@ -94,11 +93,11 @@ def get_device(token):
 
 def put_device(token, device):
     log.info('Sending device configuration...')
-    deviceJSON = device.dump()
-    log.info(deviceJSON)
+    device_json = device.dump()
+    log.info(device_json)
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
-                       json=deviceJSON,
+                       json=device_json,
                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     if res.status_code != 200:
@@ -238,7 +237,6 @@ class RpiDaemon(object):
 
         return data
 
-
     def poll(self):
         while True:
             self.tick()
@@ -278,20 +276,20 @@ def modprobe(module):
     if ret != 0:
         raise CalledProcessError(ret, cmd)
 
-def safeRunDaemon():
-    maxTryCount = 5
-    waitSecs = 10
+def safe_run_daemon(instance):
+    max_try_count = 5
+    wait_secs = 10
     n = 0
-    while n < maxTryCount:
+    while n < max_try_count:
         try:
-            daemon.run()
+            instance.run()
             break
         except requests.ConnectionError as ex:
             log.exception('Daemon running ERROR: {0}'.format(ex.message))
-            log.exception('Waiting for {0} sec...'.format(waitSecs))
-            time.sleep(waitSecs)
+            log.exception('Waiting for {0} sec...'.format(wait_secs))
+            time.sleep(wait_secs)
             n += 1
-            waitSecs *= 2
+            wait_secs *= 2
 
 
 if __name__ == "__main__":
@@ -304,8 +302,7 @@ if __name__ == "__main__":
         log.info('Starting...')
 
         daemon = RpiDaemon(DeviceToken)
-        safeRunDaemon()
-
+        safe_run_daemon(daemon)
 
     except RequestException as e:
         log.exception('Connection failed. Please try again later. Error: {0}'.format(e.message))
