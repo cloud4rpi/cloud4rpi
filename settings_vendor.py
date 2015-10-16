@@ -1,1 +1,5 @@
-#!/usr/bin/env python# -*- coding: utf-8 -*-# Server parametersbaseApiUrl = 'http://stage.cloud4rpi.io:3000/api'
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Server parameters
+baseApiUrl = 'http://localhost:3000/api'
