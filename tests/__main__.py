@@ -22,6 +22,7 @@ from requests import RequestException
 import cloud4rpi
 from cloud4rpi import RpiDaemon
 
+from settings_vendor import baseApiUrl
 from sensors import cpu
 from sensors.ds18b20 import W1_DEVICES
 
@@ -179,7 +180,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testGetDevice(self):
         self.daemon.prepare_sensors()
 
-        self.get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
+        self.get.assert_called_once_with(baseApiUrl + '/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
                                          timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
@@ -198,7 +199,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
                 {'name': '22-000802824e58', 'address': '22-000802824e58'},
             ]
         }
-        self.put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
+        self.put.assert_called_once_with(baseApiUrl + '/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
                                          json=expected_device,
                                          timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
@@ -218,7 +219,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
                 {'name': '28-000802824e58', 'address': '28-000802824e58'},
             ]
         }
-        self.put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
+        self.put.assert_called_once_with(baseApiUrl + '/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
                                          json=expected_device,
                                          timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
@@ -235,7 +236,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
                 '000000000000000000000002': 28.25
             }
         }
-        self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
+        self.post.assert_any_call(baseApiUrl + '/devices/000000000000000000000001/streams/',
                                   headers={'api_key': '000000000000000000000001'},
                                   json=expected_stream,
                                   timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
@@ -247,7 +248,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
             # 'cpuUsage': 4.2,
             'cpuTemperature': 37.9
         }
-        self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/params/',
+        self.post.assert_any_call(baseApiUrl + '/devices/000000000000000000000001/params/',
                                   headers={'api_key': '000000000000000000000001'},
                                   json=expected_parameters,
                                   timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
