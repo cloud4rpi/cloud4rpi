@@ -36,10 +36,6 @@ def system_parameters_request_url(token):
     return '{0}/devices/{1}/params/'.format(config.baseApiUrl, token)
 
 
-def actuator_param_request_url(actuator_id):
-    return '{0}/actuators/{1}/param'.format(config.baseApiUrl, actuator_id)
-
-
 def get_system_parameters():
     cpu_temperature = cpu_sensor.read()
     return {
@@ -101,24 +97,6 @@ def post_system_parameters(token):
     res = requests.post(system_parameters_request_url(token),
                         headers=request_headers(token),
                         json=params,
-                        timeout=REQUEST_TIMEOUT_SECONDS)
-    check_response(res)
-    return res.json()
-
-
-def get_actuator_state(token, actuator_id):
-    res = requests.get(actuator_param_request_url(actuator_id),
-                       params={'name': 'state'},
-                       headers=request_headers(token),
-                       timeout=REQUEST_TIMEOUT_SECONDS)
-    check_response(res)
-    return res.json()
-
-
-def set_actuator_state(token, actuator_id, state):
-    res = requests.post(actuator_param_request_url(actuator_id),
-                        params={'name': 'state', 'value': state},
-                        headers=request_headers(token),
                         timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     return res.json()

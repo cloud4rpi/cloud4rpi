@@ -10,7 +10,6 @@ import subprocess
 import unittest
 import fake_filesystem_unittest
 
-from timeout_decorator import timeout
 from mock import MagicMock
 from mock import patch
 
@@ -20,8 +19,11 @@ from teamcity.unittestpy import TeamcityTestRunner
 from requests import RequestException
 
 import cloud4rpi
-from cloud4rpi import RpiDaemon
+from cloud4rpi.rpi_daemon import RpiDaemon, find_sensors, read_sensor
+from cloud4rpi.helpers import REQUEST_TIMEOUT_SECONDS
+from cloud4rpi.server_device import ServerDevice
 import cloud4rpi.errors as errors
+
 from settings_vendor import baseApiUrl
 from sensors import cpu
 from sensors.ds18b20 import W1_DEVICES
@@ -43,6 +45,32 @@ sensor_no_temp = \
     '2d 00 4d 46 ff ff 08 10 fe : blabla=22250'
 
 
+class TestConfig:
+    def __init__(self):
+        pass
+
+    DeviceToken = '000000000000000000000001'
+    scanIntervalSeconds = 5
+    Actuators = [
+        {
+            'name': 'LED on pin12',
+            'address': 'pin12',
+            'parameters': [
+                {'default': 0}
+            ]
+        }
+    ]
+    Variables = [
+        {
+            'name': 'temperature',
+            'type': 'number',
+            'value': 20
+        }
+    ]
+
+test_config = TestConfig()
+
+
 def create_device():
     return {
         'name': 'Test Device',
@@ -50,7 +78,17 @@ def create_device():
             {'_id': '000000000000000000000000', 'address': '10-000802824e58'},
             {'_id': '000000000000000000000001', 'address': '22-000802824e58'},
             {'_id': '000000000000000000000002', 'address': '28-000802824e58'}
-        ]
+        ],
+        'actuators': [
+            {
+                '_id': '000000000000000000000010', 'address': 'test', 'name': 'test',
+                'parameters': [
+                    {'_id': '000000000000000000000100', 'name': 'param1', 'value': 42},
+                    {'_id': '000000000000000000000100', 'name': 'param2', 'value': 'value2'}
+                ]
+            }
+        ],
+        'variables': []
     }
 
 
@@ -60,21 +98,25 @@ def create_other_device():
         'sensors': [
             {'_id': '000000000000000000000000', 'address': '10-000802824e58'},
             {'_id': '000000000000000000000002', 'address': '28-000802824e58'}
-        ]
+        ],
+        'actuators': [],
+        'variables': []
     }
 
 
 def create_devices_without_sensors():
     return {
         'name': 'Test Device',
-        'sensors': []
+        'sensors': [],
+        'actuators': [],
+        'variables': []
     }
-
 
 class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUp(self):
         self.setUpPyfakefs()
         self.patchRequests()
+        self.fs.CreateFile('/dev/null')
 
     def setUpResponse(self, verb, response, status_code=200):
         r_mock = MagicMock(['json', 'status_code'])
@@ -132,7 +174,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpNow()
         self.setUpShellOutput()
         self.createTestData()
-        self.daemon = RpiDaemon('000000000000000000000001')
+        self.daemon = RpiDaemon(test_config)
         self.setUpDefaultResponses()
 
     def setUpSensors(self):
@@ -175,21 +217,24 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.check_output.side_effect = subprocess.CalledProcessError(1, 'any cmd')
 
     def tick(self):
-        self.daemon.prepare_sensors()
+        self.daemon.prepare()
+        self.daemon.send_device_config()
         self.daemon.tick()
 
     def testGetDevice(self):
-        self.daemon.prepare_sensors()
+        self.daemon.prepare()
+        self.daemon.send_device_config()
 
         self.get.assert_called_once_with(baseApiUrl + '/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
-                                         timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                         timeout=REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testCreateNewlyFoundSensorsOnExistingDevice(self):
         self.setUpGET(self.OTHER_DEVICE)
 
-        self.daemon.prepare_sensors()
+        self.daemon.prepare()
+        self.daemon.send_device_config()
 
         expected_device = {
             'name': 'Test Device',
@@ -198,18 +243,21 @@ class TestEndToEnd(TestFileSystemAndRequests):
                 {'_id': '000000000000000000000000', 'address': '10-000802824e58'},
                 {'_id': '000000000000000000000002', 'address': '28-000802824e58'},
                 {'name': '22-000802824e58', 'address': '22-000802824e58'},
-            ]
+            ],
+            'actuators': test_config.Actuators,
+            'variables': test_config.Variables
         }
         self.put.assert_called_once_with(baseApiUrl + '/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
                                          json=expected_device,
-                                         timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                         timeout=REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testConnectNewDevice(self):
         self.setUpGET(self.DEVICE_WITHOUT_SENSORS)
 
-        self.daemon.prepare_sensors()
+        self.daemon.prepare()
+        self.daemon.send_device_config()
 
         expected_device = {
             'name': 'Test Device',
@@ -218,12 +266,14 @@ class TestEndToEnd(TestFileSystemAndRequests):
                 {'name': '10-000802824e58', 'address': '10-000802824e58'},
                 {'name': '22-000802824e58', 'address': '22-000802824e58'},
                 {'name': '28-000802824e58', 'address': '28-000802824e58'},
-            ]
+            ],
+            'actuators': test_config.Actuators,
+            'variables': test_config.Variables
         }
         self.put.assert_called_once_with(baseApiUrl + '/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
                                          json=expected_device,
-                                         timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                         timeout=REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testStreamPost(self):
@@ -240,7 +290,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.post.assert_any_call(baseApiUrl + '/devices/000000000000000000000001/streams/',
                                   headers={'api_key': '000000000000000000000001'},
                                   json=expected_stream,
-                                  timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                  timeout=REQUEST_TIMEOUT_SECONDS)
 
     def testSystemParametersSending(self):
         self.tick()
@@ -252,7 +302,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.post.assert_any_call(baseApiUrl + '/devices/000000000000000000000001/params/',
                                   headers={'api_key': '000000000000000000000001'},
                                   json=expected_parameters,
-                                  timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                  timeout=REQUEST_TIMEOUT_SECONDS)
         # self.check_output.assert_any_call(cloud4rpi.CPU_USAGE_CMD, shell=True)
         self.check_output.assert_any_call(cpu.CPU_TEMPERATURE_CMD, shell=True)
 
@@ -292,7 +342,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
         self.tick()
 
-    @timeout(1)
+    #@timeout(1)
     def testRaisesExceptionWhenThereAreNoSensors(self):
         self.setUpNoSensors()
 
@@ -337,24 +387,25 @@ class TestEndToEnd(TestFileSystemAndRequests):
         ])
 
 
+
 class TestServerDevice(unittest.TestCase):
     def testSensorAddrs(self):
-        sensors = cloud4rpi.ServerDevice(create_device()).sensor_addrs()
-        self.assertListEqual(sorted(sensors), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
+        sensors = ServerDevice(create_device()).extension_addrs()
+        self.assertListEqual(sorted(sensors), ['10-000802824e58', '22-000802824e58', '28-000802824e58', 'test'])
 
     def testWhatsNew(self):
-        device = cloud4rpi.ServerDevice(create_other_device())
+        device = ServerDevice(create_other_device())
         new_sensors = device.whats_new(['10-000802824e58', '22-000802824e58', '28-000802824e58'])
         self.assertSetEqual(new_sensors, {'22-000802824e58'})
 
     def testMapSensors(self):
-        device = cloud4rpi.ServerDevice(create_device())
+        device = ServerDevice(create_device())
         readings = [
             ('10-000802824e58', 22.25),
             ('22-000802824e58', 25.25),
             ('28-000802824e58', 28.25)
         ]
-        payload = device.map_sensors(readings)
+        payload = device.map_extensions(readings)
         self.assertDictEqual(payload, {
             '000000000000000000000000': 22.25,
             '000000000000000000000001': 25.25,
@@ -362,17 +413,17 @@ class TestServerDevice(unittest.TestCase):
         })
 
     def testSetType(self):
-        device = cloud4rpi.ServerDevice(create_device())
+        device = ServerDevice(create_device())
         device.set_type('Raspberry PI')
         self.assertEqual(device.dump()['type'], 'Raspberry PI')
 
 
 class TestDeviceWithoutSensors(unittest.TestCase):
     def setUp(self):
-        self.device = cloud4rpi.ServerDevice(create_devices_without_sensors())
+        self.device = ServerDevice(create_devices_without_sensors())
 
     def testSensorAddrs(self):
-        self.assertEqual(0, len(self.device.sensor_addrs()))
+        self.assertEqual(0, len(self.device.extension_addrs()))
 
     def testWhatsNew(self):
         new_sensors = self.device.whats_new(['10-000802824e58', '22-000802824e58', '28-000802824e58'])
@@ -384,7 +435,7 @@ class TestDeviceWithoutSensors(unittest.TestCase):
             ('22-000802824e58', 25.25),
             ('28-000802824e58', 28.25)
         ]
-        payload = self.device.map_sensors(readings)
+        payload = self.device.map_extensions(readings)
         self.assertEqual(0, len(payload))
 
 
@@ -397,7 +448,7 @@ class TestUtils(TestFileSystemAndRequests):
         self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
 
     def testFindSensors(self):
-        sensors = cloud4rpi.find_sensors()
+        sensors = find_sensors()
         self.assertListEqual(sorted(sensors), [
             '10-000802824e58',
             '22-000802824e58',
@@ -405,7 +456,7 @@ class TestUtils(TestFileSystemAndRequests):
         ])
 
     def testReadSensor(self):
-        data = cloud4rpi.read_sensor('22-000802824e58')
+        data = read_sensor('22-000802824e58')
         self.assertEqual(data, ('22-000802824e58', 25.250))
 
     # def testCpuUsageCmd(self):
@@ -421,7 +472,7 @@ class TestUtils(TestFileSystemAndRequests):
         self.assertEqual('/var/log/cloud4rpi.log', cloud4rpi.LOG_FILE_PATH)
 
     def testRequestTimeout(self):
-        self.assertEqual(3 * 60 + 0.05, cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+        self.assertEqual(3 * 60 + 0.05, REQUEST_TIMEOUT_SECONDS)
 
 
 class TestFileLineSeparator(fake_filesystem_unittest.TestCase):
@@ -443,9 +494,13 @@ class TestFileLineSeparator(fake_filesystem_unittest.TestCase):
         self.checkFiles(os.curdir)
 
 
-if __name__ == '__main__':
+def main():
     if is_running_under_teamcity():
         runner = TeamcityTestRunner()
     else:
         runner = unittest.TextTestRunner()
     unittest.main(testRunner=runner)
+
+
+if __name__ == '__main__':
+    main()

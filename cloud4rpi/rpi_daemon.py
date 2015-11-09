@@ -122,26 +122,23 @@ class RpiDaemon(object):
             time.sleep(self.settings.scanIntervalSeconds)
 
     def tick(self):
-        # TODO try-catch?
-        if parent_conn.poll():
-                self.set_actuator_state(parent_conn.recv())
-        res = self.send_stream()
-        self.process_actuators_state(res)
-        self.send_system_parameters()
-
-    def send_stream(self):
         try:
-            stream = self.create_stream()
-            return helpers.post_stream(self.token, stream)
+            if parent_conn.poll():
+                    self.set_actuator_state(parent_conn.recv())
+            res = self.send_stream()
+            self.process_actuators_state(res)
+            self.send_system_parameters()
         except RequestException:
             log.error('Failed. Skipping...')
+
+    def send_stream(self):
+        stream = self.create_stream()
+        return helpers.post_stream(self.token, stream)
+
 
     def process_actuators_state(self, res):
         for act_id, act_params in res['configuration']['actuators'].iteritems():
             parent_conn.send({'id': act_id, 'params': act_params})
-        # for act_id in self.me.get_actuators():
-        #     act_state = helpers.get_actuator_state(self.token, act_id)
-        #     parent_conn.send({'id': act_id, 'state': act_state})
 
     def set_actuator_state(self, data):
         print str(helpers.set_actuator_state(self.token, data['id'], data['state']))
