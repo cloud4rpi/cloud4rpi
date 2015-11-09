@@ -5,19 +5,15 @@ SERVICE_NAME=cloud4rpi
 
 echo "Installing cloud4rpi service..."
 
-mkdir tmp
-
 echo "Preparing Init-script from ${BASEDIR}"
 python $BASEDIR/init_script_gen.py
 
 echo "Copying Init-script to /etc/init.d"
-cp $BASEDIR/tmp/$SERVICE_NAME /etc/init.d/$SERVICE_NAME
-
-rm -rf tmp
+cp $BASEDIR/$SERVICE_NAME /etc/init.d/$SERVICE_NAME
 
 echo "Set permissions of files"
 chmod 755 /etc/init.d/$SERVICE_NAME
-chmod 755 $BASEDIR/cloud4rpi/*.py
+chmod 755 $BASEDIR/cloud4rpid.py
 
 echo "Updating rc.d"
 update-rc.d $SERVICE_NAME defaults

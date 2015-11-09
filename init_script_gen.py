@@ -3,7 +3,7 @@ import os
 import re
 
 TEMPLATE_FILE_NAME = 'cloud4rpi.tmpl'
-FILE_NAME = 'tmp/cloud4rpi'
+FILE_NAME = 'cloud4rpi'
 
 PATTERN = '%%CLOUD4RPI_DIR%%'
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))

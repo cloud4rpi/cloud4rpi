@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 
 # Server parameters
-baseApiUrl = 'http://localhost:3000/api'
+baseApiUrl = 'http://stage.cloud4rpi.io:3000/api'
