@@ -13,14 +13,14 @@
 
 # Daemon name, where is the actual executable
 DIR=%%CLOUD4RPI_DIR%%
-DAEMON=$DIR/cloud4rpid.py
-DAEMON_NAME=cloud4rpid
+DAEMON=/usr/bin/python
+DAEMON_NAME=cloud4rpi
 
 # Process name ( For display )
 NAME=cloud4rpi
 
 # Add any command line options for your daemon here
-DAEMON_OPTS=""
+DAEMON_OPTS="-m cloud4rpi"
 
 # This next line determines what user the script runs as.
 # Root generally not recommended but necessary if you are using the Raspberry Pi GPIO from Python.
@@ -34,7 +34,7 @@ PIDFILE=/var/run/$DAEMON_NAME.pid
 
 do_start () {
     log_daemon_msg "Starting the process $NAME"
-    start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile --user $DAEMON_USER --chuid $DAEMON_USER --startas $DAEMON -- $DAEMON_OPTS
+    start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile --chdir $DIR --user $DAEMON_USER --startas $DAEMON -- $DAEMON_OPTS
     log_end_msg $?
 }
 do_stop () {
