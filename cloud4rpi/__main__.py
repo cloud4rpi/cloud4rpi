@@ -11,10 +11,11 @@ import logging.handlers
 
 from subprocess import CalledProcessError
 from requests import RequestException
-from settings import DeviceToken
 from sensors import cpu as cpu_sensor
 from sensors import ds18b20 as temperature_sensor
+import cloud4rpi.errors as errors
 import settings
+from settings import DeviceToken
 import settings_vendor as config
 
 LOG_FILE_PATH = os.path.join('/', 'var', 'log', 'cloud4rpi.log')
@@ -131,24 +132,12 @@ def post_system_parameters(token, params):
 def check_response(res):
     log.info(res.status_code)
     if res.status_code == 401:
-        raise AuthenticationError
+        raise errors.AuthenticationError
 
 
 def verify_token(token):
     r = re.compile('[0-9a-f]{24}')
     return len(token) == 24 and r.match(token)
-
-
-class AuthenticationError(Exception):
-    pass
-
-
-class InvalidTokenError(Exception):
-    pass
-
-
-class NoSensorsError(Exception):
-    pass
 
 
 class ServerDevice(object):
@@ -192,7 +181,7 @@ class RpiDaemon(object):
         self.sensors = None
         self.me = None
         if not verify_token(token):
-            raise InvalidTokenError
+            raise errors.InvalidTokenError
         self.token = token
 
     def run(self):
@@ -225,7 +214,7 @@ class RpiDaemon(object):
 
     def ensure_there_are_sensors(self):
         if len(self.sensors) == 0:
-            raise NoSensorsError
+            raise errors.NoSensorsError
 
     def read_sensors(self):
         data = []
@@ -310,13 +299,13 @@ if __name__ == "__main__":
     except CalledProcessError:
         log.exception('Try "sudo python cloud4rpi.py"')
         exit(1)
-    except InvalidTokenError:
+    except errors.InvalidTokenError:
         log.exception('Device Access Token {0} is incorrect. Please verify it.'.format(DeviceToken))
         exit(1)
-    except AuthenticationError:
+    except errors.AuthenticationError:
         log.exception('Authentication failed. Check your device token.')
         exit(1)
-    except NoSensorsError:
+    except errors.NoSensorsError:
         log.exception('No sensors found... Exiting')
         exit(1)
     except Exception as e:

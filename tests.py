@@ -21,6 +21,7 @@ from requests import RequestException
 
 import cloud4rpi
 from cloud4rpi import RpiDaemon
+import cloud4rpi.errors as errors
 from settings_vendor import baseApiUrl
 from sensors import cpu
 from sensors.ds18b20 import W1_DEVICES
@@ -68,6 +69,7 @@ def create_devices_without_sensors():
         'name': 'Test Device',
         'sensors': []
     }
+
 
 class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUp(self):
@@ -257,7 +259,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testRaiseExceptionOnUnAuthStreamPostRequest(self):
         self.setUpPOSTStatus(401)
 
-        with self.assertRaises(cloud4rpi.AuthenticationError):
+        with self.assertRaises(errors.AuthenticationError):
             self.tick()
 
     def testDoNotSendSystemParametersOnTheirRetrievingError(self):
@@ -270,14 +272,14 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testRaiseExceptionOnUnAuthDeviceGetRequest(self):
         self.setUpGETStatus(401)
 
-        with self.assertRaises(cloud4rpi.AuthenticationError):
+        with self.assertRaises(errors.AuthenticationError):
             self.tick()
 
     def testRaisesExceptionOnUnAuthDevicePutRequest(self):
         self.setUpGET(self.DEVICE_WITHOUT_SENSORS)
         self.setUpPUTStatus(401)
 
-        with self.assertRaises(cloud4rpi.AuthenticationError):
+        with self.assertRaises(errors.AuthenticationError):
             self.tick()
 
     def testSkipFailedStreams(self):
@@ -294,7 +296,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testRaisesExceptionWhenThereAreNoSensors(self):
         self.setUpNoSensors()
 
-        with self.assertRaises(cloud4rpi.NoSensorsError):
+        with self.assertRaises(errors.NoSensorsError):
             self.daemon.run()
 
     def testReadSensors(self):
