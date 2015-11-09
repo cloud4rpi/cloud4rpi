@@ -294,7 +294,7 @@ def safeRunDaemon():
             waitSecs *= 2
 
 
-def main():
+if __name__ == "__main__":
     try:
         modprobe('w1-gpio')
         modprobe('w1-therm')
@@ -328,7 +328,3 @@ def main():
     except KeyboardInterrupt:
         log.info('Interrupted')
         exit(1)
-
-
-if __name__ == "__main__":
-    main()

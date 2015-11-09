@@ -19,8 +19,8 @@ from teamcity.unittestpy import TeamcityTestRunner
 
 from requests import RequestException
 
-import cloud4rpi
-from cloud4rpi import RpiDaemon
+import cloud4rpid
+from cloud4rpid import RpiDaemon
 
 from sensors import cpu
 from sensors.ds18b20 import W1_DEVICES
@@ -160,7 +160,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
     def setUpShellOutput(self):
         def side_effect(*args, **kwargs): # pylint: disable=W0613
-            if args[0] == 'DummyCpuAddress': #cloud4rpi.CPU_USAGE_CMD:
+            if args[0] == 'DummyCpuAddress': #cloud4rpid.CPU_USAGE_CMD:
                 return '%Cpu(s):\x1b(B\x1b[m\x1b[39;49m\x1b[1m  2.0 \x1b(B\x1b[m\x1b[39;49mus\n' \
                        '%Cpu(s):\x1b(B\x1b[m\x1b[39;49m\x1b[1m  4.2 \x1b(B\x1b[m\x1b[39;49mus\n'
             else:
@@ -181,7 +181,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
         self.get.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
-                                         timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                         timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testCreateNewlyFoundSensorsOnExistingDevice(self):
@@ -201,7 +201,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
                                          json=expected_device,
-                                         timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                         timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testConnectNewDevice(self):
@@ -221,7 +221,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.put.assert_called_once_with('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/',
                                          headers={'api_key': '000000000000000000000001'},
                                          json=expected_device,
-                                         timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                         timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
 
     def testStreamPost(self):
@@ -238,7 +238,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/streams/',
                                   headers={'api_key': '000000000000000000000001'},
                                   json=expected_stream,
-                                  timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+                                  timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
 
     def testSystemParametersSending(self):
         self.tick()
@@ -250,14 +250,14 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.post.assert_any_call('http://stage.cloud4rpi.io:3000/api/devices/000000000000000000000001/params/',
                                   headers={'api_key': '000000000000000000000001'},
                                   json=expected_parameters,
-                                  timeout=cloud4rpi.REQUEST_TIMEOUT_SECONDS)
-        # self.check_output.assert_any_call(cloud4rpi.CPU_USAGE_CMD, shell=True)
+                                  timeout=cloud4rpid.REQUEST_TIMEOUT_SECONDS)
+        # self.check_output.assert_any_call(cloud4rpid.CPU_USAGE_CMD, shell=True)
         self.check_output.assert_any_call(cpu.CPU_TEMPERATURE_CMD, shell=True)
 
     def testRaiseExceptionOnUnAuthStreamPostRequest(self):
         self.setUpPOSTStatus(401)
 
-        with self.assertRaises(cloud4rpi.AuthenticationError):
+        with self.assertRaises(cloud4rpid.AuthenticationError):
             self.tick()
 
     def testDoNotSendSystemParametersOnTheirRetrievingError(self):
@@ -270,14 +270,14 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testRaiseExceptionOnUnAuthDeviceGetRequest(self):
         self.setUpGETStatus(401)
 
-        with self.assertRaises(cloud4rpi.AuthenticationError):
+        with self.assertRaises(cloud4rpid.AuthenticationError):
             self.tick()
 
     def testRaisesExceptionOnUnAuthDevicePutRequest(self):
         self.setUpGET(self.DEVICE_WITHOUT_SENSORS)
         self.setUpPUTStatus(401)
 
-        with self.assertRaises(cloud4rpi.AuthenticationError):
+        with self.assertRaises(cloud4rpid.AuthenticationError):
             self.tick()
 
     def testSkipFailedStreams(self):
@@ -294,7 +294,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
     def testRaisesExceptionWhenThereAreNoSensors(self):
         self.setUpNoSensors()
 
-        with self.assertRaises(cloud4rpi.NoSensorsError):
+        with self.assertRaises(cloud4rpid.NoSensorsError):
             self.daemon.run()
 
     def testReadSensors(self):
@@ -338,16 +338,16 @@ class TestEndToEnd(TestFileSystemAndRequests):
 
 class TestServerDevice(unittest.TestCase):
     def testSensorAddrs(self):
-        sensors = cloud4rpi.ServerDevice(create_device()).sensor_addrs()
+        sensors = cloud4rpid.ServerDevice(create_device()).sensor_addrs()
         self.assertListEqual(sorted(sensors), ['10-000802824e58', '22-000802824e58', '28-000802824e58'])
 
     def testWhatsNew(self):
-        device = cloud4rpi.ServerDevice(create_other_device())
+        device = cloud4rpid.ServerDevice(create_other_device())
         new_sensors = device.whats_new(['10-000802824e58', '22-000802824e58', '28-000802824e58'])
         self.assertSetEqual(new_sensors, {'22-000802824e58'})
 
     def testMapSensors(self):
-        device = cloud4rpi.ServerDevice(create_device())
+        device = cloud4rpid.ServerDevice(create_device())
         readings = [
             ('10-000802824e58', 22.25),
             ('22-000802824e58', 25.25),
@@ -361,14 +361,14 @@ class TestServerDevice(unittest.TestCase):
         })
 
     def testSetType(self):
-        device = cloud4rpi.ServerDevice(create_device())
+        device = cloud4rpid.ServerDevice(create_device())
         device.set_type('Raspberry PI')
         self.assertEqual(device.dump()['type'], 'Raspberry PI')
 
 
 class TestDeviceWithoutSensors(unittest.TestCase):
     def setUp(self):
-        self.device = cloud4rpi.ServerDevice(create_devices_without_sensors())
+        self.device = cloud4rpid.ServerDevice(create_devices_without_sensors())
 
     def testSensorAddrs(self):
         self.assertEqual(0, len(self.device.sensor_addrs()))
@@ -396,7 +396,7 @@ class TestUtils(TestFileSystemAndRequests):
         self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
 
     def testFindSensors(self):
-        sensors = cloud4rpi.find_sensors()
+        sensors = cloud4rpid.find_sensors()
         self.assertListEqual(sorted(sensors), [
             '10-000802824e58',
             '22-000802824e58',
@@ -404,11 +404,11 @@ class TestUtils(TestFileSystemAndRequests):
         ])
 
     def testReadSensor(self):
-        data = cloud4rpi.read_sensor('22-000802824e58')
+        data = cloud4rpid.read_sensor('22-000802824e58')
         self.assertEqual(data, ('22-000802824e58', 25.250))
 
     # def testCpuUsageCmd(self):
-    #     self.assertEqual("top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'", cloud4rpi.CPU_USAGE_CMD)
+    #     self.assertEqual("top -n2 -d.1 | awk -F ',' '/Cpu\(s\):/ {print $1}'", cloud4rpid.CPU_USAGE_CMD)
 
     def testCpuTemperatureCmd(self):
         self.assertEqual("vcgencmd measure_temp", cpu.CPU_TEMPERATURE_CMD)
@@ -417,10 +417,10 @@ class TestUtils(TestFileSystemAndRequests):
         self.assertEqual('/sys/bus/w1/devices/', W1_DEVICES)
 
     def testLogFilePath(self):
-        self.assertEqual('/var/log/cloud4rpi.log', cloud4rpi.LOG_FILE_PATH)
+        self.assertEqual('/var/log/cloud4rpid.log', cloud4rpid.LOG_FILE_PATH)
 
     def testRequestTimeout(self):
-        self.assertEqual(3 * 60 + 0.05, cloud4rpi.REQUEST_TIMEOUT_SECONDS)
+        self.assertEqual(3 * 60 + 0.05, cloud4rpid.REQUEST_TIMEOUT_SECONDS)
 
 
 class TestFileLineSeparator(fake_filesystem_unittest.TestCase):
