@@ -6,6 +6,8 @@ import re
 import shutil
 import datetime
 import subprocess
+import json
+from collections import namedtuple
 
 import unittest
 import fake_filesystem_unittest
@@ -24,7 +26,7 @@ from cloud4rpi.helpers import REQUEST_TIMEOUT_SECONDS
 from cloud4rpi.server_device import ServerDevice
 import cloud4rpi.errors as errors
 
-from settings_vendor import baseApiUrl
+from settings_vendor import baseApiUrl, config_file
 from sensors import cpu
 from sensors.ds18b20 import W1_DEVICES
 
@@ -44,31 +46,39 @@ sensor_no_temp = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
     '2d 00 4d 46 ff ff 08 10 fe : blabla=22250'
 
-
-class TestConfig:
-    def __init__(self):
-        pass
-
-    DeviceToken = '000000000000000000000001'
-    scanIntervalSeconds = 5
-    Actuators = [
+device_token = '000000000000000000000001'
+scan_interval_seconds = 5
+actuators = [{'name': 'LED on pin12', 'address': 'pin12', 'parameters': [{'default': 0}]}]
+variables = [{'name': 'temperature', 'type': 'number', 'value': 20}]
+TestConfig = namedtuple('object', 'DeviceToken scanIntervalSeconds Actuators Variables')
+test_config = TestConfig(device_token, scan_interval_seconds, actuators, variables)
+saved_config = {
+    '_id': '111111111111111111111111',
+    'type': 'Raspberry PI',
+    'name': 'test',
+    'userId': '222222222222222222222222',
+    'state': 1,
+    'token': '000000000000000000000001',
+    'sensors': [
         {
-            'name': 'LED on pin12',
-            'address': 'pin12',
-            'parameters': [
-                {'default': 0}
-            ]
-        }
-    ]
-    Variables = [
+            '_id': '000000000000000000000000',
+            'name': '10-000802824e58',
+            'address': '10-000802824e58'
+        },
         {
-            'name': 'temperature',
-            'type': 'number',
-            'value': 20
+            '_id': '000000000000000000000001',
+            'name': '22-000802824e58',
+            'address': '22-000802824e58'
+        },
+        {
+            '_id': '000000000000000000000002',
+            'name': '28-000802824e58',
+            'address': '28-000802824e58'
         }
-    ]
-
-test_config = TestConfig()
+    ],
+    'actuators': actuators,
+    'variables': variables
+}
 
 
 def create_device():
@@ -182,7 +192,7 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.setUpSensor('28-000802824e58', sensor_28)
         self.setUpSensor('22-000802824e58', sensor_22)
         self.setUpSensor('qw-sasasasasasa', 'garbage garbage garbage')
-        self.setUpBogusSensor('22-000000000000', "I look just like a real sensor, but I'm not")
+        self.setUpBogusSensor('22-000000000000', 'I look just like a real sensor, but I\'m not')
 
     def setUpNoSensors(self):
         for address in self.listW1Devices():
@@ -203,8 +213,8 @@ class TestEndToEnd(TestFileSystemAndRequests):
         self.now.return_value = datetime.datetime(2015, 7, 3, 11, 43, 47, 197339)
 
     def setUpShellOutput(self):
-        def side_effect(*args, **kwargs): # pylint: disable=W0613
-            if args[0] == 'DummyCpuAddress': #cloud4rpi.CPU_USAGE_CMD:
+        def side_effect(*args, **kwargs):  # pylint: disable=W0613
+            if args[0] == 'DummyCpuAddress':  # cloud4rpi.CPU_USAGE_CMD:
                 return '%Cpu(s):\x1b(B\x1b[m\x1b[39;49m\x1b[1m  2.0 \x1b(B\x1b[m\x1b[39;49mus\n' \
                        '%Cpu(s):\x1b(B\x1b[m\x1b[39;49m\x1b[1m  4.2 \x1b(B\x1b[m\x1b[39;49mus\n'
             else:
@@ -229,6 +239,17 @@ class TestEndToEnd(TestFileSystemAndRequests):
                                          headers={'api_key': '000000000000000000000001'},
                                          timeout=REQUEST_TIMEOUT_SECONDS)
         self.assertEqual(self.daemon.me.dump(), self.DEVICE)
+
+    def testLoadSavedDeviceConfig(self):
+        self.fs.CreateFile(os.path.join(config_file), contents=json.dumps(saved_config))
+
+        self.daemon.prepare()
+        self.daemon.send_device_config()
+
+        self.put.assert_called_once_with(baseApiUrl + '/devices/000000000000000000000001/',
+                                         headers={'api_key': '000000000000000000000001'},
+                                         json=saved_config,
+                                         timeout=REQUEST_TIMEOUT_SECONDS)
 
     def testCreateNewlyFoundSensorsOnExistingDevice(self):
         self.setUpGET(self.OTHER_DEVICE)

@@ -63,14 +63,14 @@ def get_device(token):
 def put_device(token, device):
     log.info('Sending device configuration...')
     device_json = device.dump()
-    log.info('DEVICE: ' + str(device_json))
+
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
                        json=device_json,
                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     if res.status_code != 200:
-        log.error("Can't register sensor. Status: {0}".format(res.status_code))
+        log.error('Can\'t register sensor. Status: {0}'.format(res.status_code))
 
     http_result = res.json()
     with open(config.config_file, 'w') as config_file:
