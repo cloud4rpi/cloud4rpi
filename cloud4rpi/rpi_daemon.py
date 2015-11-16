@@ -45,6 +45,7 @@ class RpiDaemon(object):
         self.variables = None
         self.actuators = None
         self.me = None
+        self.actuator_states = {}
         self.pool = Pool(processes=4, initializer=init_worker)
         token = settings.DeviceToken
         if not helpers.verify_token(token):
@@ -132,25 +133,29 @@ class RpiDaemon(object):
             log.error('Failed. Skipping...')
 
     def send_stream(self):
-        stream = self.create_stream()
-        return helpers.post_stream(self.token, stream)
-
-
-    def process_actuators_state(self, res):
-        for act_id, act_params in res['configuration']['actuators'].iteritems():
-            parent_conn.send({'id': act_id, 'params': act_params})
-
-    def set_actuator_state(self, data):
-        print str(helpers.set_actuator_state(self.token, data['id'], data['state']))
-
-    def create_stream(self):
         ts = datetime.datetime.utcnow().isoformat()
         readings = self.read_sensors()
         payload = self.me.map_extensions(readings)
-        return {
+
+        if len(self.actuator_states) != 0:
+            for attr, value in self.actuator_states.iteritems():
+                payload[attr] = value
+            self.actuator_states = {}
+
+        stream = {
             'ts': ts,
             'payload': payload
         }
+
+        return helpers.post_stream(self.token, stream)
+
+    @staticmethod
+    def process_actuators_state(res):
+        for act_id, act_state in res['configuration']['actuators'].iteritems():
+            parent_conn.send({'id': act_id, 'state': act_state})
+
+    def set_actuator_state(self, data):
+        self.actuator_states[data['id']] = data['state']
 
     def send_system_parameters(self):
         try:
@@ -166,15 +171,6 @@ class RpiDaemon(object):
 
     def run_user_scripts(self):
         self.pool.apply_async(run_script, args=(ExampleScript, self.me.dump()))
-
-    def send_user_script_data(self, data):
-        print 'send_user_script_data' + str(data)
-
-    def get_callback(self):
-        def callback(data):
-            self.send_user_script_data(data)
-
-        return callback
 
 
 def run_script(script_class, script_config):
