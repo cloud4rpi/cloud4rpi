@@ -8,3 +8,7 @@ class InvalidTokenError(Exception):
 
 class NoSensorsError(Exception):
     pass
+
+
+class ServerError(Exception):
+    pass

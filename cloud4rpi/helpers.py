@@ -106,6 +106,8 @@ def check_response(res):
     log.info(res.status_code)
     if res.status_code == 401:
         raise errors.AuthenticationError
+    if res.status_code >= 500:
+        raise errors.ServerError
 
 
 def verify_token(token):

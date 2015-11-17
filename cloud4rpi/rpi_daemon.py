@@ -125,11 +125,11 @@ class RpiDaemon(object):
     def tick(self):
         try:
             if parent_conn.poll():
-                    self.set_actuator_state(parent_conn.recv())
+                self.set_actuator_state(parent_conn.recv())
             res = self.send_stream()
             self.process_actuators_state(res)
             self.send_system_parameters()
-        except RequestException:
+        except RequestException, errors.ServerError:
             log.error('Failed. Skipping...')
 
     def send_stream(self):
