@@ -79,6 +79,10 @@ class RpiDaemon(object):
     def know_thyself(self):
         log.info('Getting device configuration...')
         self.me = helpers.get_device(self.token)
+        try:
+            self.process_actuators_state(helpers.load_device_state())
+        except (TypeError, Exception) as e:
+            log.exception('Error during load saved device state. Skipping... Error: {0}'.format(e.message))
 
     def find_sensors(self):
         self.sensors = find_sensors()
@@ -127,7 +131,8 @@ class RpiDaemon(object):
             if parent_conn.poll():
                 self.set_actuator_state(parent_conn.recv())
             res = self.send_stream()
-            self.process_actuators_state(res)
+            helpers.write_device_state(res)
+            self.process_device_state(res)
             self.send_system_parameters()
         except RequestException, errors.ServerError:
             log.error('Failed. Skipping...')
@@ -148,6 +153,9 @@ class RpiDaemon(object):
         }
 
         return helpers.post_stream(self.token, stream)
+
+    def process_device_state(self, state):
+        self.process_actuators_state(state)
 
     @staticmethod
     def process_actuators_state(res):

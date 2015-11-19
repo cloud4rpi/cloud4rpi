@@ -43,12 +43,36 @@ def get_system_parameters():
     }
 
 
+def load_device_config():
+    return load_file(config.config_file)
+
+
+def load_device_state():
+    return load_file(config.state_file)
+
+
+def load_file(file_path):
+    with open(file_path, 'r') as config_file:
+        return json.load(config_file)
+
+
+def write_device_config(device_config):
+    write_file(config.config_file, device_config)
+
+
+def write_device_state(device_state):
+    write_file(config.state_file, device_state)
+
+
+def write_file(file_path, file_content):
+    with open(file_path, 'w') as config_file:
+        json.dump(file_content, config_file)
+
+
 def get_device(token):
     if os.path.isfile(config.config_file):
         try:
-            with open(config.config_file, 'r') as config_file:
-                device = json.load(config_file)
-
+            device = load_device_config()
             return ServerDevice(device)
         except (TypeError, Exception) as e:
             log.exception('Error during load saved device config. Skipping... Error: {0}'.format(e.message))
@@ -73,8 +97,7 @@ def put_device(token, device):
         log.error('Can\'t register sensor. Status: {0}'.format(res.status_code))
 
     http_result = res.json()
-    with open(config.config_file, 'w') as config_file:
-        json.dump(http_result, config_file)
+    write_device_config(http_result)
 
     return ServerDevice(http_result)
 
