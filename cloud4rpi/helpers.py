@@ -65,8 +65,11 @@ def write_device_state(device_state):
 
 
 def write_file(file_path, file_content):
-    with open(file_path, 'w') as config_file:
-        json.dump(file_content, config_file)
+    try:
+        with open(file_path, 'w') as config_file:
+            json.dump(file_content, config_file)
+    except Exception as e:
+        log.exception('Error during write file {0}. Skipping... Error: {1}'.format(file_path, e.message))
 
 
 def get_device(token):
