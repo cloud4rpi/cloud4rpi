@@ -80,7 +80,7 @@ class RpiDaemon(object):
         log.info('Getting device configuration...')
         self.me = helpers.get_device(self.token)
         try:
-            self.process_actuators_state(helpers.load_device_state())
+            self.process_device_state(helpers.load_device_state())
         except (TypeError, Exception) as e:
             log.exception('Error during load saved device state. Skipping... Error: {0}'.format(e.message))
 
@@ -155,12 +155,18 @@ class RpiDaemon(object):
         return helpers.post_stream(self.token, stream)
 
     def process_device_state(self, state):
-        self.process_actuators_state(state)
+        self.process_actuators_state(state['configuration']['actuators'])
+        self.process_variables_value(state['configuration']['variables'])
 
     @staticmethod
-    def process_actuators_state(res):
-        for act_id, act_state in res['configuration']['actuators'].iteritems():
+    def process_actuators_state(actuators):
+        for act_id, act_state in actuators.iteritems():
             parent_conn.send({'id': act_id, 'state': act_state})
+
+    @staticmethod
+    def process_variables_value(variables):
+        for act_id, act_state in variables.iteritems():
+            parent_conn.send({'id': act_id, 'value': act_state})
 
     def set_actuator_state(self, data):
         self.actuator_states[data['id']] = data['state']

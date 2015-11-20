@@ -4,20 +4,17 @@
 import os  # should be imported before fake_filesystem_unittest
 import re
 import shutil
-import datetime
 import subprocess
 import json
 from collections import namedtuple
-
 import unittest
-import fake_filesystem_unittest
 
+import datetime
+import fake_filesystem_unittest
 from mock import MagicMock
 from mock import patch
-
 from teamcity import is_running_under_teamcity
 from teamcity.unittestpy import TeamcityTestRunner
-
 from requests import RequestException
 
 import cloud4rpi
@@ -25,10 +22,10 @@ from cloud4rpi.rpi_daemon import RpiDaemon, find_sensors, read_sensor
 from cloud4rpi.helpers import REQUEST_TIMEOUT_SECONDS
 from cloud4rpi.server_device import ServerDevice
 import cloud4rpi.errors as errors
-
-from settings_vendor import baseApiUrl, config_file
+from settings_vendor import baseApiUrl, config_file, state_file
 from sensors import cpu
 from sensors.ds18b20 import W1_DEVICES
+
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -79,6 +76,12 @@ saved_config = {
     'actuators': actuators,
     'variables': variables
 }
+saved_state = {
+    'configuration': {
+        'actuators': {'000000000000000000000010': 42},
+        'variables': {'000000000000000000000001': 43}
+    }
+}
 
 
 def create_device():
@@ -121,6 +124,7 @@ def create_devices_without_sensors():
         'actuators': [],
         'variables': []
     }
+
 
 class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUp(self):
@@ -250,6 +254,16 @@ class TestEndToEnd(TestFileSystemAndRequests):
                                          headers={'api_key': '000000000000000000000001'},
                                          json=saved_config,
                                          timeout=REQUEST_TIMEOUT_SECONDS)
+
+    @patch('cloud4rpi.rpi_daemon.parent_conn')
+    def testLoadSavedDeviceState(self, parent_conn):
+        self.fs.CreateFile(os.path.join(state_file), contents=json.dumps(saved_state))
+
+        self.daemon.prepare()
+        for act_id, act_state in saved_state['configuration']['actuators'].iteritems():
+            parent_conn.send.assert_any_call({'id': act_id, 'state': act_state})
+        for act_id, act_state in saved_state['configuration']['variables'].iteritems():
+            parent_conn.send.assert_any_call({'id': act_id, 'value': act_state})
 
     def testCreateNewlyFoundSensorsOnExistingDevice(self):
         self.setUpGET(self.OTHER_DEVICE)
@@ -406,7 +420,6 @@ class TestEndToEnd(TestFileSystemAndRequests):
             ('10-000802824e58', None),
             ('28-000802824e58', None)
         ])
-
 
 
 class TestServerDevice(unittest.TestCase):
