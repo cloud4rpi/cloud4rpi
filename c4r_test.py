@@ -31,6 +31,7 @@ class TestDaemon(unittest.TestCase):
         self.assertIsNone(self.daemon.token)
         methods = [
             self.daemon.set_device_token,
+            self.daemon.register_variable_handler,
             self.daemon.read_persistent,
             self.daemon.find_ds_sensors
         ]
@@ -45,6 +46,37 @@ class TestDaemon(unittest.TestCase):
     @staticmethod
     def _mockVariableHandler(var):
         var['value'] = var['value'] + 1
+
+    @staticmethod
+    def _mockHandler(var):
+        pass
+
+    def testRegisterVariableHandler(self):
+        self.assertEqual(self.daemon.bind_handlers, {})
+        self.daemon.register_variable_handler('test', self._mockVariableHandler)
+
+        registered = self.daemon.bind_handlers
+        self.assertEqual(len(registered), 1)
+        self.assertEqual(registered.keys(), ['test'])
+        self.assertEqual(registered.values(), [self._mockVariableHandler])
+
+    def testDoubleRegisterVariableHandler(self):
+        self.assertEqual(self.daemon.bind_handlers, {})
+        self.daemon.register_variable_handler('test', self._mockVariableHandler)
+        self.daemon.register_variable_handler('test', self._mockVariableHandler)
+
+        registered = self.daemon.bind_handlers
+        self.assertEqual(len(registered), 1)
+
+    def testSameKeyRegisterVariableHandler(self):
+        self.assertEqual(self.daemon.bind_handlers, {})
+        self.daemon.register_variable_handler('test', self._mockVariableHandler)
+        self.daemon.register_variable_handler('test', self._mockHandler)
+
+        registered = self.daemon.bind_handlers
+        self.assertEqual(len(registered), 1)
+        self.assertEqual(registered.keys(), ['test'])
+        self.assertEqual(registered.values(), [self._mockHandler])
 
 
     def testReadPersistence(self):
