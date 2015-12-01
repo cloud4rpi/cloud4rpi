@@ -37,3 +37,8 @@ class Daemon(object):
         handler = self.bind_handlers[address]
         handler()
 
+    def run(self):
+        pass
+
+    def shutdown(self):
+        pass
