@@ -93,6 +93,15 @@ class TestDaemon(unittest.TestCase):
         self.daemon.read_persistent(temp, self._mockVariableHandler)
         self.assertNotEqual(temp['value'], 0)
 
+    def testHandlerExists(self):
+        self.assertFalse(self.daemon.handler_exists(None))
+        self.assertFalse(self.daemon.handler_exists('some'))
+
+        self.daemon.register_variable_handler('first', self._mockHandler)
+        self.assertTrue(self.daemon.handler_exists('first'))
+        self.assertFalse(self.daemon.handler_exists('other'))
+
+
     @patch('c4r.daemon.Daemon.run_handler')
     def testProcessVariables(self, mock):
         addr = '10-000802824e58'
@@ -101,6 +110,7 @@ class TestDaemon(unittest.TestCase):
             'value': 22
         }
         self.daemon.register_variable_handler(addr, self._mockHandler)
+
         self.daemon.process_variables([temp])
         mock.assert_called_with(addr)
 

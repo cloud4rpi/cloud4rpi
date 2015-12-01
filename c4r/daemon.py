@@ -17,7 +17,9 @@ class Daemon(object):
         return sensors
 
     def handler_exists(self, address):
-        fn = self.bind_handlers[address]
+        fn = self.bind_handlers.get(address)
+        if fn is None:
+            return False
         return hasattr(fn, '__call__')
 
     def register_variable_handler(self, address, handler):
