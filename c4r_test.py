@@ -7,6 +7,7 @@ import os  # should be imported before fake_filesystem_unittest
 from c4r.daemon import Daemon
 from c4r.ds18b20 import W1_DEVICES
 import fake_filesystem_unittest
+from mock import patch
 
 device_token = '000000000000000000000001'
 
@@ -33,7 +34,9 @@ class TestDaemon(unittest.TestCase):
             self.daemon.set_device_token,
             self.daemon.register_variable_handler,
             self.daemon.read_persistent,
-            self.daemon.find_ds_sensors
+            self.daemon.find_ds_sensors,
+            self.daemon.process_variables,
+            self.daemon.run_handler
         ]
         self.methods_exists(methods)
 
@@ -78,7 +81,6 @@ class TestDaemon(unittest.TestCase):
         self.assertEqual(registered.keys(), ['test'])
         self.assertEqual(registered.values(), [self._mockHandler])
 
-
     def testReadPersistence(self):
         temp = {
             'title': 'Temp sensor reading',
@@ -90,6 +92,17 @@ class TestDaemon(unittest.TestCase):
         self.assertEqual(temp['value'], 0)
         self.daemon.read_persistent(temp, self._mockVariableHandler)
         self.assertNotEqual(temp['value'], 0)
+
+    @patch('c4r.daemon.Daemon.run_handler')
+    def testProcessVariables(self, mock):
+        addr = '10-000802824e58'
+        temp = {
+            'address': addr,
+            'value': 22
+        }
+        self.daemon.register_variable_handler(addr, self._mockHandler)
+        self.daemon.process_variables([temp])
+        mock.assert_called_with(addr)
 
 
 

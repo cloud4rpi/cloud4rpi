@@ -16,11 +16,20 @@ class Daemon(object):
         sensors = find_all()
         return sensors
 
+    def handler_exists(self, address):
+        fn = self.bind_handlers[address]
+        return hasattr(fn, '__call__')
+
     def register_variable_handler(self, address, handler):
         self.bind_handlers[address] = handler
 
     def read_persistent(self, variable, handler):
         handler(variable)
 
-    # def add_bind_handler(self, address, handler):
-    #     pass
+    def process_variables(self, variables):
+        [self.run_handler(x['address']) for x in variables if self.handler_exists(x['address'])]
+
+    def run_handler(self, address):
+        handler = self.bind_handlers[address]
+        handler()
+
