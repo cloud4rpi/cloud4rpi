@@ -129,11 +129,18 @@ class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
         self.setUpSensor('10-000802824e58', sensor_10)
         self.setUpSensor('28-000802824e58', sensor_28)
 
+    def testCreate_ds18b20_sensor(self):
+        sensor = self.daemon.create_ds18b20_sensor('abc')
+        self.assertEqual(sensor, {'address': 'abc', 'type': 'ds18b20'})
+
     def testFindDSSensors(self):
         self.setUpSensors()
         sensors = self.daemon.find_ds_sensors()
         self.assertTrue(len(sensors) > 0)
-        expected = ['10-000802824e58', '28-000802824e58']
+        expected = [
+            {'address': '10-000802824e58', 'type': 'ds18b20'},
+            {'address': '28-000802824e58', 'type': 'ds18b20'}
+        ]
         self.assertEqual(sensors, expected)
 
 

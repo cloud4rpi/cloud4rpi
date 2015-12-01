@@ -4,7 +4,6 @@ from ds18b20 import find_all
 
 
 class Daemon(object):
-
     def __init__(self):
         self.token = None
         self.bind_handlers = {}
@@ -12,9 +11,12 @@ class Daemon(object):
     def set_device_token(self, token):
         self.token = token
 
+    def create_ds18b20_sensor(self, address):
+        return {'type': 'ds18b20', 'address': address}
+
     def find_ds_sensors(self):
-        sensors = find_all()
-        return sensors
+        addresses = find_all()
+        return map(self.create_ds18b20_sensor, addresses)
 
     def handler_exists(self, address):
         fn = self.bind_handlers.get(address)
