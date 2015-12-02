@@ -11,7 +11,7 @@ from c4r.log import Logger
 
 # TODO remove or replace with c4r
 import cloud4rpi.errors as errors
-import cloud4rpi.helpers as helpers
+import c4r.helpers as helpers
 import settings as settings
 
 import c4r.ds18b20 as ds_sensor
@@ -129,4 +129,3 @@ class Daemon(object):
 
     def process_device_state(self, state):
         pass
-
