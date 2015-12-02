@@ -3,34 +3,18 @@
 
 import os
 import time
-import logging
-import logging.handlers
 from subprocess import CalledProcessError
-import cloud4rpi.errors as errors
-from settings import LOG_FILE_PATH
-
 import requests
 from requests import RequestException
 
-def create_logger():
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    config_logging_to_console(logger)
-    return logger
+import cloud4rpi.errors as errors
+from c4r.daemon import Daemon
+from settings import DeviceToken
+from c4r.log import Logger
+from settings import LOG_FILE_PATH
 
-
-def config_logging_to_console(logger):
-    console = logging.StreamHandler()
-    console.setFormatter(logging.Formatter('%(message)s'))
-    logger.addHandler(console)
-
-
-def config_logging_to_file(logger):
-    log_file = logging.handlers.RotatingFileHandler(LOG_FILE_PATH, maxBytes=1024 * 1024, backupCount=10)
-    log_file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
-    logger.addHandler(log_file)
-
-log = create_logger()
+logger = Logger()
+log = logger.get_log()
 
 def modprobe(module):
     cmd = 'modprobe {0}'.format(module)
@@ -56,16 +40,13 @@ def safe_run_daemon(daemon):
             wait_secs *= 2
 
 
-from c4r.daemon import Daemon
-from settings import DeviceToken
-
 def main():
     daemon = None
     try:
         modprobe('w1-gpio')
         modprobe('w1-therm')
 
-        config_logging_to_file(log)
+        logger.config_logging_to_file(LOG_FILE_PATH)
 
         log.info('Starting...')
 
