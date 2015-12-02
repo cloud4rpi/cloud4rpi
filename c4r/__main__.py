@@ -40,6 +40,7 @@ def safe_run_daemon(daemon):
             wait_secs *= 2
 
 
+
 def main():
     daemon = None
     try:

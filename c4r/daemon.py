@@ -14,8 +14,7 @@ import cloud4rpi.errors as errors
 import cloud4rpi.helpers as helpers
 import settings as settings
 
-
-from c4r.ds18b20 import find_all
+import c4r.ds18b20 as ds_sensor
 
 log = Logger().get_log()
 
@@ -37,14 +36,18 @@ class Daemon(object):
         return {'type': 'ds18b20', 'address': address}
 
     def find_ds_sensors(self):
-        addresses = find_all()
-        return [self.create_ds18b20_sensor(x) for x in addresses]
+        return ds_sensor.find_all()
+        # return [self.create_ds18b20_sensor(x) for x in addresses]
 
     def handler_exists(self, address):
         fn = self.bind_handlers.get(address)
         if fn is None:
             return False
         return hasattr(fn, '__call__')
+
+    def address_exists(self, variable):
+        config = variable['bind']
+        return config['address']
 
     def register_variable_handler(self, address, handler):
         self.bind_handlers[address] = handler
@@ -53,8 +56,31 @@ class Daemon(object):
     def read_persistent(variable, handler):
         handler(variable)
 
+    @staticmethod
+    def extract_variable_bind_attr(variable, attr):
+        if not variable:
+            return False
+        bind = variable['bind']
+        if bind is None:
+            return False
+        return bind[attr]
+
+
+    def is_ds_sensor(self, variable):
+        type = self.extract_variable_bind_attr(variable, 'type')
+        if type == ds_sensor.SUPPORTED_TYPE:
+            return not self.extract_variable_bind_attr(variable, 'address') is None
+        return False
+
+    def read_ds_sensor(self, variable):
+        address = self.extract_variable_bind_attr(variable, 'address')
+        return ds_sensor.read(address)
+
     def process_variables(self, variables):
-        [self.run_handler(x['address']) for x in variables if self.handler_exists(x['address'])]
+        values = [self.read_ds_sensor(x) for x in variables if self.is_ds_sensor(x)]
+        print values
+        return values
+        # [self.run_handler(x['address']) for x in variables if self.handler_exists(x['address'])]
 
     def run_handler(self, address):
         handler = self.bind_handlers[address]
