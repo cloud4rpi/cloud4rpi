@@ -6,7 +6,6 @@ from c4r.log import Logger
 from c4r import lib
 
 log = Logger().get_log()
-lib = lib.Daemon()
 
 def find_ds_sensors():
     return ds18b20.find_all()

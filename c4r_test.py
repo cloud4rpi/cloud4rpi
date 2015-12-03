@@ -6,7 +6,7 @@ import types
 import unittest
 import os  # should be imported before fake_filesystem_unittest
 import c4r
-from c4r.lib import Daemon
+from c4r import lib
 from c4r import ds18b20 as ds_sensors
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
@@ -42,8 +42,7 @@ class TestDaemon(unittest.TestCase):
     sensorReadingMock = None
 
     def setUp(self):
-        self.lib = Daemon()
-        self.assertIsNotNone(self.lib)
+        pass
 
     def tearDown(self):
         self.restoreSensorReadingMock()
@@ -67,27 +66,27 @@ class TestDaemon(unittest.TestCase):
             self.assertTrue(is_instance)
 
     def testDefauls(self):
-        self.assertIsNone(self.lib.token)
+        self.assertIsNone(lib.device_token)
 
-    def testMethodsExists(self):
-        methods = [
-            self.lib.set_device_token,
-            self.lib.run_handler
-        ]
-        self.methods_exists(methods)
+    # def testMethodsExists(self):
+    #     methods = [
+    #     ]
+    #     self.methods_exists(methods)
 
     def testStaticMethodsExists(self):
         self.static_methods_exists([
-            self.lib.find_ds_sensors,
-            self.lib.create_ds18b20_sensor,
-            self.lib.read_persistent,
-            self.lib.send_receive
+            lib.set_device_token,
+            lib.run_handler,
+            lib.find_ds_sensors,
+            lib.create_ds18b20_sensor,
+            lib.read_persistent,
+            lib.send_receive
         ])
 
     def testSetDeviceToken(self):
-        self.assertIsNone(self.lib.token)
-        self.lib.set_device_token(device_token)
-        self.assertEqual(self.lib.token, device_token)
+        self.assertIsNone(lib.device_token)
+        lib.set_device_token(device_token)
+        self.assertEqual(lib.device_token, device_token)
 
     def testHandlerExists(self):
         var1 = {
@@ -98,9 +97,9 @@ class TestDaemon(unittest.TestCase):
             'title': 'invalid',
             'bind': {'address': 'abc'}
         }
-        self.assertFalse(self.lib.bind_handler_exists(None))
-        self.assertFalse(self.lib.bind_handler_exists(var2))
-        self.assertTrue(self.lib.bind_handler_exists(var1))
+        self.assertFalse(lib.bind_handler_exists(None))
+        self.assertFalse(lib.bind_handler_exists(var2))
+        self.assertTrue(lib.bind_handler_exists(var1))
 
 
     @patch('c4r.ds18b20.read')
@@ -115,7 +114,7 @@ class TestDaemon(unittest.TestCase):
         }
         input = {"Var1": var}
 
-        self.lib.read_persistent(input)
+        lib.read_persistent(input)
         mock.assert_called_with(addr)
 
     def testUpdateVariableValueOnRead(self):
@@ -128,7 +127,7 @@ class TestDaemon(unittest.TestCase):
 
         self.setUpSensorReading(22.4)
 
-        self.lib.read_persistent(input)
+        lib.read_persistent(input)
         self.assertEqual(var['value'], 22.4)
 
     def testCollectReadings(self):
@@ -137,7 +136,7 @@ class TestDaemon(unittest.TestCase):
             'some': {'title': '456', 'bind': {'type': 'unknown'}},
             'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
         }
-        readings = self.lib.collect_readings(variables)
+        readings = lib.collect_readings(variables)
         expected = {'temp2': None, 'temp1': 22.4}
         self.assertEqual(readings, expected)
 
@@ -173,8 +172,6 @@ class TestHelpers(unittest.TestCase):
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
     def setUp(self):
         self.setUpPyfakefs()
-        self.lib = Daemon()
-        self.assertIsNotNone(self.lib)
 
     def setUpSensor(self, address, content):
         self.fs.CreateFile(os.path.join(W1_DEVICES, address, 'w1_slave'), contents=content)
@@ -184,12 +181,12 @@ class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
         self.setUpSensor('28-000802824e58', sensor_28)
 
     def testCreate_ds18b20_sensor(self):
-        sensor = self.lib.create_ds18b20_sensor('abc')
+        sensor = lib.create_ds18b20_sensor('abc')
         self.assertEqual(sensor, {'address': 'abc', 'type': 'ds18b20'})
 
     def testFindDSSensors(self):
         self.setUpSensors()
-        sensors = self.lib.find_ds_sensors()
+        sensors = lib.find_ds_sensors()
         self.assertTrue(len(sensors) > 0)
         expected = [
             {'address': '10-000802824e58', 'type': 'ds18b20'},

@@ -8,7 +8,7 @@ import requests
 from requests import RequestException
 
 import cloud4rpi.errors as errors
-from c4r.lib import Daemon
+from c4r import lib
 from settings import DeviceToken
 from c4r.log import Logger
 from settings import LOG_FILE_PATH
@@ -24,14 +24,14 @@ def modprobe(module):
         raise CalledProcessError(ret, cmd)
 
 
-def safe_run_daemon(daemon):
+def safe_run_daemon(lib):
     max_try_count = 5
     wait_secs = 10
     n = 0
     while n < max_try_count:
         try:
-            daemon.set_device_token(DeviceToken)
-            daemon.run()
+            lib.set_device_token(DeviceToken)
+            # lib.run()
             break
         except requests.ConnectionError as ex:
             log.exception('Daemon running ERROR: {0}'.format(ex.message))
@@ -51,8 +51,7 @@ def main():
 
         log.info('Starting...')
 
-        daemon = Daemon()
-        safe_run_daemon(daemon)
+        safe_run_daemon(lib)
 
     except RequestException as e:
         log.exception('Connection failed. Please try again later. Error: {0}'.format(e.message))
