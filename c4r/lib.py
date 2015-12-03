@@ -60,17 +60,17 @@ def collect_readings(variables):
 
 
 def send_receive(variables):
-    readings = [collect_readings(name, value) for name, value in variables.iteritems()]
-    send_stream(readings)
+    readings = collect_readings(variables)
+    return send_stream(readings)
 
 
-def send_stream(self, payload):
+def send_stream(payload):
     ts = datetime.datetime.utcnow().isoformat()
     stream = {
         'ts': ts,
         'payload': payload
     }
-    return helpers.post_stream(self.token, stream)
+    return helpers.post_stream(device_token, stream)
 
 
 def run_handler(self, address):

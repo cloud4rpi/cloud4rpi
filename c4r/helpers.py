@@ -104,6 +104,7 @@ def put_device(token, device):
 
 
 def post_stream(token, stream):
+    log.info('token ' +  token)
     log.info('sending {0}'.format(stream))
 
     res = requests.post(stream_request_url(token),

@@ -33,12 +33,18 @@ class TestApi(unittest.TestCase):
         c4r.read_persistent(input)
         mock.assert_called_once_with(input)
 
+    @patch('c4r.lib.send_receive')
+    def testReadPersistent(self, mock):
+        input = {'A': 1}
+        c4r.send_receive(input)
+        mock.assert_called_once_with(input)
+
     @patch('c4r.ds18b20.find_all')
     def testFindDSSensors(self, mock):
         c4r.find_ds_sensors()
         self.assertTrue(mock.called)
 
-class TestDaemon(unittest.TestCase):
+class TestLibrary(unittest.TestCase):
     sensorReadingMock = None
 
     def setUp(self):
@@ -152,6 +158,70 @@ class TestDaemon(unittest.TestCase):
         #
         #     self.daemon.process_variables([temp])
         #     mock.assert_called_with(addr)
+
+
+class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
+    def setUp(self):
+        self.setUpPyfakefs()
+        self.patchRequests()
+        self.fs.CreateFile('/dev/null')
+
+    def setUpResponse(self, verb, response, status_code=200):
+        r_mock = MagicMock(['json', 'status_code'])
+        r_mock.json.return_value = response
+        verb.return_value = r_mock
+        self.setUpStatusCode(verb, status_code)
+
+    @staticmethod
+    def setUpStatusCode(verb, code):
+        verb.return_value.status_code = code
+
+    def patchRequests(self):
+        self.get = self.startPatching('requests.get')
+        self.put = self.startPatching('requests.put')
+        self.post = self.startPatching('requests.post')
+
+    def setUpDefaultResponses(self):
+        self.setUpPOSTStatus(201)
+
+    @staticmethod
+    def startPatching(target):
+        return patch(target).start()
+
+    def setUpGET(self, res_body):
+        self.setUpResponse(self.get, res_body)
+
+    def setUpPUT(self, res_body):
+        self.setUpResponse(self.put, res_body)
+
+    def setUpGETStatus(self, code):
+        self.setUpStatusCode(self.get, code)
+
+    def setUpPUTStatus(self, code):
+        self.setUpStatusCode(self.put, code)
+
+    def setUpPOSTStatus(self, code):
+        self.setUpStatusCode(self.post, code)
+
+
+class TestDataExchange(TestFileSystemAndRequests):
+    def setUp(self):
+        super(TestDataExchange, self).setUp()
+        self.setUpDefaultResponses()
+        lib.set_device_token(device_token)
+
+    def tearDown(self):
+        lib.set_device_token(None)
+
+
+    def testSendReceive(self):
+        variables = {
+            'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20', 'address':'10-000802824e58'}}
+        }
+        json = lib.send_receive(variables)
+        # TODO correct
+        # self.assertEqual(json.status_code, 201)
+
 
 
 class TestHelpers(unittest.TestCase):
