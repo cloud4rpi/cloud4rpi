@@ -38,7 +38,7 @@ class TestApi(fake_filesystem_unittest.TestCase):
         self.setUpSensor('28-000802824e58', sensor_28)
 
     def testReadPersistent(self):
-        c4r.read_persistent([])
+        c4r.read_persistent({})
         self.assertTrue(1)
 
     def testFindDSSensors(self):
@@ -53,12 +53,23 @@ class TestApi(fake_filesystem_unittest.TestCase):
 
 
 class TestDaemon(unittest.TestCase):
+    sensorReadingMock = None
+
     def setUp(self):
         self.lib = Daemon()
         self.assertIsNotNone(self.lib)
 
+    def tearDown(self):
+        self.restoreSensorReadingMock()
+
     def setUpSensorReading(self, expected_val):
-        ds_sensors.read = MagicMock(return_value=expected_val)
+        self.restoreSensorReadingMock()
+        self.sensorReadingMock = MagicMock(return_value=expected_val)
+        ds_sensors.read = self.sensorReadingMock
+
+    def restoreSensorReadingMock(self):
+        if not self.sensorReadingMock is None:
+            self.sensorReadingMock.reset_mock()
 
     def methods_exists(self, methods):
         for m in methods:
@@ -84,24 +95,13 @@ class TestDaemon(unittest.TestCase):
             self.lib.find_ds_sensors,
             self.lib.create_ds18b20_sensor,
             self.lib.read_persistent,
-            self.lib.send_receice
+            self.lib.send_receive
         ])
 
     def testSetDeviceToken(self):
         self.assertIsNone(self.lib.token)
         self.lib.set_device_token(device_token)
         self.assertEqual(self.lib.token, device_token)
-
-    def testReadPersistent(self):
-        temp = {
-            'title': 'Temp sensor reading',
-            'type': 'numeric',
-            'bind': 'onewire',
-            'value': 0
-        }
-        self.assertEqual(temp['value'], 0)
-        self.lib.read_persistent(temp, MockHandler.variable_inc_val)
-        self.assertNotEqual(temp['value'], 0)
 
     def testHandlerExists(self):
         var1  = {
@@ -127,7 +127,9 @@ class TestDaemon(unittest.TestCase):
                 'address': addr
             }
         }
-        self.lib.read_persistent([var])
+        input = {"Var1": var}
+
+        self.lib.read_persistent(input)
         mock.assert_called_with(addr)
 
     def testUpdateVariableValueOnRead(self):
@@ -136,8 +138,11 @@ class TestDaemon(unittest.TestCase):
             'title': 'temp',
             'bind': {'type': 'ds18b20', 'address': addr}
         }
+        input = {'Test': var}
+
         self.setUpSensorReading(22.4)
-        self.lib.read_persistent([var])
+
+        self.lib.read_persistent(input)
         self.assertEqual(var['value'], 22.4)
 
 
