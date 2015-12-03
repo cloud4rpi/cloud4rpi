@@ -52,23 +52,26 @@ class Daemon(object):
         self.bind_handlers[address] = handler
 
     @staticmethod
-    def read_persistent(variable, handler):
-        handler(variable)
-
-    def is_ds_sensor(self, variable):
+    def is_ds_sensor(variable):
         if ds_sensor.SUPPORTED_TYPE == helpers.get_variable_type(variable):
             return not helpers.get_variable_address(variable) is None
         return False
 
-    def read_ds_sensor(self, variable):
+    @staticmethod
+    def read_ds_sensor(variable):
         address = helpers.get_variable_address(variable)
         return ds_sensor.read(address)
 
-    def read_persistence(self, variables):
-        values = [self.read_ds_sensor(x) for x in variables if self.is_ds_sensor(x)]
+    @staticmethod
+    def read_persistent(variables):
+        values = [Daemon.read_ds_sensor(x) for x in variables if Daemon.is_ds_sensor(x)]
         print values
         return values
         # [self.run_handler(x['address']) for x in variables if self.handler_exists(x['address'])]
+
+    # @staticmethod
+    # def write_(variable, handler):
+    #     handler(variable)
 
     def run_handler(self, address):
         handler = self.bind_handlers[address]

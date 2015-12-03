@@ -6,16 +6,16 @@ from c4r.log import Logger
 from c4r import daemon
 
 log = Logger().get_log()
-dmn = daemon.Daemon()
+lib = daemon.Daemon()
 
 def find_ds_sensors():
     return ds18b20.find_all()
 
 def set_device_token(token):
-    dmn.set_device_token(token)
+    lib.set_device_token(token)
 
-def read_persistence(variables):
-    dmn.read_persistence(variables)
+def read_persistent(variables):
+    lib.read_persistent(variables)
 
 def process_variables(variables):
-    dmn.process_variables(variables)
+    lib.process_variables(variables)

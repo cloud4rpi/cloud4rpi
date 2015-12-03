@@ -22,9 +22,9 @@ Variables = {
 def main():
     try:
         while True:
-            # c4r.read_persistent(Variables)
+            c4r.read_persistent(Variables) #reads values from persistent memory, sensors
 
-            c4r.process_variables([Variables['CurrentTemp']]) #reads values from persistent memory, sensors
+            #c4r.process_variables([Variables['CurrentTemp']]) #reads values from persistent memory, sensors
 
             time.sleep(10)
     except:

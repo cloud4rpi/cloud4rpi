@@ -34,8 +34,8 @@ class TestApi(fake_filesystem_unittest.TestCase):
         self.setUpSensor('10-000802824e58', sensor_10)
         self.setUpSensor('28-000802824e58', sensor_28)
 
-    def testReadPersistence(self):
-        c4r.read_persistence([])
+    def testReadPersistent(self):
+        c4r.read_persistent([])
         self.assertTrue(1)
 
     def testFindDSSensors(self):
@@ -51,8 +51,8 @@ class TestApi(fake_filesystem_unittest.TestCase):
 
 class TestDaemon(unittest.TestCase):
     def setUp(self):
-        self.daemon = Daemon()
-        self.assertIsNotNone(self.daemon)
+        self.lib = Daemon()
+        self.assertIsNotNone(self.lib)
 
     def methods_exists(self, methods):
         for m in methods:
@@ -64,87 +64,77 @@ class TestDaemon(unittest.TestCase):
             self.assertTrue(isInstance)
 
     def testDefauls(self):
-        self.assertIsNone(self.daemon.token)
+        self.assertIsNone(self.lib.token)
 
     def testMethodsExists(self):
         methods = [
-            self.daemon.set_device_token,
-            self.daemon.register_variable_handler,
-            self.daemon.read_persistence,
-            self.daemon.run_handler
+            self.lib.set_device_token,
+            self.lib.register_variable_handler,
+            self.lib.run_handler
         ]
         self.methods_exists(methods)
 
     def testStaticMethodsExists(self):
         self.static_methods_exists([
-            self.daemon.find_ds_sensors,
-            self.daemon.create_ds18b20_sensor,
-            self.daemon.read_persistent
+            self.lib.find_ds_sensors,
+            self.lib.create_ds18b20_sensor,
+            self.lib.read_persistent
         ])
 
     def testSetDeviceToken(self):
-        self.assertIsNone(self.daemon.token)
-        self.daemon.set_device_token(device_token)
-        self.assertEqual(self.daemon.token, device_token)
-
-    @staticmethod
-    def _mockVariableHandler(var):
-        var['value'] = var['value'] + 1
-
-    @staticmethod
-    def _mockHandler(var):
-        pass
+        self.assertIsNone(self.lib.token)
+        self.lib.set_device_token(device_token)
+        self.assertEqual(self.lib.token, device_token)
 
     def testRegisterVariableHandler(self):
-        self.assertEqual(self.daemon.bind_handlers, {})
-        self.daemon.register_variable_handler('test', self._mockVariableHandler)
+        self.assertEqual(self.lib.bind_handlers, {})
+        self.lib.register_variable_handler('test', MockHandler.variable_inc_val)
 
-        registered = self.daemon.bind_handlers
+        registered = self.lib.bind_handlers
         self.assertEqual(len(registered), 1)
         self.assertEqual(registered.keys(), ['test'])
-        self.assertEqual(registered.values(), [self._mockVariableHandler])
+        self.assertEqual(registered.values(), [MockHandler.variable_inc_val])
 
     def testDoubleRegisterVariableHandler(self):
-        self.assertEqual(self.daemon.bind_handlers, {})
-        self.daemon.register_variable_handler('test', self._mockVariableHandler)
-        self.daemon.register_variable_handler('test', self._mockVariableHandler)
+        self.assertEqual(self.lib.bind_handlers, {})
+        self.lib.register_variable_handler('test', MockHandler.variable_inc_val)
+        self.lib.register_variable_handler('test', MockHandler.variable_inc_val)
 
-        registered = self.daemon.bind_handlers
+        registered = self.lib.bind_handlers
         self.assertEqual(len(registered), 1)
 
     def testSameKeyRegisterVariableHandler(self):
-        self.assertEqual(self.daemon.bind_handlers, {})
-        self.daemon.register_variable_handler('test', self._mockVariableHandler)
-        self.daemon.register_variable_handler('test', self._mockHandler)
+        self.assertEqual(self.lib.bind_handlers, {})
+        self.lib.register_variable_handler('test', MockHandler.variable_inc_val)
+        self.lib.register_variable_handler('test', MockHandler.empty)
 
-        registered = self.daemon.bind_handlers
+        registered = self.lib.bind_handlers
         self.assertEqual(len(registered), 1)
         self.assertEqual(registered.keys(), ['test'])
-        self.assertEqual(registered.values(), [self._mockHandler])
+        self.assertEqual(registered.values(), [MockHandler.empty])
 
-    def testReadPersistence(self):
+    def testReadPersistent(self):
         temp = {
             'title': 'Temp sensor reading',
             'type': 'numeric',
             'bind': 'onewire',
-            'address': '10-000802824e58',
             'value': 0
         }
         self.assertEqual(temp['value'], 0)
-        self.daemon.read_persistent(temp, self._mockVariableHandler)
+        self.lib.read_persistent(temp, MockHandler.variable_inc_val)
         self.assertNotEqual(temp['value'], 0)
 
     def testHandlerExists(self):
-        self.assertFalse(self.daemon.handler_exists(None))
-        self.assertFalse(self.daemon.handler_exists('some'))
+        self.assertFalse(self.lib.handler_exists(None))
+        self.assertFalse(self.lib.handler_exists('some'))
 
-        self.daemon.register_variable_handler('first', self._mockHandler)
-        self.assertTrue(self.daemon.handler_exists('first'))
-        self.assertFalse(self.daemon.handler_exists('other'))
+        self.lib.register_variable_handler('first', MockHandler.empty)
+        self.assertTrue(self.lib.handler_exists('first'))
+        self.assertFalse(self.lib.handler_exists('other'))
 
 
     @patch('c4r.ds18b20.read')
-    def testReadPersistence(self, mock):
+    def testReadPersistent(self, mock):
         addr = '10-000802824e58'
         var  = {
             'title': 'temp',
@@ -153,7 +143,7 @@ class TestDaemon(unittest.TestCase):
                 'address': addr
             }
         }
-        self.daemon.read_persistence([var])
+        self.lib.read_persistent([var])
         mock.assert_called_with(addr)
 
     # @patch('c4r.daemon.Daemon.run_handler')
@@ -210,6 +200,19 @@ class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
             {'address': '28-000802824e58', 'type': 'ds18b20'}
         ]
         self.assertEqual(sensors, expected)
+
+
+class MockHandler(object):
+    @staticmethod
+    def variable_inc_val(var):
+        var['value'] += 1
+
+    @staticmethod
+    def empty(var):
+        pass
+
+
+
 
 
 def main():
