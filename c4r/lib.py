@@ -60,7 +60,8 @@ class Daemon(object):
     @staticmethod
     def read_ds_sensor(variable):
         address = helpers.get_variable_address(variable)
-        return ds_sensor.read(address)
+        if not address is None:
+            variable['value'] = ds_sensor.read(address)
 
     @staticmethod
     def read_persistent(variables):
@@ -68,6 +69,10 @@ class Daemon(object):
         print values
         return values
         # [self.run_handler(x['address']) for x in variables if self.handler_exists(x['address'])]
+
+    @staticmethod
+    def send_receice(variables):
+        pass
 
     # @staticmethod
     # def write_(variable, handler):

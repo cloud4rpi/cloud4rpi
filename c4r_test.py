@@ -7,10 +7,13 @@ import unittest
 import os  # should be imported before fake_filesystem_unittest
 import c4r
 from c4r.lib import Daemon
+from c4r import ds18b20 as ds_sensors
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 import fake_filesystem_unittest
 from mock import patch
+from mock import MagicMock
+
 
 device_token = '000000000000000000000001'
 
@@ -54,6 +57,9 @@ class TestDaemon(unittest.TestCase):
         self.lib = Daemon()
         self.assertIsNotNone(self.lib)
 
+    def setUpSensorReading(self, expected_val):
+        ds_sensors.read = MagicMock(return_value=22.4)
+
     def methods_exists(self, methods):
         for m in methods:
             self.assertTrue(inspect.ismethod(m))
@@ -78,7 +84,8 @@ class TestDaemon(unittest.TestCase):
         self.static_methods_exists([
             self.lib.find_ds_sensors,
             self.lib.create_ds18b20_sensor,
-            self.lib.read_persistent
+            self.lib.read_persistent,
+            self.lib.send_receice
         ])
 
     def testSetDeviceToken(self):
@@ -145,6 +152,17 @@ class TestDaemon(unittest.TestCase):
         }
         self.lib.read_persistent([var])
         mock.assert_called_with(addr)
+
+    def testUpdateVariableValueOnRead(self):
+        addr = '10-000802824e58'
+        var  = {
+            'title': 'temp',
+            'bind': {'type': 'ds18b20', 'address': addr}
+        }
+        self.setUpSensorReading(22.4)
+        self.lib.read_persistent([var])
+        self.assertEqual(var['value'], 22.4)
+
 
     # @patch('c4r.daemon.Daemon.run_handler')
     # def testProcessVariables(self, mock):

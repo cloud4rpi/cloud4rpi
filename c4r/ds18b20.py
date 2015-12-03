@@ -25,9 +25,9 @@ def read(address):
     temp_token = 't='
     temp_index = readings.find(temp_token)
     if temp_index < 0:
-        return address, None
+        return None
     temp = readings[temp_index + len(temp_token):]
-    return address, float(temp) / 1000
+    return float(temp) / 1000
 
 
 def read_whole_file(path):

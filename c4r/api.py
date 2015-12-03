@@ -19,3 +19,6 @@ def read_persistent(variables):
 
 def process_variables(variables):
     lib.process_variables(variables)
+
+def send_receive(variables):
+    lib.send_receive(variables)
