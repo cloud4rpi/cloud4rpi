@@ -56,27 +56,16 @@ class Daemon(object):
     def read_persistent(variable, handler):
         handler(variable)
 
-    @staticmethod
-    def extract_variable_bind_attr(variable, attr):
-        if not variable:
-            return False
-        bind = variable['bind']
-        if bind is None:
-            return False
-        return bind[attr]
-
-
     def is_ds_sensor(self, variable):
-        type = self.extract_variable_bind_attr(variable, 'type')
-        if type == ds_sensor.SUPPORTED_TYPE:
-            return not self.extract_variable_bind_attr(variable, 'address') is None
+        if ds_sensor.SUPPORTED_TYPE == helpers.get_variable_type(variable):
+            return not helpers.get_variable_address(variable) is None
         return False
 
     def read_ds_sensor(self, variable):
-        address = self.extract_variable_bind_attr(variable, 'address')
+        address = helpers.get_variable_address(variable)
         return ds_sensor.read(address)
 
-    def process_variables(self, variables):
+    def read_persistence(self, variables):
         values = [self.read_ds_sensor(x) for x in variables if self.is_ds_sensor(x)]
         print values
         return values
@@ -85,38 +74,6 @@ class Daemon(object):
     def run_handler(self, address):
         handler = self.bind_handlers[address]
         handler()
-
-    def run(self):
-        self.prepare()
-        self.poll()
-
-    def shutdown(self):
-        print 'Terminate user scripts'
-        self.pool.terminate()
-        self.pool.join()
-        print 'Done'
-
-    def prepare(self):
-        self.know_thyself()
-        # TODO impl
-
-    def know_thyself(self):
-        log.info('Getting device configuration...')
-        self.me = helpers.get_device(self.token)
-        # TODO impl
-
-    def poll(self):
-        while True:
-            self.tick()
-            time.sleep(settings.scanIntervalSeconds)
-
-    def tick(self):
-        try:
-            res = self.send_stream()
-            self.process_device_state(res)
-            # TODO impl
-        except RequestException, errors.ServerError:
-            log.error('Failed. Skipping...')
 
     def send_stream(self):
         ts = datetime.datetime.utcnow().isoformat()
@@ -129,3 +86,37 @@ class Daemon(object):
 
     def process_device_state(self, state):
         pass
+
+
+    # def run(self):
+    #     self.prepare()
+    #     self.poll()
+    #
+    # def shutdown(self):
+    #     print 'Terminate user scripts'
+    #     self.pool.terminate()
+    #     self.pool.join()
+    #     print 'Done'
+    #
+    # def prepare(self):
+    #     self.know_thyself()
+    #     # TODO impl
+    #
+    # def know_thyself(self):
+    #     log.info('Getting device configuration...')
+    #     self.me = helpers.get_device(self.token)
+    #     # TODO impl
+    #
+    # def poll(self):
+    #     while True:
+    #         self.tick()
+    #         time.sleep(settings.scanIntervalSeconds)
+    #
+    # def tick(self):
+    #     try:
+    #         res = self.send_stream()
+    #         self.process_device_state(res)
+    #
+    #     except RequestException, errors.ServerError:
+    #         log.error('Failed. Skipping...')
+

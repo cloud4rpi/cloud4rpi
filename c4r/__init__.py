@@ -1,2 +1,2 @@
 from __main__ import *
-from api import *
+from c4r.api import *

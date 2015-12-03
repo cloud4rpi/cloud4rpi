@@ -8,6 +8,7 @@ import os  # should be imported before fake_filesystem_unittest
 import c4r
 from c4r.daemon import Daemon
 from c4r.ds18b20 import W1_DEVICES
+from c4r import helpers
 import fake_filesystem_unittest
 from mock import patch
 
@@ -33,8 +34,8 @@ class TestApi(fake_filesystem_unittest.TestCase):
         self.setUpSensor('10-000802824e58', sensor_10)
         self.setUpSensor('28-000802824e58', sensor_28)
 
-    def testProcessVariables(self):
-        c4r.process_variables([])
+    def testReadPersistence(self):
+        c4r.read_persistence([])
         self.assertTrue(1)
 
     def testFindDSSensors(self):
@@ -70,7 +71,7 @@ class TestDaemon(unittest.TestCase):
             self.daemon.set_device_token,
             self.daemon.register_variable_handler,
             self.daemon.find_ds_sensors,
-            self.daemon.process_variables,
+            self.daemon.read_persistence,
             self.daemon.run_handler
         ]
         self.methods_exists(methods)
@@ -143,7 +144,7 @@ class TestDaemon(unittest.TestCase):
 
 
     @patch('c4r.ds18b20.read')
-    def testProcessVariables(self, mock):
+    def testReadPersistence(self, mock):
         addr = '10-000802824e58'
         var  = {
             'title': 'temp',
@@ -152,7 +153,7 @@ class TestDaemon(unittest.TestCase):
                 'address': addr
             }
         }
-        self.daemon.process_variables([var])
+        self.daemon.read_persistence([var])
         mock.assert_called_with(addr)
 
     # @patch('c4r.daemon.Daemon.run_handler')
@@ -167,6 +168,8 @@ class TestDaemon(unittest.TestCase):
     #     self.daemon.process_variables([temp])
     #     mock.assert_called_with(addr)
 
+
+class TestHelpers(unittest.TestCase):
     def testExtractVariableBindAttr(self):
         addr = '10-000802824e58'
         bind = {
@@ -177,9 +180,8 @@ class TestDaemon(unittest.TestCase):
             'title': 'temp',
             'bind': bind
         }
-        actual = self.daemon.extract_variable_bind_attr(var, 'address')
+        actual = helpers.extract_variable_bind_attr(var, 'address')
         self.assertEqual(actual, addr)
-
 
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):

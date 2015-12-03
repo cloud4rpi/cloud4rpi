@@ -139,3 +139,18 @@ def check_response(res):
 def verify_token(token):
     r = re.compile('[0-9a-f]{24}')
     return len(token) == 24 and r.match(token)
+
+# Variable's utilities
+def extract_variable_bind_attr(variable, attr):
+    if not variable:
+        return False
+    bind = variable['bind']
+    if bind is None:
+        return False
+    return bind[attr]
+
+def get_variable_address(variable):
+    return extract_variable_bind_attr(variable, 'address')
+
+def get_variable_type(variable):
+    return extract_variable_bind_attr(variable, 'type')
