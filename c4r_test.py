@@ -70,7 +70,6 @@ class TestDaemon(unittest.TestCase):
         methods = [
             self.daemon.set_device_token,
             self.daemon.register_variable_handler,
-            self.daemon.find_ds_sensors,
             self.daemon.read_persistence,
             self.daemon.run_handler
         ]
@@ -78,6 +77,7 @@ class TestDaemon(unittest.TestCase):
 
     def testStaticMethodsExists(self):
         self.static_methods_exists([
+            self.daemon.find_ds_sensors,
             self.daemon.create_ds18b20_sensor,
             self.daemon.read_persistent
         ])

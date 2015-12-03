@@ -2,15 +2,13 @@ import json
 import os
 import re
 import requests
-import cloud4rpi.errors as errors
+from c4r import errors
 from c4r.log import Logger
 import settings_vendor as config
 from sensors import cpu as cpu_sensor
 
-
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 log = Logger().get_log()
-
 
 def find_actuators(settings):
     return [x['address'] for x in settings.Actuators]

@@ -8,10 +8,8 @@ import signal
 
 from multiprocessing import Pool
 from c4r.log import Logger
-
-# TODO remove or replace with c4r
-import cloud4rpi.errors as errors
-import c4r.helpers as helpers
+from c4r import errors
+from c4r import helpers
 import settings as settings
 
 import c4r.ds18b20 as ds_sensor
