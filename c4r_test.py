@@ -26,31 +26,17 @@ sensor_28 = \
     '2d 00 4d 46 ff ff 08 10 fe : t=28250'
 
 
-class TestApi(fake_filesystem_unittest.TestCase):
-    def setUp(self):
-        self.setUpPyfakefs()
+class TestApi(unittest.TestCase):
+    @patch('c4r.lib.read_persistent')
+    def testReadPersistent(self, mock):
+        input = {'A': 1}
+        c4r.read_persistent(input)
+        mock.assert_called_once_with(input)
 
-    def setUpSensor(self, address, content):
-        self.fs.CreateFile(os.path.join(W1_DEVICES, address, 'w1_slave'), contents=content)
-
-    def setUpSensors(self):
-        self.setUpSensor('10-000802824e58', sensor_10)
-        self.setUpSensor('28-000802824e58', sensor_28)
-
-    def testReadPersistent(self):
-        c4r.read_persistent({})
-        self.assertTrue(1)
-
-    def testFindDSSensors(self):
-        self.setUpSensors()
-        sensors = c4r.find_ds_sensors()
-        self.assertTrue(len(sensors) > 0)
-        expected = [
-            {'address': '10-000802824e58', 'type': 'ds18b20'},
-            {'address': '28-000802824e58', 'type': 'ds18b20'}
-        ]
-        self.assertEqual(sensors, expected)
-
+    @patch('c4r.ds18b20.find_all')
+    def testFindDSSensors(self, mock):
+        c4r.find_ds_sensors()
+        self.assertTrue(mock.called)
 
 class TestDaemon(unittest.TestCase):
     sensorReadingMock = None
@@ -132,17 +118,6 @@ class TestDaemon(unittest.TestCase):
         self.lib.read_persistent(input)
         mock.assert_called_with(addr)
 
-    def testCollectReadings(self):
-        variables = {
-            'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20'}},
-            'some': {'title': '456', 'bind': {'type': 'unknown'}},
-            'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
-        }
-        readings = self.lib.collect_readings(variables)
-        expected = [{'temp2': None}, {'temp1': 22.4}]
-        self.assertEqual(readings, expected)
-
-
     def testUpdateVariableValueOnRead(self):
         addr = '10-000802824e58'
         var = {
@@ -155,6 +130,16 @@ class TestDaemon(unittest.TestCase):
 
         self.lib.read_persistent(input)
         self.assertEqual(var['value'], 22.4)
+
+    def testCollectReadings(self):
+        variables = {
+            'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20'}},
+            'some': {'title': '456', 'bind': {'type': 'unknown'}},
+            'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
+        }
+        readings = self.lib.collect_readings(variables)
+        expected = [{'temp2': None}, {'temp1': 22.4}]
+        self.assertEqual(readings, expected)
 
 
         # @patch('c4r.daemon.Daemon.run_handler')
@@ -188,8 +173,8 @@ class TestHelpers(unittest.TestCase):
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
     def setUp(self):
         self.setUpPyfakefs()
-        self.daemon = Daemon()
-        self.assertIsNotNone(self.daemon)
+        self.lib = Daemon()
+        self.assertIsNotNone(self.lib)
 
     def setUpSensor(self, address, content):
         self.fs.CreateFile(os.path.join(W1_DEVICES, address, 'w1_slave'), contents=content)
@@ -199,12 +184,12 @@ class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
         self.setUpSensor('28-000802824e58', sensor_28)
 
     def testCreate_ds18b20_sensor(self):
-        sensor = self.daemon.create_ds18b20_sensor('abc')
+        sensor = self.lib.create_ds18b20_sensor('abc')
         self.assertEqual(sensor, {'address': 'abc', 'type': 'ds18b20'})
 
     def testFindDSSensors(self):
         self.setUpSensors()
-        sensors = self.daemon.find_ds_sensors()
+        sensors = self.lib.find_ds_sensors()
         self.assertTrue(len(sensors) > 0)
         expected = [
             {'address': '10-000802824e58', 'type': 'ds18b20'},
