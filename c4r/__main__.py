@@ -8,7 +8,7 @@ import requests
 from requests import RequestException
 
 import cloud4rpi.errors as errors
-from c4r.daemon import Daemon
+from c4r.lib import Daemon
 from settings import DeviceToken
 from c4r.log import Logger
 from settings import LOG_FILE_PATH

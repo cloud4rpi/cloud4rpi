@@ -6,7 +6,7 @@ import types
 import unittest
 import os  # should be imported before fake_filesystem_unittest
 import c4r
-from c4r.daemon import Daemon
+from c4r.lib import Daemon
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 import fake_filesystem_unittest
