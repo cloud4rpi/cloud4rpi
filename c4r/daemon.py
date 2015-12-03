@@ -35,7 +35,8 @@ class Daemon(object):
     def create_ds18b20_sensor(address):
         return {'type': 'ds18b20', 'address': address}
 
-    def find_ds_sensors(self):
+    @staticmethod
+    def find_ds_sensors():
         return ds_sensor.find_all()
         # return [self.create_ds18b20_sensor(x) for x in addresses]
 
