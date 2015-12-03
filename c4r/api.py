@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import ds18b20
+from c4r import ds18b20
 from c4r.log import Logger
 from c4r import daemon
 
