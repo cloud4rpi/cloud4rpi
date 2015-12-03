@@ -36,7 +36,6 @@ class Daemon(object):
     @staticmethod
     def find_ds_sensors():
         return ds_sensor.find_all()
-        # return [self.create_ds18b20_sensor(x) for x in addresses]
 
     @staticmethod
     def bind_handler_exists(variable):
@@ -68,20 +67,18 @@ class Daemon(object):
 
     @staticmethod
     def collect_readings(variables):
-        readings = [Daemon.create_variable_reading(name, value) for name, value in variables.iteritems() if Daemon.is_out_variable(value)]
+        readings = {name: helpers.get_variable_value(value) for name, value in variables.iteritems() if Daemon.is_out_variable(value)}
         return readings
 
-    @staticmethod
-    def create_variable_reading(name, variable_spec):
-        val = helpers.get_variable_value(variable_spec)
-        return {name: val}
+    # @staticmethod
+    # def create_variable_reading(variable_spec):
+    #     return helpers.get_variable_value(variable_spec)
 
 
     @staticmethod
     def send_receive(variables):
         readings = [Daemon.collect_readings(name, value) for name, value in variables.iteritems()]
-        # payload = readings
-        # Daemon.send_stream(payload)
+        Daemon.send_stream(readings)
 
 
     # @staticmethod
