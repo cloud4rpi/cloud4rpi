@@ -138,11 +138,13 @@ def verify_token(token):
     r = re.compile('[0-9a-f]{24}')
     return len(token) == 24 and r.match(token)
 
+
 def extract_variable_bind_attr(variable, attr):
     bind = get_variable_bind(variable)
     if bind is None:
         return False
     return bind[attr]
+
 
 def extract_variable_attr(variable, attr):
     if variable is None:
@@ -151,21 +153,24 @@ def extract_variable_attr(variable, attr):
         return variable[attr]
     return None
 
+
 def get_variable_address(variable):
     return extract_variable_bind_attr(variable, 'address')
+
 
 def get_variable_type(variable):
     return extract_variable_bind_attr(variable, 'type')
 
+
 def get_variable_value(variable):
     return extract_variable_attr(variable, 'value')
 
+
 def get_variable_bind(variable):
     return extract_variable_attr(variable, 'bind')
+
 
 def bind_is_handler(bind):
     if bind is None:
         return False
     return hasattr(bind, '__call__')
-
-

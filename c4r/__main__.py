@@ -16,6 +16,7 @@ from settings import LOG_FILE_PATH
 logger = Logger()
 log = logger.get_log()
 
+
 def modprobe(module):
     cmd = 'modprobe {0}'.format(module)
     ret = os.system(cmd)
@@ -38,7 +39,6 @@ def safe_run_daemon(daemon):
             time.sleep(wait_secs)
             n += 1
             wait_secs *= 2
-
 
 
 def main():
