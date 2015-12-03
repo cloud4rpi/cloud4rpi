@@ -104,11 +104,11 @@ class TestDaemon(unittest.TestCase):
         self.assertEqual(self.lib.token, device_token)
 
     def testHandlerExists(self):
-        var1  = {
+        var1 = {
             'title': 'valid',
             'bind': MockHandler.empty
         }
-        var2  = {
+        var2 = {
             'title': 'invalid',
             'bind': {'address': 'abc'}
         }
@@ -120,7 +120,7 @@ class TestDaemon(unittest.TestCase):
     @patch('c4r.ds18b20.read')
     def testReadPersistent(self, mock):
         addr = '10-000802824e58'
-        var  = {
+        var = {
             'title': 'temp',
             'bind': {
                 'type': 'ds18b20',
@@ -132,9 +132,20 @@ class TestDaemon(unittest.TestCase):
         self.lib.read_persistent(input)
         mock.assert_called_with(addr)
 
+    def testCollectReadings(self):
+        variables = {
+            'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20'}},
+            'some': {'title': '456', 'bind': {'type': 'unknown'}},
+            'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
+        }
+        readings = self.lib.collect_readings(variables)
+        expected = [{'temp2': None}, {'temp1': 22.4}]
+        self.assertEqual(readings, expected)
+
+
     def testUpdateVariableValueOnRead(self):
         addr = '10-000802824e58'
-        var  = {
+        var = {
             'title': 'temp',
             'bind': {'type': 'ds18b20', 'address': addr}
         }
@@ -146,17 +157,17 @@ class TestDaemon(unittest.TestCase):
         self.assertEqual(var['value'], 22.4)
 
 
-    # @patch('c4r.daemon.Daemon.run_handler')
-    # def testProcessVariables(self, mock):
-    #     addr = '10-000802824e58'
-    #     temp = {
-    #         'address': addr,
-    #         'value': 22
-    #     }
-    #     self.daemon.register_variable_handler(addr, self._mockHandler)
-    #
-    #     self.daemon.process_variables([temp])
-    #     mock.assert_called_with(addr)
+        # @patch('c4r.daemon.Daemon.run_handler')
+        # def testProcessVariables(self, mock):
+        # addr = '10-000802824e58'
+        # temp = {
+        # 'address': addr,
+        #         'value': 22
+        #     }
+        #     self.daemon.register_variable_handler(addr, self._mockHandler)
+        #
+        #     self.daemon.process_variables([temp])
+        #     mock.assert_called_with(addr)
 
 
 class TestHelpers(unittest.TestCase):
@@ -210,9 +221,6 @@ class MockHandler(object):
     @staticmethod
     def empty(var):
         pass
-
-
-
 
 
 def main():

@@ -50,6 +50,10 @@ class Daemon(object):
         return False
 
     @staticmethod
+    def is_out_variable(variable):
+        return ds_sensor.SUPPORTED_TYPE == helpers.get_variable_type(variable)
+
+    @staticmethod
     def read_ds_sensor(variable):
         address = helpers.get_variable_address(variable)
         if not address is None:
@@ -58,14 +62,27 @@ class Daemon(object):
 
     @staticmethod
     def read_persistent(variables):
-        list = variables.values()
-        values = [Daemon.read_ds_sensor(x) for x in list if Daemon.is_ds_sensor(x)]
+        values = [Daemon.read_ds_sensor(x) for x in variables.itervalues() if Daemon.is_ds_sensor(x)]
         return values
         # [self.run_handler(x['address']) for x in variables if self.handler_exists(x['address'])]
 
     @staticmethod
+    def collect_readings(variables):
+        readings = [Daemon.create_variable_reading(name, value) for name, value in variables.iteritems() if Daemon.is_out_variable(value)]
+        return readings
+
+    @staticmethod
+    def create_variable_reading(name, variable_spec):
+        val = helpers.get_variable_value(variable_spec)
+        return {name: val}
+
+
+    @staticmethod
     def send_receive(variables):
-        pass
+        readings = [Daemon.collect_readings(name, value) for name, value in variables.iteritems()]
+        # payload = readings
+        # Daemon.send_stream(payload)
+
 
     # @staticmethod
     # def write_(variable, handler):
@@ -75,12 +92,11 @@ class Daemon(object):
         handler = self.bind_handlers[address]
         handler()
 
-    def send_stream(self):
+    def send_stream(self, payload):
         ts = datetime.datetime.utcnow().isoformat()
-        # TODO impl
         stream = {
             'ts': ts,
-            'payload': {}
+            'payload': payload
         }
         return helpers.post_stream(self.token, stream)
 

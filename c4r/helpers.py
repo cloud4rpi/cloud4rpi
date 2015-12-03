@@ -144,16 +144,24 @@ def extract_variable_bind_attr(variable, attr):
         return False
     return bind[attr]
 
+def extract_variable_attr(variable, attr):
+    if variable is None:
+        return None
+    if attr in variable.keys():
+        return variable[attr]
+    return None
+
 def get_variable_address(variable):
     return extract_variable_bind_attr(variable, 'address')
 
 def get_variable_type(variable):
     return extract_variable_bind_attr(variable, 'type')
 
+def get_variable_value(variable):
+    return extract_variable_attr(variable, 'value')
+
 def get_variable_bind(variable):
-    if not variable is None:
-        return variable['bind']
-    return None
+    return extract_variable_attr(variable, 'bind')
 
 def bind_is_handler(bind):
     if bind is None:
