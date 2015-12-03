@@ -38,18 +38,10 @@ class Daemon(object):
         return ds_sensor.find_all()
         # return [self.create_ds18b20_sensor(x) for x in addresses]
 
-    def handler_exists(self, address):
-        fn = self.bind_handlers.get(address)
-        if fn is None:
-            return False
-        return hasattr(fn, '__call__')
-
-    def address_exists(self, variable):
-        config = variable['bind']
-        return config['address']
-
-    def register_variable_handler(self, address, handler):
-        self.bind_handlers[address] = handler
+    @staticmethod
+    def bind_handler_exists(variable):
+        bind = helpers.get_variable_bind(variable)
+        return helpers.bind_is_handler(bind)
 
     @staticmethod
     def is_ds_sensor(variable):
@@ -66,7 +58,6 @@ class Daemon(object):
     @staticmethod
     def read_persistent(variables):
         values = [Daemon.read_ds_sensor(x) for x in variables if Daemon.is_ds_sensor(x)]
-        print values
         return values
         # [self.run_handler(x['address']) for x in variables if self.handler_exists(x['address'])]
 

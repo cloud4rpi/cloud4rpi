@@ -75,7 +75,6 @@ class TestDaemon(unittest.TestCase):
     def testMethodsExists(self):
         methods = [
             self.lib.set_device_token,
-            self.lib.register_variable_handler,
             self.lib.run_handler
         ]
         self.methods_exists(methods)
@@ -93,33 +92,6 @@ class TestDaemon(unittest.TestCase):
         self.lib.set_device_token(device_token)
         self.assertEqual(self.lib.token, device_token)
 
-    def testRegisterVariableHandler(self):
-        self.assertEqual(self.lib.bind_handlers, {})
-        self.lib.register_variable_handler('test', MockHandler.variable_inc_val)
-
-        registered = self.lib.bind_handlers
-        self.assertEqual(len(registered), 1)
-        self.assertEqual(registered.keys(), ['test'])
-        self.assertEqual(registered.values(), [MockHandler.variable_inc_val])
-
-    def testDoubleRegisterVariableHandler(self):
-        self.assertEqual(self.lib.bind_handlers, {})
-        self.lib.register_variable_handler('test', MockHandler.variable_inc_val)
-        self.lib.register_variable_handler('test', MockHandler.variable_inc_val)
-
-        registered = self.lib.bind_handlers
-        self.assertEqual(len(registered), 1)
-
-    def testSameKeyRegisterVariableHandler(self):
-        self.assertEqual(self.lib.bind_handlers, {})
-        self.lib.register_variable_handler('test', MockHandler.variable_inc_val)
-        self.lib.register_variable_handler('test', MockHandler.empty)
-
-        registered = self.lib.bind_handlers
-        self.assertEqual(len(registered), 1)
-        self.assertEqual(registered.keys(), ['test'])
-        self.assertEqual(registered.values(), [MockHandler.empty])
-
     def testReadPersistent(self):
         temp = {
             'title': 'Temp sensor reading',
@@ -132,12 +104,17 @@ class TestDaemon(unittest.TestCase):
         self.assertNotEqual(temp['value'], 0)
 
     def testHandlerExists(self):
-        self.assertFalse(self.lib.handler_exists(None))
-        self.assertFalse(self.lib.handler_exists('some'))
-
-        self.lib.register_variable_handler('first', MockHandler.empty)
-        self.assertTrue(self.lib.handler_exists('first'))
-        self.assertFalse(self.lib.handler_exists('other'))
+        var1  = {
+            'title': 'valid',
+            'bind': MockHandler.empty
+        }
+        var2  = {
+            'title': 'invalid',
+            'bind': {'address': 'abc'}
+        }
+        self.assertFalse(self.lib.bind_handler_exists(None))
+        self.assertFalse(self.lib.bind_handler_exists(var2))
+        self.assertTrue(self.lib.bind_handler_exists(var1))
 
 
     @patch('c4r.ds18b20.read')
