@@ -14,8 +14,8 @@ def find_ds_sensors():
 def set_device_token(token):
     dmn.set_device_token(token)
 
-def read_persistence(vars):
-    dmn.read_persistence(vars)
+def read_persistence(variables):
+    dmn.read_persistence(variables)
 
-def process_variables(vars):
-    dmn.process_variables(vars)
+def process_variables(variables):
+    dmn.process_variables(variables)
