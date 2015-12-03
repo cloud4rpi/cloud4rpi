@@ -63,8 +63,8 @@ class TestDaemon(unittest.TestCase):
 
     def static_methods_exists(self, methods):
         for m in methods:
-            isInstance = isinstance(m, types.FunctionType)
-            self.assertTrue(isInstance)
+            is_instance = isinstance(m, types.FunctionType)
+            self.assertTrue(is_instance)
 
     def testDefauls(self):
         self.assertIsNone(self.lib.token)
@@ -138,7 +138,7 @@ class TestDaemon(unittest.TestCase):
             'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
         }
         readings = self.lib.collect_readings(variables)
-        expected = [{'temp2': None}, {'temp1': 22.4}]
+        expected = {'temp2': None, 'temp1': 22.4}
         self.assertEqual(readings, expected)
 
 
