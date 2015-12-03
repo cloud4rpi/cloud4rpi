@@ -212,9 +212,6 @@ class MockHandler(object):
         pass
 
 
-
-
-
 def main():
     runner = unittest.TextTestRunner()
     unittest.main(testRunner=runner)
