@@ -58,7 +58,7 @@ class TestDaemon(unittest.TestCase):
         self.assertIsNotNone(self.lib)
 
     def setUpSensorReading(self, expected_val):
-        ds_sensors.read = MagicMock(return_value=22.4)
+        ds_sensors.read = MagicMock(return_value=expected_val)
 
     def methods_exists(self, methods):
         for m in methods:
