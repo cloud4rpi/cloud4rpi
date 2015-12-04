@@ -11,7 +11,6 @@ messages = {
     CalledProcessError: 'Try "sudo python cloud4rpi.py"',
     c4r_errors.InvalidTokenError: 'Device Access Token {0} is incorrect. Please verify it.',
     c4r_errors.AuthenticationError: 'Authentication failed. Check your device token.'
-    # err.NoSensorsError: 'No sensors found... Exiting'
 }
 
 

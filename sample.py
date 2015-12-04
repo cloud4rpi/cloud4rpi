@@ -5,7 +5,7 @@ import time
 import c4r      #Lib to send and receive commands
 
 # Put your device token here. To get a device token, register at http://stage.cloud4rpi.io
-DeviceToken = "YOUR_DEVICE_TOKEN"
+DeviceToken = "562dd4892bb8a6b635797c15"
 
 c4r.set_device_token(DeviceToken)
 ds_sensors = c4r.find_ds_sensors()
@@ -21,6 +21,8 @@ Variables = {
 }
 
 def main():
+
+    c4r.register(Variables)
     try:
         while True:
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors

@@ -68,6 +68,9 @@ def send_stream(payload):
     return helpers.post_stream(device_token, stream)
 
 
+def register(variables):
+    return helpers.put_device(device_token, variables)
+
 def run_handler(self, address):
     handler = self.bind_handlers[address]
     handler()

@@ -7,7 +7,7 @@ from subprocess import CalledProcessError
 import requests
 from requests import RequestException
 
-import cloud4rpi.errors as errors
+import c4r.errors as errors
 from c4r import lib
 from settings import DeviceToken
 from c4r.logger import get_logger, config_logging_to_file

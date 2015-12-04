@@ -9,6 +9,8 @@ from c4r import error_messages
 def get_error_message(e):
     return error_messages.get_error_message(e)
 
+def register(variables):
+    lib.register(variables)
 
 def find_ds_sensors():
     return ds18b20.find_all()
