@@ -133,9 +133,14 @@ def check_response(res):
         raise errors.ServerError
 
 
-def verify_token(token):
+def is_token_valid(token):
     r = re.compile('[0-9a-f]{24}')
-    return len(token) == 24 and r.match(token)
+    return token and len(token) == 24 and r.match(token)
+
+
+def verify_token(token):
+    if not is_token_valid(token):
+        raise errors.InvalidTokenError
 
 
 def extract_variable_bind_attr(variable, attr):

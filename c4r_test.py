@@ -29,6 +29,9 @@ sensor_28 = \
 
 
 class TestApi(unittest.TestCase):
+    def setUp(self):
+        lib.set_device_token(device_token)
+
     @patch('c4r.lib.read_persistent')
     def testReadPersistent(self, mock):
         input = {'A': 1}
@@ -46,6 +49,19 @@ class TestApi(unittest.TestCase):
         c4r.find_ds_sensors()
         self.assertTrue(mock.called)
 
+    def callWithNoToken(self, fn, *args):
+        lib.device_token = None
+        with self.assertRaises(errors.InvalidTokenError):
+            fn(*args)
+
+    def testNoTokenFindDSSensors(self):
+        self.callWithNoToken(c4r.find_ds_sensors)
+
+    def testNoTokenSendReceive(self):
+        self.callWithNoToken(c4r.send_receive, {})
+
+    def testNoTokenProcessVariables(self):
+        self.callWithNoToken(c4r.process_variables, {})
 
 class TestLibrary(unittest.TestCase):
     sensorReadingMock = None
