@@ -10,6 +10,7 @@ from c4r import lib
 from c4r import ds18b20 as ds_sensors
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
+from c4r import error_messages
 import fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
@@ -273,6 +274,17 @@ class MockHandler(object):
     @staticmethod
     def empty(var):
         pass
+
+class ErrorMessages(unittest.TestCase):
+
+    def testGetErrorMessage(self):
+        m = error_messages.get_error_message(KeyboardInterrupt('test_key_err'))
+        self.assertEqual(m, 'Interrupted')
+        m = error_messages.get_error_message(c4r.errors.ServerError('crash'))
+        self.assertEqual(m, 'Unexpected error: crash')
+        m = error_messages.get_error_message(c4r.errors.AuthenticationError())
+        self.assertEqual(m, 'Authentication failed. Check your device token.')
+        m = error_messages.get_error_message(c4r.errors.AuthenticationError())
 
 
 def main():
