@@ -1,19 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from multiprocessing import Pool
 
 import datetime
 import signal
-
-from multiprocessing import Pool
-from c4r.log import Logger
+from c4r.logger import get_logger
 from c4r import helpers
-
 import c4r.ds18b20 as ds_sensor
 
-log = Logger().get_log()
 device_token = None
 user_variables = None
 
+log = get_logger()
 
 def set_device_token(token):
     global device_token
@@ -77,6 +75,9 @@ def send_stream(payload):
     }
     return helpers.post_stream(device_token, stream)
 
+
+def register(variables):
+    return helpers.put_device(device_token, variables)
 
 def run_handler(self, address):
     handler = self.bind_handlers[address]

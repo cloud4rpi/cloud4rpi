@@ -2,10 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from c4r import ds18b20
-from c4r.log import Logger
 from c4r import lib
+from c4r import error_messages
+from c4r.helpers import verify_token
 
-log = Logger().get_log()
+def get_error_message(e):
+    return error_messages.get_error_message(e)
+
+def register(variables):
+    lib.register(variables)
 
 
 def setup_variables(variables):
@@ -13,6 +18,7 @@ def setup_variables(variables):
 
 
 def find_ds_sensors():
+    verify_token(lib.device_token)
     return ds18b20.find_all()
 
 
@@ -21,12 +27,15 @@ def set_device_token(token):
 
 
 def read_persistent(variables):
+    verify_token(lib.device_token)
     lib.read_persistent(variables)
 
 
 def process_variables(variables):
+    verify_token(lib.device_token)
     lib.process_variables(variables)
 
 
 def send_receive(variables):
+    verify_token(lib.device_token)
     lib.send_receive(variables)

@@ -33,16 +33,18 @@ Variables = {
 
 
 def main():
+
+    c4r.register(Variables)
     try:
         c4r.setup_variables(Variables)
         while True:
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
             c4r.send_receive(Variables)
             c4r.process_variables(Variables)
-            time.sleep(10)
 
-    except:
-        print "error", sys.exc_info()[0]
+    except Exception as e:
+        error = c4r.get_error_message(e)
+        print "error", error, sys.exc_info()[0]
         raise
 
 if __name__ == '__main__':

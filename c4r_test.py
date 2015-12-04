@@ -10,6 +10,8 @@ from c4r import lib
 from c4r import ds18b20 as ds_sensors
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
+from c4r import errors
+from c4r import error_messages
 import fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
@@ -27,6 +29,9 @@ sensor_28 = \
 
 
 class TestApi(unittest.TestCase):
+    def setUp(self):
+        lib.set_device_token(device_token)
+
     @patch('c4r.lib.read_persistent')
     def testReadPersistent(self, mock):
         input = {'A': 1}
@@ -43,6 +48,20 @@ class TestApi(unittest.TestCase):
     def testFindDSSensors(self, mock):
         c4r.find_ds_sensors()
         self.assertTrue(mock.called)
+
+    def callWithNoToken(self, fn, *args):
+        lib.device_token = None
+        with self.assertRaises(errors.InvalidTokenError):
+            fn(*args)
+
+    def testNoTokenFindDSSensors(self):
+        self.callWithNoToken(c4r.find_ds_sensors)
+
+    def testNoTokenSendReceive(self):
+        self.callWithNoToken(c4r.send_receive, {})
+
+    def testNoTokenProcessVariables(self):
+        self.callWithNoToken(c4r.process_variables, {})
 
 class TestLibrary(unittest.TestCase):
     sensorReadingMock = None
@@ -75,7 +94,7 @@ class TestLibrary(unittest.TestCase):
         self.assertIsNone(lib.device_token)
 
     # def testMethodsExists(self):
-    #     methods = [
+    # methods = [
     #     ]
     #     self.methods_exists(methods)
 
@@ -184,6 +203,12 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUpDefaultResponses(self):
         self.setUpPOSTStatus(201)
 
+    def setUpResponse(self, verb, response, status_code=200):
+        r_mock = MagicMock(['json', 'status_code'])
+        r_mock.json.return_value = response
+        verb.return_value = r_mock
+        self.setUpStatusCode(verb, status_code)
+
     @staticmethod
     def startPatching(target):
         return patch(target).start()
@@ -216,12 +241,17 @@ class TestDataExchange(TestFileSystemAndRequests):
 
     def testSendReceive(self):
         variables = {
-            'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20', 'address':'10-000802824e58'}}
+            'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}}
         }
+        self.setUpResponse(self.post, variables, 201)
         json = lib.send_receive(variables)
-        # TODO correct
-        # self.assertEqual(json.status_code, 201)
+        self.assertEqual(json, variables)
 
+
+    def testRaiseExceptionOnUnAuthStreamPostRequest(self):
+        self.setUpPOSTStatus(401)
+        with self.assertRaises(errors.AuthenticationError):
+            lib.send_receive({})
 
 
 class TestHelpers(unittest.TestCase):
@@ -273,6 +303,17 @@ class MockHandler(object):
     @staticmethod
     def empty(var):
         pass
+
+
+class ErrorMessages(unittest.TestCase):
+    def testGetErrorMessage(self):
+        m = error_messages.get_error_message(KeyboardInterrupt('test_key_err'))
+        self.assertEqual(m, 'Interrupted')
+        m = error_messages.get_error_message(c4r.errors.ServerError('crash'))
+        self.assertEqual(m, 'Unexpected error: crash')
+        m = error_messages.get_error_message(c4r.errors.AuthenticationError())
+        self.assertEqual(m, 'Authentication failed. Check your device token.')
+        m = error_messages.get_error_message(c4r.errors.AuthenticationError())
 
 
 def main():

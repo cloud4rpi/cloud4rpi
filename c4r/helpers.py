@@ -3,12 +3,13 @@ import os
 import re
 import requests
 from c4r import errors
-from c4r.log import Logger
+from c4r.logger import get_logger
 import settings_vendor as config
 from sensors import cpu as cpu_sensor
 
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
-log = Logger().get_log()
+
+log = get_logger()
 
 def find_actuators(settings):
     return [x['address'] for x in settings.Actuators]
@@ -85,13 +86,11 @@ def get_device(token):
     return res.json()
 
 
-def put_device(token, device):
+def put_device(token, variables_config):
     log.info('Sending device configuration...')
-    device_json = device.dump()
-
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
-                       json=device_json,
+                       json=variables_config,
                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     if res.status_code != 200:
@@ -104,7 +103,6 @@ def put_device(token, device):
 
 
 def post_stream(token, stream):
-    log.info('token ' +  token)
     log.info('sending {0}'.format(stream))
 
     res = requests.post(stream_request_url(token),
@@ -135,9 +133,14 @@ def check_response(res):
         raise errors.ServerError
 
 
-def verify_token(token):
+def is_token_valid(token):
     r = re.compile('[0-9a-f]{24}')
-    return len(token) == 24 and r.match(token)
+    return token and len(token) == 24 and r.match(token)
+
+
+def verify_token(token):
+    if not is_token_valid(token):
+        raise errors.InvalidTokenError
 
 
 def extract_variable_bind_attr(variable, attr):

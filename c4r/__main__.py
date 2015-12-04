@@ -7,14 +7,14 @@ from subprocess import CalledProcessError
 import requests
 from requests import RequestException
 
-import cloud4rpi.errors as errors
+import c4r.errors as errors
 from c4r import lib
 from settings import DeviceToken
-from c4r.log import Logger
+from c4r.logger import get_logger, config_logging_to_file
 from settings import LOG_FILE_PATH
 
-logger = Logger()
-log = logger.get_log()
+
+log = get_logger()
 
 
 def modprobe(module):
@@ -40,14 +40,14 @@ def safe_run_daemon(lib):
             n += 1
             wait_secs *= 2
 
-
+# TODO remove it
 def main():
     daemon = None
     try:
         modprobe('w1-gpio')
         modprobe('w1-therm')
 
-        logger.config_logging_to_file(LOG_FILE_PATH)
+        config_logging_to_file(log, LOG_FILE_PATH)
 
         log.info('Starting...')
 
