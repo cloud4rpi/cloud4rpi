@@ -18,6 +18,9 @@ def register(variables):
     lib.register(variables)
 
 
+def setup_variables(variables):
+    lib.setup_variables(variables)
+
 def find_ds_sensors():
     verify_token(lib.device_token)
     return ds18b20.find_all()
