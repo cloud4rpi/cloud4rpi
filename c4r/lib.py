@@ -2,18 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import signal
-
-from multiprocessing import Pool
-from c4r.log import Logger
+from c4r.logger import get_logger
 from c4r import helpers
-
 import c4r.ds18b20 as ds_sensor
-
-log = Logger().get_log()
 
 device_token = None
 
+log = get_logger()
 
 def set_device_token(token):
     global device_token

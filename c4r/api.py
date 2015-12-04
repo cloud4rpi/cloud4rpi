@@ -2,11 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from c4r import ds18b20
-from c4r.log import Logger
 from c4r import lib
 from c4r import error_messages
 
-log = Logger().get_log()
 
 def get_error_message(e):
     return error_messages.get_error_message(e)

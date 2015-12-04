@@ -3,12 +3,13 @@ import os
 import re
 import requests
 from c4r import errors
-from c4r.log import Logger
+from c4r.logger import get_logger
 import settings_vendor as config
 from sensors import cpu as cpu_sensor
 
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
-log = Logger().get_log()
+
+log = get_logger()
 
 def find_actuators(settings):
     return [x['address'] for x in settings.Actuators]
@@ -104,7 +105,6 @@ def put_device(token, device):
 
 
 def post_stream(token, stream):
-    log.info('token ' +  token)
     log.info('sending {0}'.format(stream))
 
     res = requests.post(stream_request_url(token),
