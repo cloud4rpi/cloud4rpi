@@ -11,13 +11,18 @@ from c4r import helpers
 import c4r.ds18b20 as ds_sensor
 
 log = Logger().get_log()
-
 device_token = None
+user_variables = None
 
 
 def set_device_token(token):
     global device_token
     device_token = token
+
+
+def setup_variables(variables):
+    global user_variables
+    user_variables = variables
 
 
 def create_ds18b20_sensor(address):
@@ -77,3 +82,23 @@ def run_handler(self, address):
     handler = self.bind_handlers[address]
     handler()
 
+
+def init_worker():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
+def run_bind_method(var_name, method, current_value):
+    print 'Call bind method for {0} variable...'.format(var_name)
+    result = method(current_value)
+    print 'Done bind method for {0} variable... Result: {1}'.format(var_name, result)
+
+    return result
+
+
+pool = Pool(processes=1, initializer=init_worker)
+
+
+def process_variables(variables):
+    for name, value in variables.iteritems():
+        if 'bind' in value and hasattr(value['bind'], '__call__'):
+            pool.apply_async(run_bind_method, args=(name, value['bind'], value['value']))

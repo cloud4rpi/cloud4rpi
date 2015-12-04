@@ -144,6 +144,9 @@ def extract_variable_bind_attr(variable, attr):
     bind = get_variable_bind(variable)
     if bind is None:
         return False
+    if hasattr(bind, '__call__'):
+        return bind()
+
     return bind[attr]
 
 

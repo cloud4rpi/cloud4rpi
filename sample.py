@@ -12,19 +12,35 @@ ds_sensors = c4r.find_ds_sensors()
 
 print 'SENSORS FOUND ', ds_sensors
 
+
+def cooler_control(value=None):
+    print 'New Cooler value: {0}'.format(value)
+    return 42
+
 Variables = {
     'CurrentTemp': {
         'title': 'Temp sensor reading',
         'type': 'numeric',
-        'bind': ds_sensors[0]
+        'bind': ds_sensors[0] if len(ds_sensors) else None
+    },
+    'CoolerOn': {
+        'title': 'Cooler enabled',
+        'type': 'bool',
+        'value': False,
+        'bind': cooler_control
     }
 }
 
+
 def main():
     try:
+        c4r.setup_variables(Variables)
         while True:
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
             c4r.send_receive(Variables)
+            c4r.process_variables(Variables)
+            time.sleep(10)
+
     except:
         print "error", sys.exc_info()[0]
         raise
