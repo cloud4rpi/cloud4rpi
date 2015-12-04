@@ -9,16 +9,18 @@ from c4r.helpers import verify_token
 def get_error_message(e):
     return error_messages.get_error_message(e)
 
+def set_device_token(token):
+    lib.set_device_token(token)
+
+
 def register(variables):
+    verify_token(lib.device_token)
     lib.register(variables)
+
 
 def find_ds_sensors():
     verify_token(lib.device_token)
     return ds18b20.find_all()
-
-
-def set_device_token(token):
-    lib.set_device_token(token)
 
 
 def read_persistent(variables):

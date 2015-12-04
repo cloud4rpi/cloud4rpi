@@ -49,19 +49,25 @@ class TestApi(unittest.TestCase):
         c4r.find_ds_sensors()
         self.assertTrue(mock.called)
 
-    def callWithNoToken(self, fn, *args):
+    def call_without_token(self, methods):
         lib.device_token = None
-        with self.assertRaises(errors.InvalidTokenError):
-            fn(*args)
+        for fn, args in methods.items():
+            with self.assertRaises(errors.InvalidTokenError):
+                if args is None:
+                    fn()
+                else:
+                    fn(args)
 
-    def testNoTokenFindDSSensors(self):
-        self.callWithNoToken(c4r.find_ds_sensors)
+    def testVerifyToken(self):
+        methods = {
+            c4r.find_ds_sensors: None,
+            c4r.register: {},
+            c4r.read_persistent: {},
+            c4r.process_variables: {},
+            c4r.send_receive: {}
+        }
+        self.call_without_token(methods)
 
-    def testNoTokenSendReceive(self):
-        self.callWithNoToken(c4r.send_receive, {})
-
-    def testNoTokenProcessVariables(self):
-        self.callWithNoToken(c4r.process_variables, {})
 
 class TestLibrary(unittest.TestCase):
     sensorReadingMock = None
@@ -95,8 +101,8 @@ class TestLibrary(unittest.TestCase):
 
     # def testMethodsExists(self):
     # methods = [
-    #     ]
-    #     self.methods_exists(methods)
+    # ]
+    # self.methods_exists(methods)
 
     def testStaticMethodsExists(self):
         self.static_methods_exists([
