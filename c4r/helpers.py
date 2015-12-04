@@ -86,13 +86,11 @@ def get_device(token):
     return res.json()
 
 
-def put_device(token, device):
+def put_device(token, variables_config):
     log.info('Sending device configuration...')
-    device_json = device.dump()
-
     res = requests.put(device_request_url(token),
                        headers=request_headers(token),
-                       json=device_json,
+                       json=variables_config,
                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     if res.status_code != 200:

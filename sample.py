@@ -28,6 +28,8 @@ def main():
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
             c4r.send_receive(Variables)
 
+            time.sleep(30) # TODO 100
+
     except Exception as e:
         error = c4r.get_error_message(e)
         print "error", error, sys.exc_info()[0]
