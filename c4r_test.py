@@ -271,7 +271,7 @@ class TestHelpers(unittest.TestCase):
             'title': 'temp',
             'bind': bind
         }
-        actual = helpers.extract_variable_bind_attr(var, 'address')
+        actual = helpers.extract_variable_bind_prop(var, 'address')
         self.assertEqual(actual, addr)
 
 

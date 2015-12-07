@@ -143,38 +143,38 @@ def verify_token(token):
         raise errors.InvalidTokenError
 
 
-def extract_variable_bind_attr(variable, attr):
-    bind = get_variable_bind(variable)
+def extract_variable_bind_prop(props, prop_name):
+    bind = get_variable_bind(props)
     if bind is None:
         return False
     if hasattr(bind, '__call__'):
         return bind()
 
-    return bind[attr]
+    return bind[prop_name]
 
 
-def extract_variable_attr(variable, attr):
-    if variable is None:
+def extract_variable_prop(props, prop_name):
+    if props is None:
         return None
-    if attr in variable.keys():
-        return variable[attr]
+    if prop_name in props.keys():
+        return props[prop_name]
     return None
 
 
 def get_variable_address(variable):
-    return extract_variable_bind_attr(variable, 'address')
+    return extract_variable_bind_prop(variable, 'address')
 
 
-def get_variable_type(variable):
-    return extract_variable_bind_attr(variable, 'type')
+def get_variable_type(props):
+    return extract_variable_bind_prop(props, 'type')
 
 
-def get_variable_value(variable):
-    return extract_variable_attr(variable, 'value')
+def get_variable_value(props):
+    return extract_variable_prop(props, 'value')
 
 
-def get_variable_bind(variable):
-    return extract_variable_attr(variable, 'bind')
+def get_variable_bind(props):
+    return extract_variable_prop(props, 'bind')
 
 
 def bind_is_handler(bind):

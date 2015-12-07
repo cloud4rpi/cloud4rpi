@@ -100,7 +100,7 @@ pool = Pool(processes=1, initializer=init_worker)
 
 
 def process_variables(variables):
-    for name, value in variables.iteritems():
-        bind = helpers.get_variable_bind(value)
+    for name, props in variables.iteritems():
+        bind = helpers.get_variable_bind(props)
         if helpers.bind_is_handler(bind):
-            pool.apply_async(run_bind_method, args=(name, bind, helpers.get_variable_value(value)))
+            pool.apply_async(run_bind_method, args=(name, bind, helpers.get_variable_value(props)))
