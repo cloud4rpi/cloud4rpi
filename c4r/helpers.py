@@ -27,6 +27,10 @@ def device_request_url(token):
     return '{0}/devices/{1}/'.format(config.baseApiUrl, token)
 
 
+def device_variables_request_url(token):
+    return '{0}/devices/{1}/variables'.format(config.baseApiUrl, token)
+
+
 def stream_request_url(token):
     return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, token)
 
@@ -86,15 +90,15 @@ def get_device(token):
     return res.json()
 
 
-def put_device(token, variables_config):
+def put_device_variables(token, variables_config):
     log.info('Sending device configuration...')
-    res = requests.put(device_request_url(token),
+    res = requests.put(device_variables_request_url(token),
                        headers=request_headers(token),
                        json=variables_config,
                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     if res.status_code != 200:
-        log.error('Can\'t register sensor. Status: {0}'.format(res.status_code))
+        log.error('Can\'t register variables. Status: {0}'.format(res.status_code))
 
     http_result = res.json()
     write_device_config(http_result)
