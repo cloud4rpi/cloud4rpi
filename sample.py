@@ -36,7 +36,6 @@ def main():
 
     c4r.register(Variables)
     try:
-        c4r.setup_variables(Variables)
         while True:
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
             c4r.send_receive(Variables)

@@ -32,13 +32,13 @@ sensor_28 = \
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        lib.set_device_token(device_token)
+        c4r.set_device_token(device_token)
 
     @patch('c4r.lib.read_persistent')
     def testReadPersistent(self, mock):
         input = {'A': 1}
         c4r.read_persistent(input)
-        mock.assert_called_once_with(input)
+        mock.assert_called_once_with(42)
 
     @patch('c4r.lib.send_receive')
     def testReadPersistent(self, mock):
@@ -246,7 +246,6 @@ class TestDataExchange(TestFileSystemAndRequests):
     def tearDown(self):
         lib.set_device_token(None)
 
-
     def testSendReceive(self):
         variables = {
             'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}}
@@ -255,11 +254,21 @@ class TestDataExchange(TestFileSystemAndRequests):
         json = lib.send_receive(variables)
         self.assertEqual(json, variables)
 
-
     def testRaiseExceptionOnUnAuthStreamPostRequest(self):
         self.setUpPOSTStatus(401)
         with self.assertRaises(errors.AuthenticationError):
             lib.send_receive({})
+
+    @patch('c4r.helpers.put_device_variables')
+    def test_register_variables(self, mock):
+        variables = {
+            'var1': {
+                'title': 'temp',
+                'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}
+            }
+        }
+        c4r.register(variables)
+        mock.assert_called_with(device_token, variables)
 
 
 class TestHelpers(unittest.TestCase):
@@ -315,13 +324,13 @@ class MockHandler(object):
 
 class ErrorMessages(unittest.TestCase):
     def testGetErrorMessage(self):
-        m = error_messages.get_error_message(KeyboardInterrupt('test_key_err'))
+        m = c4r.get_error_message(KeyboardInterrupt('test_key_err'))
         self.assertEqual(m, 'Interrupted')
-        m = error_messages.get_error_message(c4r.errors.ServerError('crash'))
+        m = c4r.get_error_message(c4r.errors.ServerError('crash'))
         self.assertEqual(m, 'Unexpected error: crash')
-        m = error_messages.get_error_message(c4r.errors.AuthenticationError())
+        m = c4r.get_error_message(c4r.errors.AuthenticationError())
         self.assertEqual(m, 'Authentication failed. Check your device token.')
-        m = error_messages.get_error_message(c4r.errors.AuthenticationError())
+        m = c4r.get_error_message(c4r.errors.AuthenticationError())
 
 
 def main():

@@ -9,7 +9,6 @@ from c4r import helpers
 import c4r.ds18b20 as ds_sensor
 
 device_token = None
-user_variables = None
 
 log = get_logger()
 
@@ -17,11 +16,6 @@ log = get_logger()
 def set_device_token(token):
     global device_token
     device_token = token
-
-
-def setup_variables(variables):
-    global user_variables
-    user_variables = variables
 
 
 def create_ds18b20_sensor(address):
@@ -78,7 +72,7 @@ def send_stream(payload):
 
 
 def register(variables):
-    return helpers.put_device(device_token, variables)
+    return helpers.put_device_variables(device_token, variables)
 
 
 def run_handler(self, address):
