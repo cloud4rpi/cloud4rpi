@@ -4,6 +4,8 @@
 import inspect
 import types
 import unittest
+from teamcity import is_running_under_teamcity
+from teamcity.unittestpy import TeamcityTestRunner
 import os  # should be imported before fake_filesystem_unittest
 import c4r
 from c4r import lib
@@ -323,7 +325,10 @@ class ErrorMessages(unittest.TestCase):
 
 
 def main():
-    runner = unittest.TextTestRunner()
+    if is_running_under_teamcity():
+        runner = TeamcityTestRunner()
+    else:
+        runner = unittest.TextTestRunner()
     unittest.main(testRunner=runner)
 
 

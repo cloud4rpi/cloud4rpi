@@ -6,8 +6,10 @@ from c4r import lib
 from c4r import error_messages
 from c4r.helpers import verify_token
 
+
 def get_error_message(e):
     return error_messages.get_error_message(e)
+
 
 def set_device_token(token):
     lib.set_device_token(token)
@@ -20,6 +22,7 @@ def register(variables):
 
 def setup_variables(variables):
     lib.setup_variables(variables)
+
 
 def find_ds_sensors():
     verify_token(lib.device_token)

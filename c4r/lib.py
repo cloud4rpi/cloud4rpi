@@ -13,6 +13,7 @@ user_variables = None
 
 log = get_logger()
 
+
 def set_device_token(token):
     global device_token
     device_token = token
@@ -78,6 +79,7 @@ def send_stream(payload):
 
 def register(variables):
     return helpers.put_device(device_token, variables)
+
 
 def run_handler(self, address):
     handler = self.bind_handlers[address]

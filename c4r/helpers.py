@@ -11,6 +11,7 @@ REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 
 log = get_logger()
 
+
 def find_actuators(settings):
     return [x['address'] for x in settings.Actuators]
 
