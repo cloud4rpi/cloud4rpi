@@ -72,7 +72,9 @@ def send_stream(payload):
 
 
 def register(variables):
-    return helpers.put_device_variables(device_token, variables)
+    variables_decl = [{'name': name, 'title': value['title'], 'type': value['type']}
+                      for name, value in variables.iteritems()]
+    return helpers.put_device_variables(device_token, variables_decl)
 
 
 def run_handler(self, address):

@@ -93,9 +93,9 @@ def get_device(token):
 
 def put_device_variables(token, variables_config):
     log.info('Sending device configuration...')
-    res = requests.put(device_variables_request_url(token),
+    res = requests.put(device_request_url(token),
                        headers=request_headers(token),
-                       json=variables_config,
+                       json={'variables': variables_config},
                        timeout=REQUEST_TIMEOUT_SECONDS)
     check_response(res)
     if res.status_code != 200:
@@ -182,6 +182,7 @@ def get_variable_bind(props):
     return extract_variable_prop(props, 'bind')
 
 
+# TODO rename
 def bind_is_handler(bind):
     if bind is None:
         return False
