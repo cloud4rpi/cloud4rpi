@@ -45,7 +45,8 @@ def main():
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
             result = c4r.send_receive(Variables)
             print 'result: {0}'.format(result)
-            c4r.process_variables(Variables, result['streams']['payloads'])
+            if result:
+                c4r.process_variables(Variables, result['streams']['payloads'])
             time.sleep(5)
 
     except Exception as e:
