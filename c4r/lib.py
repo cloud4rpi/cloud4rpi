@@ -97,8 +97,8 @@ def run_bind_method(var_name, method, current_value):
 pool = Pool(processes=1, initializer=init_worker)
 
 
-def process_variables(variables):
+def process_variables(variables, payloads):
     for name, props in variables.iteritems():
         bind = helpers.get_variable_bind(props)
         if helpers.bind_is_handler(bind):
-            pool.apply_async(run_bind_method, args=(name, bind, helpers.get_variable_value(props)))
+            pool.apply_async(run_bind_method, args=(name, bind, helpers.get_payload_value(name, payloads)))

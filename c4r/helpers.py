@@ -182,6 +182,13 @@ def get_variable_bind(props):
     return extract_variable_prop(props, 'bind')
 
 
+def get_payload_value(name, payloads):
+    for payload in payloads:
+        if payload['key'] == name:
+            return payload['value']
+    return None
+
+
 # TODO rename
 def bind_is_handler(bind):
     if bind is None:

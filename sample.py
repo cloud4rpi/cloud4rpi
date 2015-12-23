@@ -32,7 +32,7 @@ Variables = {
         'title': 'Cooler enabled',
         'type': 'bool',
         'value': False,
-        # 'bind': cooler_control
+        'bind': cooler_control
     }
 }
 
@@ -43,8 +43,9 @@ def main():
     try:
         while True:
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
-            c4r.send_receive(Variables)
-            c4r.process_variables(Variables)
+            result = c4r.send_receive(Variables)
+            print 'result: {0}'.format(result)
+            c4r.process_variables(Variables, result['streams']['payloads'])
             time.sleep(5)
 
     except Exception as e:

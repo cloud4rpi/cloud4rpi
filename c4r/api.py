@@ -30,11 +30,11 @@ def read_persistent(variables):
     lib.read_persistent(variables)
 
 
-def process_variables(variables):
+def process_variables(variables, payloads):
     verify_token(lib.device_token)
-    lib.process_variables(variables)
+    lib.process_variables(variables, payloads)
 
 
 def send_receive(variables):
     verify_token(lib.device_token)
-    lib.send_receive(variables)
+    return lib.send_receive(variables)
