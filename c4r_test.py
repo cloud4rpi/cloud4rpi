@@ -38,7 +38,13 @@ class TestApi(unittest.TestCase):
     def testReadPersistent(self, mock):
         input = {'A': 1}
         c4r.read_persistent(input)
-        mock.assert_called_once_with(42)
+        mock.assert_called_once_with(0)
+
+    @patch('c4r.lib.read_cpu')
+    def testReadSystem(self, mock):
+        input = {'A': 1}
+        c4r.read_system(input)
+        mock.assert_called_once_with({'A': 1})
 
     @patch('c4r.lib.send_receive')
     def testReadPersistent(self, mock):
@@ -65,6 +71,7 @@ class TestApi(unittest.TestCase):
             c4r.find_ds_sensors: None,
             c4r.register: ({},),
             c4r.read_persistent: ({},),
+            c4r.read_system: ({},),
             c4r.process_variables: ({}, {}),
             c4r.send_receive: ({},)
         }

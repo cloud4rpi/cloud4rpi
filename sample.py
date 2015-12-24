@@ -33,6 +33,10 @@ Variables = {
         'type': 'bool',
         'value': False,
         'bind': cooler_control
+    },
+    'CPU': {
+        'title': 'CPU temperature',
+        'type': 'numeric',
     }
 }
 
@@ -43,6 +47,8 @@ def main():
     try:
         while True:
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
+            c4r.read_system(Variables['CPU'])
+
             result = c4r.send_receive(Variables)
             print 'result: {0}'.format(result)
             if result:

@@ -38,6 +38,11 @@ def read_persistent(variables):
     api_wrapper(lib.read_persistent, variables)
 
 
+def read_system(variable):
+    verify_token(lib.device_token)
+    api_wrapper(lib.read_cpu, variable)
+
+
 def process_variables(variables, payloads):
     verify_token(lib.device_token)
     api_wrapper(lib.process_variables, variables, payloads)

@@ -7,6 +7,7 @@ import signal
 from c4r.logger import get_logger
 from c4r import helpers
 import c4r.ds18b20 as ds_sensor
+import c4r.cpu as cpu
 
 device_token = None
 
@@ -45,6 +46,10 @@ def read_ds_sensor(variable):
     address = helpers.get_variable_address(variable)
     if not address is None:
         variable['value'] = ds_sensor.read(address)
+
+
+def read_cpu(variable):
+    variable['value'] = cpu.read()
 
 
 def read_persistent(variables):
