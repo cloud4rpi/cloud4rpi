@@ -58,15 +58,15 @@ class TestApi(unittest.TestCase):
                 if args is None:
                     fn()
                 else:
-                    fn(args)
+                    fn(*args)
 
     def testVerifyToken(self):
         methods = {
             c4r.find_ds_sensors: None,
-            c4r.register: {},
-            c4r.read_persistent: {},
-            c4r.process_variables: {},
-            c4r.send_receive: {}
+            c4r.register: ({},),
+            c4r.read_persistent: ({},),
+            c4r.process_variables: ({}, {}),
+            c4r.send_receive: ({},)
         }
         self.call_without_token(methods)
 
@@ -264,11 +264,12 @@ class TestDataExchange(TestFileSystemAndRequests):
         variables = {
             'var1': {
                 'title': 'temp',
-                'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}
+                'type': 'number',
+                'bind': 'ds18b20'
             }
         }
         c4r.register(variables)
-        mock.assert_called_with(device_token, variables)
+        mock.assert_called_with(device_token, [{'type': 'number', 'name': 'var1', 'title': 'temp'}])
 
 
 class TestHelpers(unittest.TestCase):

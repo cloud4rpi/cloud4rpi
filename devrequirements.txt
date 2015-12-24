@@ -4,4 +4,4 @@ timeout-decorator
 pylint
 nose
 coverage
-teamcity-messages
+mock
