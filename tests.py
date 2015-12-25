@@ -10,12 +10,10 @@ import os  # should be imported before fake_filesystem_unittest
 import c4r
 from c4r import lib
 from c4r import ds18b20 as ds_sensors
-from c4r import cpu
 from c4r.cpu import Cpu
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 from c4r import errors
-from c4r import error_messages
 import fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
@@ -72,8 +70,6 @@ class TestApi(unittest.TestCase):
         methods = {
             c4r.register: ({},),
             c4r.send_receive: ({},)
-            #c4r.find_ds_sensors: None,
-            # c4r.process_variables: ({}, {}),
         }
         self.call_without_token(methods)
 
@@ -205,19 +201,6 @@ class TestLibrary(unittest.TestCase):
         readings = lib.collect_readings(variables)
         expected = {'CPU': 36.6}
         self.assertEqual(readings, expected)
-
-
-    # @patch('c4r.daemon.Daemon.run_handler')
-    # def testProcessVariables(self, mock):
-        # addr = '10-000802824e58'
-        # temp = {
-        # 'address': addr,
-        #         'value': 22
-        #     }
-        #     self.daemon.register_variable_handler(addr, self._mockHandler)
-        #
-        #     self.daemon.process_variables([temp])
-        #     mock.assert_called_with(addr)
 
 
 class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
@@ -384,7 +367,6 @@ class ErrorMessages(unittest.TestCase):
         self.assertEqual(m, 'Unexpected error: crash')
         m = c4r.get_error_message(c4r.errors.AuthenticationError())
         self.assertEqual(m, 'Authentication failed. Check your device token.')
-        m = c4r.get_error_message(c4r.errors.AuthenticationError())
 
 
 def main():
