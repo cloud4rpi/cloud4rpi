@@ -2,9 +2,10 @@ import json
 import os
 import re
 import requests
+from c4r import config
 from c4r import errors
 from c4r.logger import get_logger
-import settings_vendor as config
+
 
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 
