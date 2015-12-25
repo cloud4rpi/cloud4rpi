@@ -46,12 +46,6 @@ class TestApi(unittest.TestCase):
         c4r.read_system(input)
         mock.assert_called_once_with({'A': 1})
 
-    @patch('c4r.lib.send_receive')
-    def testReadPersistent(self, mock):
-        input = {'A': 1}
-        c4r.send_receive(input)
-        mock.assert_called_once_with(input)
-
     @patch('c4r.ds18b20.find_all')
     def testFindDSSensors(self, mock):
         c4r.find_ds_sensors()
@@ -159,7 +153,7 @@ class TestLibrary(unittest.TestCase):
         cpuObj = Cpu()
         cpuObj.get_temperature = MagicMock(return_value=36.6)
 
-        cpuVar = {'title': 'cpu_temp', 'bind': cpuObj }
+        cpuVar = {'title': 'cpu_temp', 'bind': cpuObj}
 
         self.assertFalse(cpuVar.has_key('value'))
         lib.read_cpu(cpuVar)
@@ -227,11 +221,6 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUpDefaultResponses(self):
         self.setUpPOSTStatus(201)
 
-    def setUpResponse(self, verb, response, status_code=200):
-        r_mock = MagicMock(['json', 'status_code'])
-        r_mock.json.return_value = response
-        verb.return_value = r_mock
-        self.setUpStatusCode(verb, status_code)
 
     @staticmethod
     def startPatching(target):
@@ -305,8 +294,8 @@ class TestHelpers(unittest.TestCase):
     def testBindIsCPUInstance(self):
         obj = Cpu()
         variables = {
-            'CPU': {'title': 'cpu_temp', 'bind': obj },
-            'NoCPU': {'title': 'no_cpu', 'bind': None }
+            'CPU': {'title': 'cpu_temp', 'bind': obj},
+            'NoCPU': {'title': 'no_cpu', 'bind': None}
         }
         self.assertTrue(helpers.bind_is_instance_of(variables['CPU'], Cpu))
         self.assertFalse(helpers.bind_is_instance_of(variables['CPU'], MagicMock))
