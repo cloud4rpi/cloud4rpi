@@ -5,13 +5,13 @@ import os
 import time
 from subprocess import CalledProcessError
 import requests
-from requests import RequestException
-
-import c4r.errors as errors
-from c4r import lib
+# from requests import RequestException
+#
+# import c4r.errors as errors
+# from c4r import lib
 from settings import DeviceToken
-from c4r.logger import get_logger, config_logging_to_file
-from settings import LOG_FILE_PATH
+from c4r.logger import get_logger #, config_logging_to_file
+# from settings import LOG_FILE_PATH
 
 
 log = get_logger()
@@ -40,7 +40,6 @@ def safe_run_daemon(lib):
             n += 1
             wait_secs *= 2
 
-# # TODO remove it
 # def main():
 #     daemon = None
 #     try:

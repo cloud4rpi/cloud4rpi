@@ -15,7 +15,7 @@ log = get_logger()
 
 
 def set_device_token(token):
-    global device_token
+    global device_token # pylint: disable=W0603
     device_token = token
 
 
