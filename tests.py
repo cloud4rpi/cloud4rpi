@@ -34,16 +34,18 @@ class TestApi(unittest.TestCase):
     def setUp(self):
         c4r.set_device_token(device_token)
 
+    @staticmethod
     @patch('c4r.lib.read_persistent')
-    def testReadPersistent(self, mock):
-        input = {'A': 1}
-        c4r.read_persistent(input)
-        mock.assert_called_once_with(0)
+    def testReadPersistent(mock):
+        var = {'A': 1}
+        c4r.read_persistent(var)
+        mock.assert_called_once_with({'A': 1})
 
+    @staticmethod
     @patch('c4r.lib.read_cpu')
-    def testReadSystem(self, mock):
-        input = {'A': 1}
-        c4r.read_system(input)
+    def testReadSystem(mock):
+        var = {'A': 1}
+        c4r.read_system(var)
         mock.assert_called_once_with({'A': 1})
 
     @patch('c4r.ds18b20.find_all')
@@ -98,10 +100,6 @@ class TestLibrary(unittest.TestCase):
     def testDefauls(self):
         self.assertIsNone(lib.device_token)
 
-    # def testMethodsExists(self):
-    # methods = [
-    # ]
-    # self.methods_exists(methods)
 
     def testStaticMethodsExists(self):
         self.static_methods_exists([
@@ -132,24 +130,26 @@ class TestLibrary(unittest.TestCase):
         self.assertTrue(lib.bind_handler_exists(var1))
 
 
+    @staticmethod
     @patch('c4r.ds18b20.read')
-    def testReadPersistent(self, mock):
+    def testReadPersistent(mock):
         addr = '10-000802824e58'
-        var = {
+        body = {
             'title': 'temp',
             'bind': {
                 'type': 'ds18b20',
                 'address': addr
             }
         }
-        input = {"Var1": var}
+        variables = {"Var1": body}
 
-        lib.read_persistent(input)
+        lib.read_persistent(variables)
         mock.assert_called_with(addr)
 
 
     @patch.object(Cpu, 'read')
     def testReadCpu(self, mock):
+        mock.return_value = 0
         cpuObj = Cpu()
         cpuObj.get_temperature = MagicMock(return_value=36.6)
 
@@ -166,11 +166,11 @@ class TestLibrary(unittest.TestCase):
             'title': 'temp',
             'bind': {'type': 'ds18b20', 'address': addr}
         }
-        input = {'Test': var}
+        variables = {'Test': var}
 
         self.setUpSensorReading(22.4)
 
-        lib.read_persistent(input)
+        lib.read_persistent(variables)
         self.assertEqual(var['value'], 22.4)
 
     def testCollectReadings(self):
@@ -186,6 +186,7 @@ class TestLibrary(unittest.TestCase):
 
     @patch.object(Cpu, 'read')
     def testCollectCpuTemperatureReadings(self, mock):
+        mock.return_value = 0
         cpuObj = Cpu()
         cpuObj.get_temperature = MagicMock(return_value=36.6)
         variables = {
@@ -264,8 +265,9 @@ class TestDataExchange(TestFileSystemAndRequests):
         with self.assertRaises(errors.AuthenticationError):
             lib.send_receive({})
 
+    @staticmethod
     @patch('c4r.helpers.put_device_variables')
-    def test_register_variables(self, mock):
+    def test_register_variables(mock):
         variables = {
             'var1': {
                 'title': 'temp',

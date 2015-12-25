@@ -54,7 +54,6 @@ def read_cpu(variable):
         c = helpers.get_variable_bind(variable)
         c.read()
         variable['value'] = c.get_temperature()
-        print 'Done!'
 
 
 def read_persistent(variables):
