@@ -7,7 +7,7 @@ import signal
 from c4r.logger import get_logger
 from c4r import helpers
 import c4r.ds18b20 as ds_sensor
-import c4r.cpu as cpu
+from c4r import cpu
 
 device_token = None
 
@@ -37,8 +37,9 @@ def is_ds_sensor(variable):
         return not helpers.get_variable_address(variable) is None
     return False
 
-
 def is_out_variable(variable):
+    if  helpers.bind_is_instance_of(variable, cpu.Cpu):
+        return True
     return ds_sensor.SUPPORTED_TYPE == helpers.get_variable_type(variable)
 
 
@@ -49,7 +50,11 @@ def read_ds_sensor(variable):
 
 
 def read_cpu(variable):
-    variable['value'] = cpu.read()
+    if helpers.bind_is_instance_of(variable, cpu.Cpu):
+        c = helpers.get_variable_bind(variable)
+        c.read()
+        variable['value'] = c.get_temperature()
+        print 'Done!'
 
 
 def read_persistent(variables):
@@ -58,7 +63,8 @@ def read_persistent(variables):
 
 
 def collect_readings(variables):
-    readings = {name: helpers.get_variable_value(value) for name, value in variables.iteritems() if is_out_variable(value)}
+    readings = {name: helpers.get_variable_value(value) for name, value in variables.iteritems() \
+                if is_out_variable(value)}
     return readings
 
 
@@ -104,6 +110,9 @@ pool = Pool(processes=1, initializer=init_worker)
 
 def process_variables(variables, payloads):
     for name, props in variables.iteritems():
+        if helpers.bind_is_instance_of(props, cpu.Cpu):
+            continue
+
         bind = helpers.get_variable_bind(props)
         if helpers.bind_is_handler(bind):
             pool.apply_async(run_bind_method, args=(name, bind, helpers.get_payload_value(name, payloads)))

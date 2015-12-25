@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from c4r import ds18b20
+from c4r import cpu
 from c4r import lib
 from c4r import error_messages
 from c4r.helpers import verify_token
@@ -29,22 +30,25 @@ def register(variables):
 
 
 def find_ds_sensors():
-    verify_token(lib.device_token)
+    #verify_token(lib.device_token)
     return api_wrapper(ds18b20.find_all)
 
 
+def find_cpu():
+    #verify_token(lib.device_token)
+    return api_wrapper(cpu.Cpu)
+
+
 def read_persistent(variables):
-    verify_token(lib.device_token)
     api_wrapper(lib.read_persistent, variables)
 
 
 def read_system(variable):
-    verify_token(lib.device_token)
     api_wrapper(lib.read_cpu, variable)
 
 
 def process_variables(variables, payloads):
-    verify_token(lib.device_token)
+    # verify_token(lib.device_token)
     api_wrapper(lib.process_variables, variables, payloads)
 
 

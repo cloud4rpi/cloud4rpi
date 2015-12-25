@@ -5,7 +5,6 @@ import requests
 from c4r import errors
 from c4r.logger import get_logger
 import settings_vendor as config
-from sensors import cpu as cpu_sensor
 
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 
@@ -38,14 +37,6 @@ def stream_request_url(token):
 
 def system_parameters_request_url(token):
     return '{0}/devices/{1}/params/'.format(config.baseApiUrl, token)
-
-
-def get_system_parameters():
-    cpu_temperature = cpu_sensor.read()
-    return {
-        'cpuTemperature': cpu_temperature
-    }
-
 
 def load_device_config():
     return load_file(config.config_file)
@@ -118,18 +109,6 @@ def post_stream(token, stream):
     return res.json()
 
 
-def post_system_parameters(token):
-    params = get_system_parameters()
-    log.info('sending {0}'.format(params))
-
-    res = requests.post(system_parameters_request_url(token),
-                        headers=request_headers(token),
-                        json=params,
-                        timeout=REQUEST_TIMEOUT_SECONDS)
-    check_response(res)
-    return res.json()
-
-
 def check_response(res):
     log.info(res.status_code)
     if res.status_code == 401:
@@ -155,7 +134,9 @@ def extract_variable_bind_prop(props, prop_name):
     if hasattr(bind, '__call__'):
         return bind()
 
-    return bind[prop_name]
+    if isinstance(bind, dict) and prop_name in bind.keys():
+        return bind[prop_name]
+    return None
 
 
 def extract_variable_prop(props, prop_name):
@@ -189,7 +170,11 @@ def get_payload_value(name, payloads):
     return None
 
 
-# TODO rename
+def bind_is_instance_of(variable, cls):
+    bind = get_variable_bind(variable)
+    return isinstance(bind, cls)
+
+
 def bind_is_handler(bind):
     if bind is None:
         return False

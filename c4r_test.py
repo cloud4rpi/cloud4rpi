@@ -10,6 +10,8 @@ import os  # should be imported before fake_filesystem_unittest
 import c4r
 from c4r import lib
 from c4r import ds18b20 as ds_sensors
+from c4r import cpu
+from c4r.cpu import Cpu
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 from c4r import errors
@@ -68,12 +70,10 @@ class TestApi(unittest.TestCase):
 
     def testVerifyToken(self):
         methods = {
-            c4r.find_ds_sensors: None,
             c4r.register: ({},),
-            c4r.read_persistent: ({},),
-            c4r.read_system: ({},),
-            c4r.process_variables: ({}, {}),
             c4r.send_receive: ({},)
+            #c4r.find_ds_sensors: None,
+            # c4r.process_variables: ({}, {}),
         }
         self.call_without_token(methods)
 
@@ -157,6 +157,19 @@ class TestLibrary(unittest.TestCase):
         lib.read_persistent(input)
         mock.assert_called_with(addr)
 
+
+    @patch.object(Cpu, 'read')
+    def testReadCpu(self, mock):
+        cpuObj = Cpu()
+        cpuObj.get_temperature = MagicMock(return_value=36.6)
+
+        cpuVar = {'title': 'cpu_temp', 'bind': cpuObj }
+
+        self.assertFalse(cpuVar.has_key('value'))
+        lib.read_cpu(cpuVar)
+        self.assertEqual(cpuVar['value'], 36.6)
+
+
     def testUpdateVariableValueOnRead(self):
         addr = '10-000802824e58'
         var = {
@@ -181,8 +194,21 @@ class TestLibrary(unittest.TestCase):
         self.assertEqual(readings, expected)
 
 
-        # @patch('c4r.daemon.Daemon.run_handler')
-        # def testProcessVariables(self, mock):
+    @patch.object(Cpu, 'read')
+    def testCollectCpuTemperatureReadings(self, mock):
+        cpuObj = Cpu()
+        cpuObj.get_temperature = MagicMock(return_value=36.6)
+        variables = {
+            'CPU': {'title': 'cpu_temp', 'bind': cpuObj}
+        }
+        lib.read_cpu(variables['CPU'])
+        readings = lib.collect_readings(variables)
+        expected = {'CPU': 36.6}
+        self.assertEqual(readings, expected)
+
+
+    # @patch('c4r.daemon.Daemon.run_handler')
+    # def testProcessVariables(self, mock):
         # addr = '10-000802824e58'
         # temp = {
         # 'address': addr,
@@ -292,6 +318,26 @@ class TestHelpers(unittest.TestCase):
         }
         actual = helpers.extract_variable_bind_prop(var, 'address')
         self.assertEqual(actual, addr)
+
+    def testBindIsCPUInstance(self):
+        obj = Cpu()
+        variables = {
+            'CPU': {'title': 'cpu_temp', 'bind': obj },
+            'NoCPU': {'title': 'no_cpu', 'bind': None }
+        }
+        self.assertTrue(helpers.bind_is_instance_of(variables['CPU'], Cpu))
+        self.assertFalse(helpers.bind_is_instance_of(variables['CPU'], MagicMock))
+        self.assertFalse(helpers.bind_is_instance_of(variables['NoCPU'], Cpu))
+
+    def testBindIsHandler(self):
+        variables = {
+            'var1': {'title': 'with', 'bind': MockHandler.empty},
+            'var2': {'title': 'without', 'bind': None},
+            'var3': {'title': 'without', 'bind': 'Something'}
+        }
+        self.assertTrue(helpers.bind_is_handler(variables['var1']['bind']))
+        self.assertFalse(helpers.bind_is_handler(variables['var2']['bind']))
+        self.assertFalse(helpers.bind_is_handler(variables['var3']['bind']))
 
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):

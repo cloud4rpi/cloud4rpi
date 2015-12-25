@@ -8,9 +8,16 @@ import c4r      #Lib to send and receive commands
 DeviceToken = 'YOUR_DEVICE_TOKEN'
 
 c4r.set_device_token(DeviceToken)
-ds_sensors = c4r.find_ds_sensors()
+cpu = c4r.find_cpu()
 
+ds_sensors = c4r.find_ds_sensors()
 print 'SENSORS FOUND ', ds_sensors
+
+
+def bind_sensor(sensors, index):
+    if not sensors is None and len(sensors) > index:
+        return sensors[index]
+    return None
 
 
 def cooler_control(value=None):
@@ -21,12 +28,12 @@ Variables = {
     'CurrentTemp_1': {
         'title': 'Temp sensor 1 reading',
         'type': 'numeric',
-        'bind': ds_sensors[0] if len(ds_sensors) else None
+        'bind': bind_sensor(ds_sensors, 0)
     },
     'CurrentTemp_2': {
         'title': 'Temp sensor 2 reading',
         'type': 'numeric',
-        'bind': ds_sensors[1] if len(ds_sensors) > 1 else None
+        'bind': bind_sensor(ds_sensors, 1)
     },
     'CoolerOn': {
         'title': 'Cooler enabled',
@@ -37,16 +44,17 @@ Variables = {
     'CPU': {
         'title': 'CPU temperature',
         'type': 'numeric',
+        'bind': cpu
     }
 }
 
 
 def main():
-
     c4r.register(Variables)
     try:
         while True:
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
+
             c4r.read_system(Variables['CPU'])
 
             result = c4r.send_receive(Variables)
