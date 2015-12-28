@@ -5,7 +5,7 @@ import time
 import c4r      #Lib to send and receive commands
 
 # Put your device token here. To get a device token, register at http://stage.cloud4rpi.io
-DeviceToken = 'YOUR_DEVICE_TOKEN'
+DeviceToken = '567a914579e7b85b25dc9c62'
 
 c4r.set_device_token(DeviceToken)
 cpu = c4r.find_cpu()
@@ -57,10 +57,9 @@ def main():
 
             c4r.read_system(Variables)
 
-            result = c4r.send_receive(Variables)
-            print 'result: {0}'.format(result)
-            if result:
-                c4r.process_variables(Variables, result['streams']['payloads'])
+            server_response = c4r.send_receive(Variables)
+            print 'Server response: {0}'.format(server_response)
+            c4r.process_variables(Variables, server_response)
             time.sleep(5)
 
     except Exception as e:
