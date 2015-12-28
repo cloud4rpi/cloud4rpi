@@ -41,8 +41,8 @@ def read_persistent(variables):
     api_wrapper(lib.read_persistent, variables)
 
 
-def read_system(variable):
-    api_wrapper(lib.read_cpu, variable)
+def read_system(variables):
+    api_wrapper(lib.read_system, variables)
 
 
 def process_variables(variables, payloads):

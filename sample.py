@@ -55,7 +55,7 @@ def main():
         while True:
             c4r.read_persistent(Variables) #reads values from persistent memory, sensors
 
-            c4r.read_system(Variables['CPU'])
+            c4r.read_system(Variables)
 
             result = c4r.send_receive(Variables)
             print 'result: {0}'.format(result)

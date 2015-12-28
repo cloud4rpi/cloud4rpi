@@ -37,8 +37,11 @@ def is_ds_sensor(variable):
         return not helpers.get_variable_address(variable) is None
     return False
 
+def is_cpu(variable):
+    return helpers.bind_is_instance_of(variable, cpu.Cpu)
+
 def is_out_variable(variable):
-    if  helpers.bind_is_instance_of(variable, cpu.Cpu):
+    if is_cpu(variable):
         return True
     return ds_sensor.SUPPORTED_TYPE == helpers.get_variable_type(variable)
 
@@ -47,6 +50,10 @@ def read_ds_sensor(variable):
     address = helpers.get_variable_address(variable)
     if not address is None:
         variable['value'] = ds_sensor.read(address)
+
+
+def read_system(variables):
+    [read_cpu(x) for x in variables.itervalues() if is_cpu(x)]
 
 
 def read_cpu(variable):

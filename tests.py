@@ -42,7 +42,7 @@ class TestApi(unittest.TestCase):
         mock.assert_called_once_with({'A': 1})
 
     @staticmethod
-    @patch('c4r.lib.read_cpu')
+    @patch('c4r.lib.read_system')
     def testReadSystem(mock):
         var = {'A': 1}
         c4r.read_system(var)
@@ -145,6 +145,18 @@ class TestLibrary(unittest.TestCase):
 
         lib.read_persistent(variables)
         mock.assert_called_with(addr)
+
+    @staticmethod
+    @patch('c4r.lib.read_cpu')
+    def testReadSystemOnlyWithCpu(mock):
+        cpuObj = Cpu()
+        variables = {
+            'any': {'title': 'abc'},
+            'CPU': {'title': 'cpu_temp', 'bind': cpuObj},
+            'noCPU': {'title': 'no_bind'}
+        }
+        lib.read_system(variables)
+        mock.assert_called_with({'title': 'cpu_temp', 'bind': cpuObj})
 
 
     @patch.object(Cpu, 'read')
