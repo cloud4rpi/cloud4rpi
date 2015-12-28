@@ -113,18 +113,12 @@ def run_bind_method(var_name, method, current_value):
 
 pool = Pool(processes=1, initializer=init_worker)
 
-def process_event(variables, payload):
+
+def process_variables(variables, payloads):
     for name, props in variables.iteritems():
+        if helpers.bind_is_instance_of(props, cpu.Cpu):
+            continue
+
         bind = helpers.get_variable_bind(props)
         if helpers.bind_is_handler(bind):
-            val = helpers.get_payload_value(name, payload)
-            if val is not None:
-                pool.apply_async(run_bind_method, args=(name, bind, val))
-
-
-def process_variables(variables, server_response):
-    events = helpers.extract_server_events(server_response)
-    payloads = helpers.extract_all_payloads(events)
-    for x in payloads.iteritems():
-        process_event(variables, x)
-
+            pool.apply_async(run_bind_method, args=(name, bind, helpers.get_payload_value(name, payloads)))

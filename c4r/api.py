@@ -45,9 +45,8 @@ def read_system(variables):
     api_wrapper(lib.read_system, variables)
 
 
-
-def process_variables(variables, server_response):
-    api_wrapper(lib.process_variables, variables, server_response)
+def process_variables(variables, payloads):
+    api_wrapper(lib.process_variables, variables, payloads)
 
 
 def send_receive(variables):
