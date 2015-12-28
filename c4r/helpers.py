@@ -164,12 +164,25 @@ def get_variable_bind(props):
     return extract_variable_prop(props, 'bind')
 
 
-def get_payload_value(name, payloads):
-    for payload in payloads:
-        if payload['key'] == name:
-            return payload['value']
+def extract_server_events(server_response):
+    if hasattr(server_response, 'newEvents'):
+        return server_response['newEvents']
+    return []
+
+def extract_event_payloads(event):
+    if hasattr(event, 'payloads'):
+        return event['payloads']
     return None
 
+
+def extract_all_payloads(new_events):
+    return [extract_event_payloads(x) for x in new_events]
+
+
+def get_payload_value(payload, name):
+    if payload.has_key(name):
+        return payload[name]
+    return None
 
 def bind_is_instance_of(variable, cls):
     bind = get_variable_bind(variable)
