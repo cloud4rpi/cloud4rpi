@@ -74,13 +74,10 @@ def get_by_key(obj, key_name):
     return None
 
 
-
 def extract_variable_bind_prop(props, prop_name):
     bind = get_variable_bind(props)
     if bind is None:
-        return False
-    if hasattr(bind, '__call__'):
-        return bind()
+        return None
     return get_by_key(bind, prop_name)
 
 

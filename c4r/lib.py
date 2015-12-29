@@ -118,7 +118,6 @@ def process_event(variables, payload):
         bind = helpers.get_variable_bind(props)
         if helpers.bind_is_handler(bind):
             val = helpers.get_by_key(payload, name)
-            print 'Appling...{0} for "{1}" variable'.format(val, name)
             pool.apply_async(run_bind_method, args=(name, bind, val))
 
 
