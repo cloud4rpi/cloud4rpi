@@ -128,24 +128,28 @@ def verify_token(token):
         raise errors.InvalidTokenError
 
 
+def key_exists(obj, key_name):
+    return isinstance(obj, dict) and key_name in obj.keys()
+
+
+def get_by_key(obj, key_name):
+    if key_exists(obj, key_name):
+        return obj[key_name]
+    return None
+
+
+
 def extract_variable_bind_prop(props, prop_name):
     bind = get_variable_bind(props)
     if bind is None:
         return False
     if hasattr(bind, '__call__'):
         return bind()
-
-    if isinstance(bind, dict) and prop_name in bind.keys():
-        return bind[prop_name]
-    return None
+    return get_by_key(bind, prop_name)
 
 
 def extract_variable_prop(props, prop_name):
-    if props is None:
-        return None
-    if prop_name in props.keys():
-        return props[prop_name]
-    return None
+    return get_by_key(props, prop_name)
 
 
 def get_variable_address(variable):
@@ -164,25 +168,19 @@ def get_variable_bind(props):
     return extract_variable_prop(props, 'bind')
 
 
-def extract_server_events(server_response):
-    if hasattr(server_response, 'newEvents'):
-        return server_response['newEvents']
-    return []
+def extract_server_events(server_msg):
+    if server_msg is None:
+        return []
+    return get_by_key(server_msg, 'newEvents')
+
 
 def extract_event_payloads(event):
-    if hasattr(event, 'payloads'):
-        return event['payloads']
-    return None
+    return get_by_key(event, 'payloads')
 
 
 def extract_all_payloads(new_events):
     return [extract_event_payloads(x) for x in new_events]
 
-
-def get_payload_value(payload, name):
-    if payload.has_key(name):
-        return payload[name]
-    return None
 
 def bind_is_instance_of(variable, cls):
     bind = get_variable_bind(variable)

@@ -57,9 +57,9 @@ def main():
 
             c4r.read_system(Variables)
 
-            server_response = c4r.send_receive(Variables)
-            print 'Server response: {0}'.format(server_response)
-            c4r.process_variables(Variables, server_response)
+            server_msg = c4r.send_receive(Variables)
+            print 'Server message: {0}'.format(server_msg)
+            c4r.process_variables(Variables, server_msg)
             time.sleep(5)
 
     except Exception as e:

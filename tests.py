@@ -325,6 +325,18 @@ class TestHelpers(unittest.TestCase):
         self.assertFalse(helpers.bind_is_handler(variables['var2']['bind']))
         self.assertFalse(helpers.bind_is_handler(variables['var3']['bind']))
 
+    def testExtractSrverEvents(self):
+        server_msg = {
+            'newEvents': [
+                {'Cooler': 1},
+                {'OFF': 0}
+            ]
+        }
+        events = helpers.extract_server_events(server_msg)
+        self.assertEqual(len(events), 2)
+        self.assertEqual(events[0], {'Cooler': 1})
+        self.assertEqual(events[1], {'OFF': 0})
+
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
     def setUp(self):
