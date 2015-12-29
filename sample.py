@@ -4,6 +4,11 @@ import sys
 import time
 import c4r      #Lib to send and receive commands
 
+# load w1 modules
+c4r.modprobe('w1-gpio')
+c4r.modprobe('w1-therm')
+
+
 # Put your device token here. To get a device token, register at http://stage.cloud4rpi.io
 DeviceToken = 'YOUR_DEVICE_TOKEN'
 
@@ -24,6 +29,7 @@ def cooler_control(value=None):
     print 'New Cooler value: {0}'.format(value)
     return 42
 
+# variable declaration
 Variables = {
     'CurrentTemp_1': {
         'title': 'Temp sensor 1 reading',
@@ -50,10 +56,10 @@ Variables = {
 
 
 def main():
-    c4r.register(Variables)
+    c4r.register(Variables)  #send variable declarations to server
     try:
         while True:
-            c4r.read_persistent(Variables) #reads values from persistent memory, sensors
+            c4r.read_persistent(Variables)  #reads values from persistent memory, sensors
 
             c4r.read_system(Variables)
 
