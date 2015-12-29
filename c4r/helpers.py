@@ -110,12 +110,12 @@ def extract_server_events(server_msg):
     return get_by_key(server_msg, 'newEvents')
 
 
-def extract_event_payloads(event):
-    return get_by_key(event, 'payloads')
+def extract_event_payload(event):
+    return get_by_key(event, 'payload')
 
 
 def extract_all_payloads(new_events):
-    return [extract_event_payloads(x) for x in new_events]
+    return [extract_event_payload(x) for x in new_events]
 
 
 def bind_is_instance_of(variable, cls):
