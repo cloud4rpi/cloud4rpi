@@ -20,7 +20,6 @@ def find_all():
             if W1_SENSOR_PATTERN.match(x) and os.path.isfile(sensor_full_path(x))]
 
 def read(address):
-    print 'reading from' + address
     readings = read_whole_file(sensor_full_path(address))
     temp_token = 't='
     temp_index = readings.find(temp_token)
