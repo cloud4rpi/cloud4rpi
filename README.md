@@ -14,7 +14,7 @@ On your Raspberry Pi:
 3. cd cloud4rpi
 4. sudo pip install -r requirements.txt
 5. nano settings.py
-6. sudo python cloud4rpid.py &
+6. sudo python app.py &
 ```
 
 Introduction
