@@ -2,19 +2,31 @@
 import os
 import re
 
-TEMPLATE_FILE_NAME = 'cloud4rpi.tmpl'
+
+CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+PATTERN = '%%CLOUD4RPI_DIR%%'
 FILE_NAME = 'tmp/cloud4rpi'
 
-PATTERN = '%%CLOUD4RPI_DIR%%'
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def generateFromTemplate():
-    with open(TEMPLATE_FILE_NAME) as f:
+def get_template_path():
+    return os.path.join(CURR_DIR, 'cloud4rpi.tmpl')
+
+
+def get_target_path():
+    return os.path.abspath(os.path.join(CURR_DIR, '../'))
+
+
+TARGET_PATH = get_target_path()
+
+
+def generate_from_template():
+    template_path = get_template_path()
+    with open(template_path) as f:
         out = open(FILE_NAME, "w")
         for line in f:
-            out.write(re.sub(PATTERN, CURRENT_DIR, line))
+            out.write(re.sub(PATTERN, TARGET_PATH, line))
         out.close()
 
 if __name__ == "__main__":
-    print 'Current directory: ', CURRENT_DIR
-    generateFromTemplate()
+    print 'Target directory: ', TARGET_PATH
+    generate_from_template()
