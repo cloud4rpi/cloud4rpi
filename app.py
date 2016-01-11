@@ -2,7 +2,7 @@
 
 import sys
 import time
-import c4r      #Lib to send and receive commands
+import c4r  # Lib to send and receive commands
 
 # load w1 modules
 c4r.modprobe('w1-gpio')
@@ -29,7 +29,7 @@ def cooler_control(value=None):
     print 'New Cooler value: {0}'.format(value)
     return 42
 
-# variable declaration
+# Put required variable declaration here
 Variables = {
     'CurrentTemp_1': {
         'title': 'Temp sensor 1 reading',
@@ -56,12 +56,11 @@ Variables = {
 
 
 def main():
-    c4r.register(Variables)  #send variable declarations to server
+    c4r.register(Variables)  # Send variable declarations to server
     try:
         while True:
-            c4r.read_persistent(Variables)  #reads values from persistent memory, sensors
-
-            c4r.read_system(Variables)
+            c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors
+            c4r.read_system(Variables)  # Reads CPU temperature
 
             server_msg = c4r.send_receive(Variables)
             print 'Server message: {0}'.format(server_msg)
