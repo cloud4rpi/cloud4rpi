@@ -16,7 +16,7 @@ echo "Setting permissions..."
 chmod +x ./cloud4rpi
 echo "Done"
 
-echo "Copying init script to /etc/init.d"
+echo "Copying init script to /etc/init.d..."
 cp $SERVICE_NAME /etc/init.d/$SERVICE_NAME
 quit_on_error
 echo "Done"
