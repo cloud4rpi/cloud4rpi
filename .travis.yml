@@ -16,10 +16,12 @@ script:
 
 branches:
   only:
-    - travis
+    - master
 
 
 notifications:
   slack:
+    on_success: change
+    on_failure: always
     rooms:
       cloud4rpi:VenN0n5LbRGi25ACnHUSmgUu#builds
