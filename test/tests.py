@@ -14,7 +14,7 @@ from c4r.cpu import Cpu
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 from c4r import errors
-import fake_filesystem_unittest
+import pyfakefs.fake_filesystem_unittest as fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
 
@@ -28,7 +28,6 @@ sensor_10 = \
 sensor_28 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
     '2d 00 4d 46 ff ff 08 10 fe : t=28250'
-
 
 class TestApi(unittest.TestCase):
     def setUp(self):
