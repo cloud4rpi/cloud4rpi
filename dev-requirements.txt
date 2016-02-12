@@ -5,3 +5,5 @@ pylint
 nose
 coverage
 mock
+
+-r requirements.txt
