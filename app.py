@@ -9,7 +9,7 @@ c4r.modprobe('w1-gpio')
 c4r.modprobe('w1-therm')
 
 
-# Put your device token here. To get a device token, register at http://stage.cloud4rpi.io
+# Put your device token here. To get a device token, register at http://cloud4rpi.io
 DeviceToken = 'YOUR_DEVICE_TOKEN'
 
 c4r.set_device_token(DeviceToken)
