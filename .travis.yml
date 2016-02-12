@@ -24,4 +24,4 @@ notifications:
     on_success: change
     on_failure: always
     rooms:
-      cloud4rpi:VenN0n5LbRGi25ACnHUSmgUu#builds
+      cloud4rpi:SLACK_TOKEN#builds
