@@ -3,3 +3,10 @@
 
 # Server parameters
 baseApiUrl = 'https://cloud4rpi.io/api'
+
+
+# MQTT broker parameters
+mqqtBrokerHost = 'mq.cloud4rpi.io'
+mqttBrokerPort = 1883
+mqqtBrokerUsername = 'c4r-user'
+mqttBrokerPassword = 'c4r-password'

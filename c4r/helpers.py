@@ -3,6 +3,7 @@ import requests
 from c4r import config
 from c4r import errors
 from c4r.logger import get_logger
+from c4r import mqtt
 
 
 REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
@@ -36,6 +37,8 @@ def put_device_variables(token, variables_config):
 
 
 def post_stream(token, stream):
+    mqtt.publish(token, stream)
+
     log.info('sending {0}'.format(stream))
 
     res = requests.post(stream_request_url(token),
