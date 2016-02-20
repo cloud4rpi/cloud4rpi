@@ -1,7 +1,10 @@
 import requests
 from c4r import mqtt
-from c4r import helpers as helpers
+from c4r import helpers
+from c4r import errors
+from c4r.logger import get_logger
 
+log = get_logger()
 
 class Transport(object):
     def send_config(self, token, config):
@@ -20,19 +23,32 @@ class MqttTransport(Transport):
     def send_config(self, token, config):
         mqtt.publish(MqttTransport.get_topic(token, 'config'), config)
 
-    def post_stream(self, token, stream):
+    def send_stream(self, token, stream):
         mqtt.publish(MqttTransport.get_topic(token, 'stream'), stream)
 
 
 class HttpTransport(Transport):
-    def send_config(self, token, config):
-        return requests.put(helpers.device_request_url(token),
-                            headers=helpers.request_headers(token),
-                            json=config,
-                            timeout=helpers.REQUEST_TIMEOUT_SECONDS)
+    @staticmethod
+    def check_response(res):
+        log.info(res.status_code)
+        if res.status_code == 401:
+            raise errors.AuthenticationError
+        if res.status_code >= 500:
+            raise errors.ServerError
 
-    def post_stream(self, token, stream):
-        return requests.post(helpers.stream_request_url(token),
-                             headers=helpers.request_headers(token),
-                             json=stream,
-                             timeout=helpers.REQUEST_TIMEOUT_SECONDS)
+    def send_config(self, token, config):
+        res = requests.put(helpers.device_request_url(token),
+                           headers=helpers.request_headers(token),
+                           json=config,
+                           timeout=helpers.REQUEST_TIMEOUT_SECONDS)
+        HttpTransport.check_response(res)
+        return res.json()
+
+
+    def send_stream(self, token, stream):
+        res = requests.post(helpers.stream_request_url(token),
+                            headers=helpers.request_headers(token),
+                            json=stream,
+                            timeout=helpers.REQUEST_TIMEOUT_SECONDS)
+        HttpTransport.check_response(res)
+        return res.json()

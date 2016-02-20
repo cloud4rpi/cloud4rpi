@@ -88,7 +88,8 @@ def send_stream(payload):
         'ts': ts,
         'payload': payload
     }
-    return helpers.post_stream(device_token, stream)
+    transport = get_active_transport()
+    return transport.send_stream(device_token, stream)
 
 
 def get_active_transport():
