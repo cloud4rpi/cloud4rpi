@@ -15,9 +15,9 @@ def on_disconnect(client, userdata, rc):
 def on_publish(mosq, obj, mid):
     log.info("mid: " + str(mid))
 
-def publish(token, stream):
+def publish(topic, stream):
     log.info('publish to mqtt broker...')
-    client.publish(token + '\stream', json.dumps(stream), 0, True)
+    client.publish(topic, json.dumps(stream), 0, True)
 
 
 client = mqtt.Client()
