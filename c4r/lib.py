@@ -93,7 +93,7 @@ def send_stream(payload):
 
 
 def get_active_transport():
-    return transport.HttpTransport()
+    return transport.MqttTransport()
 
 
 def register(variables):

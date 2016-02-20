@@ -223,6 +223,12 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
         self.setUpStatusCode(verb, status_code)
 
     @staticmethod
+    def setUpDefaultHttpTransport():
+        r_mock = MagicMock()
+        r_mock.return_value = transport.HttpTransport()
+        lib.get_active_transport = r_mock
+
+    @staticmethod
     def setUpStatusCode(verb, code):
         verb.return_value.status_code = code
 
@@ -259,6 +265,7 @@ class TestDataExchange(TestFileSystemAndRequests):
     def setUp(self):
         super(TestDataExchange, self).setUp()
         self.setUpDefaultResponses()
+        self.setUpDefaultHttpTransport()
         lib.set_device_token(device_token)
 
     def tearDown(self):
