@@ -1,5 +1,4 @@
 import re
-import requests
 from c4r import config
 from c4r import errors
 from c4r.logger import get_logger
@@ -20,30 +19,6 @@ def device_request_url(token):
 
 def stream_request_url(token):
     return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, token)
-
-
-def put_device_variables(token, variables_config):
-    log.info('Sending device configuration...')
-
-    res = requests.put(device_request_url(token),
-                       headers=request_headers(token),
-                       json={'variables': variables_config},
-                       timeout=REQUEST_TIMEOUT_SECONDS)
-    check_response(res)
-    if res.status_code != 200:
-        log.error('Can\'t register variables. Status: {0}'.format(res.status_code))
-
-    return res.json()
-
-
-def post_stream(token, stream):
-    log.info('sending {0}'.format(stream))
-    res = requests.post(stream_request_url(token),
-                        headers=request_headers(token),
-                        json=stream,
-                        timeout=REQUEST_TIMEOUT_SECONDS)
-    check_response(res)
-    return res.json()
 
 
 def check_response(res):
