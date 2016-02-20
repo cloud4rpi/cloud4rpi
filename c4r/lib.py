@@ -8,6 +8,7 @@ from c4r.logger import get_logger
 from c4r import helpers
 import c4r.ds18b20 as ds_sensor
 from c4r import cpu
+from c4r import transport
 
 device_token = None
 
@@ -15,7 +16,7 @@ log = get_logger()
 
 
 def set_device_token(token):
-    global device_token # pylint: disable=W0603
+    global device_token  # pylint: disable=W0603
     device_token = token
 
 
@@ -37,8 +38,10 @@ def is_ds_sensor(variable):
         return not helpers.get_variable_address(variable) is None
     return False
 
+
 def is_cpu(variable):
     return helpers.bind_is_instance_of(variable, cpu.Cpu)
+
 
 def is_out_variable(variable):
     if is_cpu(variable):
@@ -88,10 +91,17 @@ def send_stream(payload):
     return helpers.post_stream(device_token, stream)
 
 
+def get_active_transport():
+    return transport.HttpTransport()
+
+
 def register(variables):
     variables_decl = [{'name': name, 'title': value['title'], 'type': value['type']}
                       for name, value in variables.iteritems()]
-    return helpers.put_device_variables(device_token, variables_decl)
+    config = {'variables': variables_decl}
+
+    transport = get_active_transport()
+    return transport.send_config(device_token, config)
 
 
 def run_handler(self, address):
@@ -112,6 +122,7 @@ def run_bind_method(var_name, method, current_value):
 
 
 pool = Pool(processes=1, initializer=init_worker)
+
 
 def process_event(variables, payload):
     for name, props in variables.iteritems():

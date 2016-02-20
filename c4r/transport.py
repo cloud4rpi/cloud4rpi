@@ -32,11 +32,7 @@ class HttpTransport(Transport):
                             timeout=helpers.REQUEST_TIMEOUT_SECONDS)
 
     def post_stream(self, token, stream):
-        return requests.post(stream_helpers.request_url(token),
+        return requests.post(helpers.stream_request_url(token),
                              headers=helpers.request_headers(token),
                              json=stream,
                              timeout=helpers.REQUEST_TIMEOUT_SECONDS)
-
-
-def get_default_transport():
-    return MqttTransport()
