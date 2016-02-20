@@ -64,7 +64,7 @@ class TestApi(unittest.TestCase):
     def testVerifyToken(self):
         methods = {
             c4r.register: ({},),
-            c4r.send_receive: ({},)
+            c4r.send_receive_http: ({},)
         }
         self.call_without_token(methods)
 
@@ -107,7 +107,7 @@ class TestLibrary(unittest.TestCase):
             lib.find_ds_sensors,
             lib.create_ds18b20_sensor,
             lib.read_persistent,
-            lib.send_receive
+            lib.send_receive_http
         ])
 
     def testSetDeviceToken(self):
@@ -268,13 +268,13 @@ class TestDataExchange(TestFileSystemAndRequests):
             'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}}
         }
         self.setUpResponse(self.post, variables, 201)
-        json = lib.send_receive(variables)
+        json = lib.send_receive_http(variables)
         self.assertEqual(json, variables)
 
     def testRaiseExceptionOnUnAuthStreamPostRequest(self):
         self.setUpPOSTStatus(401)
         with self.assertRaises(errors.AuthenticationError):
-            lib.send_receive({})
+            lib.send_receive_http({})
 
     @staticmethod
     @patch('c4r.helpers.put_device_variables')

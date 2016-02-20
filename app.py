@@ -77,7 +77,8 @@ def main():
         while True:
             c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors
             c4r.read_system(Variables)  # Reads CPU temperature
-            server_msg = c4r.send_receive(Variables)
+
+            server_msg = c4r.send_receive_http(Variables)
             print 'Server message: {0}'.format(server_msg)
             c4r.process_variables(Variables, server_msg)
             time.sleep(5)
