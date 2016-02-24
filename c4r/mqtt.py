@@ -13,11 +13,12 @@ def on_disconnect(client, userdata, rc):
     log.info('MQTT broker disconnected with result code {0}'.format(rc))
 
 def on_publish(mosq, obj, mid):
-    log.info("mid: " + str(mid))
+    pass
 
 def publish(topic, stream):
-    log.info('publish to mqtt broker...')
-    client.publish(topic, json.dumps(stream), 0, True)
+    payload = json.dumps(stream)
+    log.info('Publish to MQTT {0}: {1}'.format(topic, payload))
+    client.publish(topic, payload, 0, True)
 
 
 client = mqtt.Client()

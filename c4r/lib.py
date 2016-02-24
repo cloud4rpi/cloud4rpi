@@ -101,6 +101,7 @@ def register(variables):
                       for name, value in variables.iteritems()]
     config = {'variables': variables_decl}
 
+    log.info('Sending device configuration...')
     transport = get_active_transport()
     return transport.send_config(device_token, config)
 

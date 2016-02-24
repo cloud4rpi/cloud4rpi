@@ -42,10 +42,14 @@ class HttpTransport(Transport):
                            json=config,
                            timeout=helpers.REQUEST_TIMEOUT_SECONDS)
         HttpTransport.check_response(res)
+        if res.status_code != 200:
+            log.error('Can\'t register variables. Status: {0}'.format(res.status_code))
+
         return res.json()
 
 
     def send_stream(self, token, stream):
+        log.info('HTTP sending {0}'.format(stream))
         res = requests.post(helpers.stream_request_url(token),
                             headers=helpers.request_headers(token),
                             json=stream,
