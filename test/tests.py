@@ -65,7 +65,7 @@ class TestApi(unittest.TestCase):
     def testVerifyToken(self):
         methods = {
             c4r.register: ({},),
-            c4r.send_receive_http: ({},)
+            c4r.send_receive: ({},)
         }
         self.call_without_token(methods)
 
