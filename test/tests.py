@@ -13,6 +13,7 @@ from c4r import ds18b20 as ds_sensors
 from c4r.cpu import Cpu
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
+from c4r import transport
 from c4r import errors
 import pyfakefs.fake_filesystem_unittest as fake_filesystem_unittest
 from mock import patch
@@ -64,7 +65,7 @@ class TestApi(unittest.TestCase):
     def testVerifyToken(self):
         methods = {
             c4r.register: ({},),
-            c4r.send_receive: ({},)
+            c4r.send_receive_http: ({},)
         }
         self.call_without_token(methods)
 
@@ -222,6 +223,12 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
         self.setUpStatusCode(verb, status_code)
 
     @staticmethod
+    def setUpDefaultHttpTransport():
+        r_mock = MagicMock()
+        r_mock.return_value = transport.HttpTransport()
+        lib.get_active_transport = r_mock
+
+    @staticmethod
     def setUpStatusCode(verb, code):
         verb.return_value.status_code = code
 
@@ -258,6 +265,7 @@ class TestDataExchange(TestFileSystemAndRequests):
     def setUp(self):
         super(TestDataExchange, self).setUp()
         self.setUpDefaultResponses()
+        self.setUpDefaultHttpTransport()
         lib.set_device_token(device_token)
 
     def tearDown(self):
@@ -277,7 +285,7 @@ class TestDataExchange(TestFileSystemAndRequests):
             lib.send_receive({})
 
     @staticmethod
-    @patch('c4r.helpers.put_device_variables')
+    @patch('c4r.transport.HttpTransport.send_config')
     def test_register_variables(mock):
         variables = {
             'var1': {
@@ -287,7 +295,7 @@ class TestDataExchange(TestFileSystemAndRequests):
             }
         }
         c4r.register(variables)
-        mock.assert_called_with(device_token, [{'type': 'number', 'name': 'var1', 'title': 'temp'}])
+        mock.assert_called_with(device_token, {'variables': [{'type': 'number', 'name': 'var1', 'title': 'temp'}] })
 
 
 class TestHelpers(unittest.TestCase):

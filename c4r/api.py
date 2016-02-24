@@ -49,6 +49,6 @@ def process_variables(variables, server_msg):
     api_wrapper(lib.process_variables, variables, server_msg)
 
 
-def send_receive(variables):
+def send_receive_http(variables):
     verify_token(lib.device_token)
     return api_wrapper(lib.send_receive, variables)

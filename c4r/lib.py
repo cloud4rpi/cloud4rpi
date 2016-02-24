@@ -7,6 +7,7 @@ from c4r.logger import get_logger
 from c4r import helpers
 import c4r.ds18b20 as ds_sensor
 from c4r import cpu
+from c4r import transport
 
 device_token = None
 
@@ -86,13 +87,22 @@ def send_stream(payload):
         'ts': ts,
         'payload': payload
     }
-    return helpers.post_stream(device_token, stream)
+    transport = get_active_transport()
+    return transport.send_stream(device_token, stream)
+
+
+def get_active_transport():
+    return transport.MqttTransport()
 
 
 def register(variables):
     variables_decl = [{'name': name, 'title': value['title'], 'type': value['type']}
                       for name, value in variables.iteritems()]
-    return helpers.put_device_variables(device_token, variables_decl)
+    config = {'variables': variables_decl}
+
+    log.info('Sending device configuration...')
+    transport = get_active_transport()
+    return transport.send_config(device_token, config)
 
 
 def run_handler(self, address):
