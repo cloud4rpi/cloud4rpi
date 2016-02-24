@@ -45,26 +45,22 @@ def led_control(value=None):
 # Put required variable declaration here
 Variables = {
     # 'CurrentTemp_1': {
-    #     'title': 'Temp sensor 1 reading',
     #     'type': 'numeric',
     #     'bind': bind_sensor(ds_sensors, 0)
     # },
     #
     # 'CurrentTemp_2': {
-    #     'title': 'Temp sensor 2 reading',
     #     'type': 'numeric',
     #     'bind': bind_sensor(ds_sensors, 1)
     # },
     #
     # 'LEDOn': {
-    #     'title': 'LED enabled',
     #     'type': 'bool',
     #     'value': False,
     #     'bind': led_control
     # },
     #
     'CPU': {
-        'title': 'CPU temperature',
         'type': 'numeric',
         'bind': cpu
     }
