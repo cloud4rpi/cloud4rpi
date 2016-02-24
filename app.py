@@ -34,7 +34,7 @@ def bind_sensor(sensors, index):
 
 if gpio_loaded:
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(11, GPIO.OUTPUT)
+    GPIO.setup(11, GPIO.OUT)
 
 
 def led_control(value=None):
