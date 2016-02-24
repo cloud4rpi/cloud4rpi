@@ -108,7 +108,7 @@ class TestLibrary(unittest.TestCase):
             lib.find_ds_sensors,
             lib.create_ds18b20_sensor,
             lib.read_persistent,
-            lib.send_receive_http
+            lib.send_receive
         ])
 
     def testSetDeviceToken(self):
@@ -276,13 +276,13 @@ class TestDataExchange(TestFileSystemAndRequests):
             'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}}
         }
         self.setUpResponse(self.post, variables, 201)
-        json = lib.send_receive_http(variables)
+        json = lib.send_receive(variables)
         self.assertEqual(json, variables)
 
     def testRaiseExceptionOnUnAuthStreamPostRequest(self):
         self.setUpPOSTStatus(401)
         with self.assertRaises(errors.AuthenticationError):
-            lib.send_receive_http({})
+            lib.send_receive({})
 
     @staticmethod
     @patch('c4r.transport.HttpTransport.send_config')

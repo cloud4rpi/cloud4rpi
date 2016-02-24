@@ -77,7 +77,7 @@ def collect_readings(variables):
     return readings
 
 
-def send_receive_http(variables):
+def send_receive(variables):
     readings = collect_readings(variables)
     return send_stream(readings)
 
