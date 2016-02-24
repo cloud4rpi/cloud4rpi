@@ -33,13 +33,13 @@ def bind_sensor(sensors, index):
 
 
 if gpio_loaded:
-    GPIO.Setmode(GPIO.BOARD)
-    GPIO.Setup(11, GPIO.OUTPUT)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(11, GPIO.OUTPUT)
 
 
 def led_control(value=None):
-    GPIO.Output(11, value)
-    return GPIO.Input(11)
+    GPIO.output(11, value)
+    return GPIO.input(11)
 
 
 # Put required variable declaration here
