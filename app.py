@@ -67,6 +67,13 @@ Variables = {
 }
 
 
+def on_event(*args, **kwargs):
+    print (args, kwargs)
+
+
+c4r.on_broker_message += on_event
+
+
 def main():
     c4r.register(Variables)  # Send variable declarations to server
     try:
