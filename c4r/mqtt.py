@@ -1,4 +1,5 @@
-from c4r import config, on_broker_message
+from c4r import config
+from c4r import events
 from c4r.logger import get_logger
 import paho.mqtt.client as mqtt
 import json
@@ -19,7 +20,7 @@ def on_publish(mosq, obj, mid):
 
 
 def on_message(client, userdata, message):
-    on_broker_message(userdata, message)
+    events.on_broker_message(userdata, message)
 
 
 def publish(topic, stream):

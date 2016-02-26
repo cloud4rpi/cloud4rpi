@@ -6,7 +6,6 @@ from c4r import cpu
 from c4r import lib
 from c4r import error_messages
 from c4r.helpers import verify_token
-from axel import Event
 
 
 def api_wrapper(method, *args):
@@ -54,5 +53,3 @@ def send_receive(variables):
     verify_token(lib.device_token)
     return api_wrapper(lib.send_receive, variables)
 
-
-on_broker_message = Event()
