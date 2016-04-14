@@ -96,7 +96,7 @@ def get_active_transport():
 
 
 def register(variables):
-    variables_decl = [{'name': name, 'title': value['title'], 'type': value['type']}
+    variables_decl = [{'name': name, 'type': value['type']}
                       for name, value in variables.iteritems()]
     config = {'variables': variables_decl}
 
