@@ -296,7 +296,7 @@ class TestDataExchange(TestFileSystemAndRequests):
             }
         }
         c4r.register(variables)
-        mock.assert_called_with(device_token, {'variables': [{'type': 'number', 'name': 'var1', 'title': 'temp'}] })
+        mock.assert_called_with(device_token, {'variables': [{'type': 'number', 'name': 'var1'}]})
 
 
 class TestHelpers(unittest.TestCase):

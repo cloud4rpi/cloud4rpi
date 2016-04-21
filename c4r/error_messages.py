@@ -16,4 +16,4 @@ messages = {
 
 
 def get_error_message(e):
-    return messages.get(type(e), 'Unexpected error: {0} - {1}').format(e.message, type(e))
+    return messages.get(type(e), 'Unexpected error: {0}').format(e.message)
