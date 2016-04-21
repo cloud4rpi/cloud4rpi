@@ -10,3 +10,7 @@ mqqtBrokerHost = 'mq.cloud4rpi.io'
 mqttBrokerPort = 1883
 mqqtBrokerUsername = 'c4r-user'
 mqttBrokerPassword = 'c4r-password'
+
+
+#logging
+LOG_FILE_NAME = 'cloud4rpi.log'

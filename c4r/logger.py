@@ -1,6 +1,8 @@
+import os
 import logging, logging.handlers
 from logging import StreamHandler, Formatter
 from logging.handlers import RotatingFileHandler
+from config import LOG_FILE_NAME
 
 logger = None
 
@@ -10,6 +12,8 @@ def get_logger():
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.INFO)
         config_logging_to_console(logger)
+
+        config_logging_to_file(logger,  os.path.join('./', LOG_FILE_NAME))
 
     return logger
 
