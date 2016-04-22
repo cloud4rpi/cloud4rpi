@@ -18,6 +18,7 @@ class MqttListener(object):
 
 
     def start(self, device_token):
+        log.info('MqttListener - starting')
         self.connect()
         self.listen(device_token)
         self.client.loop_start()
@@ -29,10 +30,10 @@ class MqttListener(object):
             log.info('MqttListener - listening stopped')
 
     def connect(self):
-        log.info('MQTT connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqqtBrokerHost))
+        log.info('MqttListener connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
         try:
             self.client.username_pw_set(config.mqqtBrokerUsername, config.mqttBrokerPassword)
-            self.client.connect(config.mqqtBrokerHost, config.mqqtBrokerHost)
+            self.client.connect(config.mqqtBrokerHost, config.mqttBrokerPort)
         except Exception as e:
             log.error('Connection failed: {0}'.format(e))
             raise e
@@ -47,7 +48,7 @@ class MqttListener(object):
         raise_event(message.payload)
 
 
-listener = None
+listener = MqttListener()
 
 
 def start_listen(device_token):
