@@ -8,6 +8,7 @@ from c4r import helpers
 import c4r.ds18b20 as ds_sensor
 from c4r import cpu
 from c4r import transport
+from c4r import mqtt_listener
 
 device_token = None
 
@@ -135,3 +136,11 @@ def process_variables(variables, server_msg):
     payloads = helpers.extract_all_payloads(events)
     for x in payloads:
         process_event(variables, x)
+
+
+def start_mqtt_listen():
+    mqtt_listener.start_listen(device_token)
+
+
+def stop_mqtt_listen():
+    mqtt_listener.stop_listen()

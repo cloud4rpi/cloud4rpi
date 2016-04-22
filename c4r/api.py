@@ -53,3 +53,12 @@ def send_receive(variables):
     verify_token(lib.device_token)
     return api_wrapper(lib.send_receive, variables)
 
+
+def start_message_broker_listen():
+    verify_token(lib.device_token)
+    return api_wrapper(lib.start_mqtt_listen)
+
+
+def stop_message_broker_listen():
+    verify_token(lib.device_token)
+    return api_wrapper(lib.stop_mqtt_listen)

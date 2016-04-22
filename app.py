@@ -5,7 +5,7 @@ import time
 import c4r  # Lib to send and receive commands
 
 try:
-    import RPi.GPIO as GPIO # pylint: disable=F0401
+    import RPi.GPIO as GPIO  # pylint: disable=F0401
 
     gpio_loaded = True
 except Exception as e:
@@ -59,7 +59,7 @@ Variables = {
     #     'value': False,
     #     'bind': led_control
     # },
-    #
+
     'CPU': {
         'type': 'numeric',
         'bind': cpu
@@ -68,13 +68,14 @@ Variables = {
 
 
 def on_event(*args, **kwargs):
-    print (args, kwargs)
+    print 'Handle message:', (args, kwargs)
 
 
 c4r.on_broker_message += on_event
 
 
 def main():
+    c4r.start_message_broker_listen()
     c4r.register(Variables)  # Send variable declarations to server
     try:
         while True:
@@ -82,9 +83,10 @@ def main():
             c4r.read_system(Variables)  # Reads CPU temperature
 
             server_msg = c4r.send_receive(Variables)
-            print 'Server message: {0}'.format(server_msg)
+
             c4r.process_variables(Variables, server_msg)
-            time.sleep(5)
+            time.sleep(10)
+
     except KeyboardInterrupt:
         print 'Keyboard interrupt received. Stopping...'
         c4r.finalize()

@@ -1,5 +1,4 @@
 from c4r import config
-from c4r import events
 from c4r.logger import get_logger
 import paho.mqtt.client as mqtt
 import json
@@ -19,10 +18,6 @@ def on_publish(mosq, obj, mid):
     pass
 
 
-def on_message(client, userdata, message):
-    events.on_broker_message(userdata, message)
-
-
 def publish(topic, stream):
     payload = json.dumps(stream)
     log.info('Publish to MQTT {0}: {1}'.format(topic, payload))
@@ -33,7 +28,7 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_disconnect = on_disconnect
 client.on_publish = on_publish
-client.on_message = on_message
-
 client.username_pw_set(config.mqqtBrokerUsername, config.mqttBrokerPassword)
+
+log.info('MQTT connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqqtBrokerHost))
 client.connect(config.mqqtBrokerHost, config.mqttBrokerPort)

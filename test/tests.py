@@ -16,6 +16,7 @@ from c4r import helpers
 from c4r import transport
 from c4r import errors
 from c4r import mqtt
+from c4r import mqtt_listener
 import pyfakefs.fake_filesystem_unittest as fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
@@ -387,13 +388,12 @@ class TestEvents(unittest.TestCase):
         self.call_args = None
         c4r.on_broker_message += self.messageHandler
 
-        mqtt.on_message(None, 'user', 42)
-        self.assertEqual(self.call_args[0], 'user')
-        self.assertEqual(self.call_args[1], 42)
+        mqtt_listener.raise_event('test42')
+        self.assertEqual(self.call_args[0], 'test42')
 
         self.call_args = None
         c4r.on_broker_message -= self.messageHandler
-        mqtt.on_message(None, 'new_user', 123)
+        mqtt_listener.raise_event('other')
         self.assertEqual(self.call_args, None)
 
 

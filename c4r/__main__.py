@@ -4,6 +4,7 @@
 import os
 from subprocess import CalledProcessError
 from c4r.logger import get_logger
+from c4r.mqtt_listener import stop_listen
 
 
 log = get_logger()
@@ -17,4 +18,5 @@ def modprobe(module):
 
 
 def finalize():
+    stop_listen()
     print 'STOPPED'
