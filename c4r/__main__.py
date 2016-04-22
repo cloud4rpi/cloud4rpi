@@ -14,3 +14,7 @@ def modprobe(module):
     ret = os.system(cmd)
     if ret != 0:
         raise CalledProcessError(ret, cmd)
+
+
+def finalize():
+    print 'STOPPED'

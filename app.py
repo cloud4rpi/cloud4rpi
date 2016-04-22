@@ -85,9 +85,14 @@ def main():
             print 'Server message: {0}'.format(server_msg)
             c4r.process_variables(Variables, server_msg)
             time.sleep(5)
+    except KeyboardInterrupt:
+        print 'Keyboard interrupt received. Stopping...'
+        c4r.finalize()
+        sys.exit(0)
     except Exception as e:
         error = c4r.get_error_message(e)
         print "error", error, sys.exc_info()[0]
+        c4r.finalize()
         raise
 
 
