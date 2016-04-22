@@ -43,12 +43,6 @@ def is_cpu(variable):
     return helpers.bind_is_instance_of(variable, cpu.Cpu)
 
 
-def is_out_variable(variable):
-    if is_cpu(variable):
-        return True
-    return ds_sensor.SUPPORTED_TYPE == helpers.get_variable_type(variable)
-
-
 def read_ds_sensor(variable):
     address = helpers.get_variable_address(variable)
     if address is not None:
@@ -72,8 +66,7 @@ def read_persistent(variables):
 
 
 def collect_readings(variables):
-    readings = {name: helpers.get_variable_value(value) for name, value in variables.iteritems() \
-                if is_out_variable(value)}
+    readings = {name: helpers.get_variable_value(value) for name, value in variables.iteritems()}
     return readings
 
 
