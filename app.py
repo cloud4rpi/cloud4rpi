@@ -17,7 +17,7 @@ c4r.modprobe('w1-gpio')
 c4r.modprobe('w1-therm')
 
 
-# Put your device token here. To get a device token, register at http://cloud4rpi.io
+# Put your device token here. To get a device token, register at https://cloud4rpi.io
 DEVICE_TOKEN = 'YOUR_DEVICE_TOKEN'
 c4r.set_device_token(DEVICE_TOKEN)
 
@@ -27,19 +27,20 @@ print 'SENSORS FOUND ', ds_sensors
 
 
 def bind_sensor(sensors, index):
-    if not sensors is None and len(sensors) > index:
+    if sensors is not None and len(sensors) > index:
         return sensors[index]
     return None
 
 
+led_pin = 12
 if gpio_loaded:
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(11, GPIO.OUT)
+    GPIO.setup(led_pin, GPIO.OUT)
 
 
 def led_control(value=None):
-    GPIO.output(11, value)
-    return GPIO.input(11)
+    GPIO.output(led_pin, value)
+    return GPIO.input(led_pin)
 
 
 # Put required variable declaration here
@@ -54,11 +55,11 @@ Variables = {
     #     'bind': bind_sensor(ds_sensors, 1)
     # },
     #
-    # 'LEDOn': {
-    #     'type': 'bool',
-    #     'value': False,
-    #     'bind': led_control
-    # },
+    'LEDOn': {
+        'type': 'bool',
+        'value': False,
+        'bind': led_control
+    },
 
     'CPU': {
         'type': 'numeric',
@@ -67,16 +68,9 @@ Variables = {
 }
 
 
-def on_event(*args, **kwargs):
-    print 'Handle message:', (args, kwargs)
-
-
-c4r.on_broker_message += on_event
-
-
 def main():
     c4r.start_message_broker_listen()
-    c4r.register(Variables)  # Send variable declarations to server
+    c4r.register(variables=Variables, register_bindings=True)  # Send variable declarations to server
     try:
         while True:
             c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors

@@ -24,9 +24,9 @@ def set_device_token(token):
     api_wrapper(lib.set_device_token, token)
 
 
-def register(variables):
+def register(variables, register_bindings=False):
     verify_token(lib.device_token)
-    api_wrapper(lib.register, variables)
+    api_wrapper(lib.register, variables, register_bindings)
 
 
 def find_ds_sensors():

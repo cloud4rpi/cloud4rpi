@@ -9,9 +9,11 @@ import c4r.ds18b20 as ds_sensor
 from c4r import cpu
 from c4r import transport
 from c4r import mqtt_listener
+import c4r
+import json
 
 device_token = None
-
+reg_vars = None
 log = get_logger()
 
 
@@ -89,10 +91,29 @@ def get_active_transport():
     return transport.MqttTransport()
 
 
-def register(variables):
+def broker_message_handler(msg):
+    if reg_vars is None:
+        print 'No variables registered. Skipping.'
+        return
+    print 'Handle message:', msg
+    new_values = json.loads(msg)
+    for var_name, value in new_values.iteritems():
+        bind = helpers.get_variable_bind(reg_vars[var_name])
+        if helpers.bind_is_handler(bind):
+            result = run_bind_method(var_name, bind, value)
+            reg_vars[var_name]['value'] = bool(result) if reg_vars[var_name]['type'] == 'bool' else result
+
+
+def register(variables, register_bindings):
+    global reg_vars
     variables_decl = [{'name': name, 'type': value['type']}
                       for name, value in variables.iteritems()]
     config = {'variables': variables_decl}
+
+    if register_bindings:
+        log.info('Subscribe bind functions to new events')
+        reg_vars = variables
+        c4r.on_broker_message += broker_message_handler
 
     log.info('Sending device configuration...')
     transport = get_active_transport()
