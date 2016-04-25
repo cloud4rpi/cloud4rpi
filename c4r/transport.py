@@ -17,7 +17,7 @@ class Transport(object):
 class MqttTransport(Transport):
     @staticmethod
     def get_topic(token, name):
-        return '{0}/{1}'.format(token, name)
+        return 'io.cloud4rpi.iot-hub.{0}/{1}'.format(token, name)
 
 
     def send_config(self, token, config):
