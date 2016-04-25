@@ -1,4 +1,5 @@
 import requests
+from copy import copy
 from c4r import mqtt
 from c4r import helpers
 from c4r import errors
@@ -16,15 +17,18 @@ class Transport(object):
 
 class MqttTransport(Transport):
     @staticmethod
-    def get_topic(token, name):
-        return 'io.cloud4rpi.iot-hub.{0}/{1}'.format(token, name)
-
+    def get_topic(channel):
+        return 'io.cloud4rpi.iot-hub.{0}'.format(channel)
 
     def send_config(self, token, config):
-        mqtt.publish(MqttTransport.get_topic(token, 'config'), config)
+        message = copy(config)
+        message['token'] = token
+        return mqtt.publish(MqttTransport.get_topic('config'), message)
 
     def send_stream(self, token, stream):
-        mqtt.publish(MqttTransport.get_topic(token, 'stream'), stream)
+        message = copy(stream)
+        message['token'] = token
+        return mqtt.publish(MqttTransport.get_topic('stream'), message)
 
 
 class HttpTransport(Transport):
