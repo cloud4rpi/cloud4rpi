@@ -7,6 +7,7 @@ from c4r.logger import get_logger
 
 log = get_logger()
 
+
 class Transport(object):
     def send_config(self, token, config):
         pass
@@ -50,7 +51,6 @@ class HttpTransport(Transport):
             log.error('Can\'t register variables. Status: {0}'.format(res.status_code))
 
         return res.json()
-
 
     def send_stream(self, token, stream):
         log.info('HTTP sending {0}'.format(stream))

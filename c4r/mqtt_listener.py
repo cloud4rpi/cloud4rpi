@@ -44,7 +44,7 @@ class MqttListener(object):
         self.client.subscribe(topic, 0)
 
     def on_message(self, client, userdata, message):
-        log.info('MQTT message received: [{0}] -[{1}]'.format(message.topic, message.payload))
+        log.info('MQTT message received: [{0}] - [{1}]'.format(message.topic, message.payload))
         raise_event(message.payload)
 
 
