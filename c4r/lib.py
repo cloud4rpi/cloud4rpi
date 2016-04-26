@@ -104,16 +104,14 @@ def broker_message_handler(msg):
             reg_vars[var_name]['value'] = bool(result) if reg_vars[var_name]['type'] == 'bool' else result
 
 
-def register(variables, register_bindings):
+def register(variables):
     global reg_vars
     variables_decl = [{'name': name, 'type': value['type']}
                       for name, value in variables.iteritems()]
     config = {'variables': variables_decl}
 
-    if register_bindings:
-        log.info('Subscribe bind functions to new events')
-        reg_vars = variables
-        c4r.on_broker_message += broker_message_handler
+    reg_vars = variables
+    c4r.on_broker_message += broker_message_handler
 
     log.info('Sending device configuration...')
     transport = get_active_transport()

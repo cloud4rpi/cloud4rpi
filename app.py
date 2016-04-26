@@ -70,7 +70,7 @@ Variables = {
 
 def main():
     c4r.start_message_broker_listen()
-    c4r.register(variables=Variables, register_bindings=True)  # Send variable declarations to server
+    c4r.register(variables=Variables)  # Send variable declarations to server
     try:
         while True:
             c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors
