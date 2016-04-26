@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import datetime
 import signal
 from c4r.logger import get_logger
 from c4r import helpers
@@ -77,12 +76,7 @@ def send_receive(variables):
     return send_stream(readings)
 
 
-def send_stream(payload):
-    ts = datetime.datetime.utcnow().isoformat()
-    stream = {
-        'ts': ts,
-        'payload': payload
-    }
+def send_stream(stream):
     transport = get_active_transport()
     return transport.send_stream(device_token, stream)
 
