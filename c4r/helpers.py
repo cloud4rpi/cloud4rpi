@@ -102,8 +102,16 @@ def bind_is_handler(bind):
     return hasattr(bind, '__call__')
 
 
-def format_mq_topic(name):
-    return '{0}.{1}'.format(config.mqttTopicPrefix, name)
+def join_strings(args):
+    return '/'.join(args)
+
+
+def format_message_topic(api_key, name):
+    return join_strings([config.mqttMessageTopicPrefix, api_key, name])
+
+
+def format_subscription_topic(api_key):
+    return join_strings([config.mqttCommandsTopicPrefix, api_key])
 
 
 def wrap_message(api_key, payload):

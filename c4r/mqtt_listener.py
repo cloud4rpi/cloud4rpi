@@ -40,8 +40,7 @@ class MqttListener(object):
             raise e
 
     def listen(self, api_key):
-        s = 'events/{1}'.format(api_key)
-        topic = helpers.format_mq_topic(s)
+        topic = helpers.format_subscription_topic(api_key)
 
         log.info('subscribing for [{0}]'.format(topic))
         self.client.subscribe(topic, 0)

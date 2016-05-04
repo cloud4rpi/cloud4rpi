@@ -32,6 +32,7 @@ sensor_28 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
     '2d 00 4d 46 ff ff 08 10 fe : t=28250'
 
+
 class TestApi(unittest.TestCase):
     def setUp(self):
         c4r.set_api_key(api_key)
@@ -189,9 +190,9 @@ class TestLibrary(unittest.TestCase):
 
     # TODO discuss
     # def testCollectReadings(self):
-    #     variables = {
-    #         'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20'}},
-    #         'some': {'title': '456', 'bind': {'type': 'unknown'}},
+    # variables = {
+    # 'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20'}},
+    # 'some': {'title': '456', 'bind': {'type': 'unknown'}},
     #         'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
     #     }
     #     readings = lib.collect_readings(variables)
@@ -347,11 +348,16 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(events[0], {'Cooler': 1})
         self.assertEqual(events[1], {'OFF': 0})
 
-    def testFormatMqTopic(self):
-        result = helpers.format_mq_topic('test')
-        self.assertEqual(result, 'io.cloud4rpi.iot-hub.test')
+    def testJoinStrings(self):
+        self.assertEqual('a/b/c', helpers.join_strings(['a', 'b', 'c']))
 
+    def testFormatMessagesTopic(self):
+        result = helpers.format_message_topic('test-api-key', 'params')
+        self.assertEqual(result, 'iot-hub/messages/test-api-key/params')
 
+    def testFormatSubscriptionTopic(self):
+        result = helpers.format_subscription_topic('ledOn')
+        self.assertEqual(result, 'iot-hub/commands/ledOn')
 
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
@@ -402,7 +408,6 @@ class TestEvents(unittest.TestCase):
         c4r.on_broker_message -= self.messageHandler
         mqtt_listener.raise_event('other')
         self.assertEqual(self.call_args, None)
-
 
 
     def messageHandler(self, *args, **kwargs):
