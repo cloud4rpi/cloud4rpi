@@ -22,7 +22,7 @@ from mock import patch
 from mock import MagicMock
 
 
-api_key = '000000000000000000000001'
+api_key = '00000000-0000-4000-a000-000000000000'
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -193,7 +193,7 @@ class TestLibrary(unittest.TestCase):
     # variables = {
     # 'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20'}},
     # 'some': {'title': '456', 'bind': {'type': 'unknown'}},
-    #         'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
+    # 'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
     #     }
     #     readings = lib.collect_readings(variables)
     #     expected = {'temp2': None, 'temp1': 22.4}
@@ -358,6 +358,10 @@ class TestHelpers(unittest.TestCase):
     def testFormatSubscriptionTopic(self):
         result = helpers.format_subscription_topic('ledOn')
         self.assertEqual(result, 'iot-hub/commands/ledOn')
+
+    def testIsTokenValid(self):
+        #self.assertFalse(helpers.is_token_valid('5693813ab288f00b4cb31904'))
+        self.assertTrue(helpers.is_token_valid('a5751fc6-0ed0-4e77-ba40-b2a410b15e26'))
 
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
