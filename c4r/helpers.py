@@ -9,16 +9,16 @@ REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 log = get_logger()
 
 
-def request_headers(token):
-    return {'api_key': token}
+def request_headers(api_key):
+    return {'api_key': api_key}
 
 
-def device_request_url(token):
-    return '{0}/devices/{1}/'.format(config.baseApiUrl, token)
+def device_request_url(api_key):
+    return '{0}/devices/{1}/'.format(config.baseApiUrl, api_key)
 
 
-def stream_request_url(token):
-    return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, token)
+def stream_request_url(api_key):
+    return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, api_key)
 
 
 def check_response(res):

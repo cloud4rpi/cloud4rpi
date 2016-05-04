@@ -9,28 +9,28 @@ log = get_logger()
 
 
 class Transport(object):
-    def send_config(self, token, config):
+    def send_config(self, api_key, config):
         pass
 
-    def send_stream(self, token, stream):
+    def send_stream(self, api_key, stream):
         pass
 
 
 class MqttTransport(Transport):
-    def send_config(self, token, config):
-        return mqtt.publish(MqttTransport.get_topic('config'), MqttTransport.wrap_message(token, config))
+    def send_config(self, api_key, config):
+        return mqtt.publish(MqttTransport.get_topic('config'), MqttTransport.wrap_message(api_key, config))
 
-    def send_stream(self, token, stream):
-        return mqtt.publish(MqttTransport.get_topic('stream'), MqttTransport.wrap_message(token, stream))
+    def send_stream(self, api_key, stream):
+        return mqtt.publish(MqttTransport.get_topic('stream'), MqttTransport.wrap_message(api_key, stream))
 
     @staticmethod
     def get_topic(channel):
         return 'io.cloud4rpi.iot-hub.{0}'.format(channel)
 
     @staticmethod
-    def wrap_message(token, payload):
+    def wrap_message(api_key, payload):
         return {
-            'token': token,
+            'token': api_key,
             'ts': datetime.datetime.utcnow().isoformat(),
             'payload': payload
         }
@@ -45,9 +45,9 @@ class HttpTransport(Transport):
         if res.status_code >= 500:
             raise errors.ServerError
 
-    def send_config(self, token, config):
-        res = requests.put(helpers.device_request_url(token),
-                           headers=helpers.request_headers(token),
+    def send_config(self, api_key, config):
+        res = requests.put(helpers.device_request_url(api_key),
+                           headers=helpers.request_headers(api_key),
                            json=config,
                            timeout=helpers.REQUEST_TIMEOUT_SECONDS)
         HttpTransport.check_response(res)
@@ -56,10 +56,10 @@ class HttpTransport(Transport):
 
         return res.json()
 
-    def send_stream(self, token, stream):
+    def send_stream(self, api_key, stream):
         log.info('HTTP sending {0}'.format(stream))
-        res = requests.post(helpers.stream_request_url(token),
-                            headers=helpers.request_headers(token),
+        res = requests.post(helpers.stream_request_url(api_key),
+                            headers=helpers.request_headers(api_key),
                             json=stream,
                             timeout=helpers.REQUEST_TIMEOUT_SECONDS)
         HttpTransport.check_response(res)

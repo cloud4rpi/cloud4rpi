@@ -22,7 +22,7 @@ from mock import patch
 from mock import MagicMock
 
 
-device_token = '000000000000000000000001'
+api_key = '000000000000000000000001'
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -34,7 +34,7 @@ sensor_28 = \
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        c4r.set_device_token(device_token)
+        c4r.set_api_key(api_key)
 
     @staticmethod
     @patch('c4r.lib.read_persistent')
@@ -56,7 +56,7 @@ class TestApi(unittest.TestCase):
         self.assertTrue(mock.called)
 
     def call_without_token(self, methods):
-        lib.device_token = None
+        lib.api_key = None
         for fn, args in methods.items():
             with self.assertRaises(errors.InvalidTokenError):
                 if args is None:
@@ -100,12 +100,12 @@ class TestLibrary(unittest.TestCase):
             self.assertTrue(is_instance)
 
     def testDefauls(self):
-        self.assertIsNone(lib.device_token)
+        self.assertIsNone(lib.api_key)
 
 
     def testStaticMethodsExists(self):
         self.static_methods_exists([
-            lib.set_device_token,
+            lib.set_api_key,
             lib.run_handler,
             lib.find_ds_sensors,
             lib.create_ds18b20_sensor,
@@ -113,10 +113,10 @@ class TestLibrary(unittest.TestCase):
             lib.send_receive
         ])
 
-    def testSetDeviceToken(self):
-        self.assertIsNone(lib.device_token)
-        lib.set_device_token(device_token)
-        self.assertEqual(lib.device_token, device_token)
+    def testSetApiKey(self):
+        self.assertIsNone(lib.api_key)
+        lib.set_api_key(api_key)
+        self.assertEqual(lib.api_key, api_key)
 
     def testHandlerExists(self):
         var1 = {
@@ -269,10 +269,10 @@ class TestDataExchange(TestFileSystemAndRequests):
         super(TestDataExchange, self).setUp()
         self.setUpDefaultResponses()
         self.setUpDefaultHttpTransport()
-        lib.set_device_token(device_token)
+        lib.set_api_key(api_key)
 
     def tearDown(self):
-        lib.set_device_token(None)
+        lib.set_api_key(None)
 
     def testSendReceive(self):
         variables = {
@@ -298,7 +298,7 @@ class TestDataExchange(TestFileSystemAndRequests):
             }
         }
         c4r.register(variables)
-        mock.assert_called_with(device_token, {'variables': [{'type': 'number', 'name': 'var1'}]})
+        mock.assert_called_with(api_key, {'variables': [{'type': 'number', 'name': 'var1'}]})
 
 
 class TestHelpers(unittest.TestCase):
@@ -410,7 +410,7 @@ class ErrorMessages(unittest.TestCase):
         m = c4r.get_error_message(c4r.errors.ServerError('crash'))
         self.assertEqual(m, 'Unexpected error: crash')
         m = c4r.get_error_message(c4r.errors.AuthenticationError())
-        self.assertEqual(m, 'Authentication failed. Check your device token.')
+        self.assertEqual(m, 'Authentication failed. Check your API key.')
 
 
 def main():

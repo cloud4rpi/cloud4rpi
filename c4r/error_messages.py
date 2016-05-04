@@ -9,8 +9,8 @@ messages = {
     KeyboardInterrupt: 'Interrupted',
     RequestException: 'Connection failed. Please try again later. Error: {0}',
     CalledProcessError: 'Try "sudo python cloud4rpi.py"',
-    c4r_errors.InvalidTokenError: 'Device Access Token {0} is incorrect. Please verify it.',
-    c4r_errors.AuthenticationError: 'Authentication failed. Check your device token.',
+    c4r_errors.InvalidTokenError: 'API key {0} is incorrect. Please verify it.',
+    c4r_errors.AuthenticationError: 'Authentication failed. Check your API key.',
     KeyError: 'Key "{0}" not found in server response.'
 }
 

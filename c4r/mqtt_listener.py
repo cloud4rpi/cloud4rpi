@@ -17,10 +17,10 @@ class MqttListener(object):
         self.client.on_message = self.on_message
 
 
-    def start(self, device_token):
+    def start(self, api_key):
         log.info('MqttListener - starting')
         self.connect()
-        self.listen(device_token)
+        self.listen(api_key)
         self.client.loop_start()
         log.info('MqttListener - listening started')
 
@@ -38,8 +38,8 @@ class MqttListener(object):
             log.error('Connection failed: {0}'.format(e))
             raise e
 
-    def listen(self, device_token):
-        topic = '{0}/events'.format(device_token)
+    def listen(self, api_key):
+        topic = '{0}/events'.format(api_key)
         log.info('subscribing for [{0}]'.format(topic))
         self.client.subscribe(topic, 0)
 
@@ -51,12 +51,12 @@ class MqttListener(object):
 listener = MqttListener()
 
 
-def start_listen(device_token):
+def start_listen(api_key):
     global listener
     if listener is None:
         listener = MqttListener()
 
-    listener.start(device_token)
+    listener.start(api_key)
 
 
 def stop_listen():

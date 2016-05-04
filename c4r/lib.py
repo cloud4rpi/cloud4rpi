@@ -11,14 +11,14 @@ from c4r import mqtt_listener
 import c4r
 import json
 
-device_token = None
+api_key = None
 reg_vars = None
 log = get_logger()
 
 
-def set_device_token(token):
-    global device_token  # pylint: disable=W0603
-    device_token = token
+def set_api_key(token):
+    global api_key  # pylint: disable=W0603
+    api_key = token
 
 
 def create_ds18b20_sensor(address):
@@ -78,7 +78,7 @@ def send_receive(variables):
 
 def send_stream(stream):
     transport = get_active_transport()
-    return transport.send_stream(device_token, stream)
+    return transport.send_stream(api_key, stream)
 
 
 def get_active_transport():
@@ -109,7 +109,7 @@ def register(variables):
 
     log.info('Sending device configuration...')
     transport = get_active_transport()
-    return transport.send_config(device_token, config)
+    return transport.send_config(api_key, config)
 
 
 def run_handler(self, address):
@@ -145,7 +145,7 @@ def process_variables(variables, server_msg):
 
 
 def start_mqtt_listen():
-    mqtt_listener.start_listen(device_token)
+    mqtt_listener.start_listen(api_key)
 
 
 def stop_mqtt_listen():
