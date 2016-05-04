@@ -10,6 +10,7 @@ mqqtBrokerHost = 'mq.cloud4rpi.io'
 mqttBrokerPort = 1883
 mqqtBrokerUsername = 'c4r-user'
 mqttBrokerPassword = 'c4r-password'
+mqttTopicPrefix = 'io.cloud4rpi.iot-hub'
 
 
 #logging

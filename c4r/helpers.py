@@ -1,3 +1,4 @@
+import datetime
 import re
 from c4r import config
 from c4r import errors
@@ -99,3 +100,15 @@ def bind_is_handler(bind):
     if bind is None:
         return False
     return hasattr(bind, '__call__')
+
+
+def format_mq_topic(name):
+    return '{0}.{1}'.format(config.mqttTopicPrefix, name)
+
+
+def wrap_message(api_key, payload):
+    return {
+        'token': api_key,
+        'ts': datetime.datetime.utcnow().isoformat(),
+        'payload': payload
+    }

@@ -347,6 +347,12 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(events[0], {'Cooler': 1})
         self.assertEqual(events[1], {'OFF': 0})
 
+    def testFormatMqTopic(self):
+        result = helpers.format_mq_topic('test')
+        self.assertEqual(result, 'io.cloud4rpi.iot-hub.test')
+
+
+
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
     def setUp(self):

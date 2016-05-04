@@ -1,4 +1,3 @@
-import datetime
 import requests
 from c4r import mqtt
 from c4r import helpers
@@ -18,22 +17,10 @@ class Transport(object):
 
 class MqttTransport(Transport):
     def send_config(self, api_key, config):
-        return mqtt.publish(MqttTransport.get_topic('config'), MqttTransport.wrap_message(api_key, config))
+        return mqtt.publish(helpers.format_mq_topic('config'), helpers.wrap_message(api_key, config))
 
     def send_stream(self, api_key, stream):
-        return mqtt.publish(MqttTransport.get_topic('stream'), MqttTransport.wrap_message(api_key, stream))
-
-    @staticmethod
-    def get_topic(channel):
-        return 'io.cloud4rpi.iot-hub.{0}'.format(channel)
-
-    @staticmethod
-    def wrap_message(api_key, payload):
-        return {
-            'token': api_key,
-            'ts': datetime.datetime.utcnow().isoformat(),
-            'payload': payload
-        }
+        return mqtt.publish(helpers.format_mq_topic('stream'), helpers.wrap_message(api_key, stream))
 
 
 class HttpTransport(Transport):

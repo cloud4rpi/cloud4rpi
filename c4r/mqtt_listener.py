@@ -1,4 +1,5 @@
 from c4r import config
+from c4r import helpers
 from c4r import events
 from c4r.logger import get_logger
 import paho.mqtt.client as mqtt
@@ -39,7 +40,9 @@ class MqttListener(object):
             raise e
 
     def listen(self, api_key):
-        topic = '{0}/events'.format(api_key)
+        s = 'events/{1}'.format(api_key)
+        topic = helpers.format_mq_topic(s)
+
         log.info('subscribing for [{0}]'.format(topic))
         self.client.subscribe(topic, 0)
 
