@@ -76,9 +76,8 @@ def main():
             c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors
             c4r.read_system(Variables)  # Reads CPU temperature
 
-            server_msg = c4r.send_receive(Variables)
+            c4r.send_receive(Variables)
 
-            c4r.process_variables(Variables, server_msg)
             time.sleep(10)
 
     except KeyboardInterrupt:

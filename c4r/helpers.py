@@ -76,7 +76,7 @@ def get_variable_bind(props):
     return extract_variable_prop(props, 'bind')
 
 
-def extract_server_events(server_msg):
+def extract_server_events(server_msg):  # only for http-data-exchange scenario
     if server_msg is None:
         return []
     return get_by_key(server_msg, 'newEvents')

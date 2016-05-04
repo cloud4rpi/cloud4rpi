@@ -137,7 +137,7 @@ def process_event(variables, payload):
             run_bind_method(name, bind, val)
 
 
-def process_variables(variables, server_msg):
+def process_variables(variables, server_msg):  # only for http-data-exchange scenario
     events = helpers.extract_server_events(server_msg)
     payloads = helpers.extract_all_payloads(events)
     for x in payloads:
