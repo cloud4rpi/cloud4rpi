@@ -18,7 +18,7 @@ c4r.modprobe('w1-therm')
 
 
 # Put your API key here. To get a token, register at https://cloud4rpi.io
-API_KEY = 'a5751fc6-0ed0-4e77-ba40-b2a410b15e26'
+API_KEY = 'YOUR_ACCESS_TOKEN'
 c4r.set_api_key(API_KEY)
 
 cpu = c4r.find_cpu()
