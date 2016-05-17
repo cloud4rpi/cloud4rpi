@@ -299,7 +299,7 @@ class TestDataExchange(TestFileSystemAndRequests):
             }
         }
         c4r.register(variables)
-        mock.assert_called_with(api_key, {'variables': [{'type': 'number', 'name': 'var1'}]})
+        mock.assert_called_with(api_key, [{'type': 'number', 'name': 'var1'}])
 
 
 class TestHelpers(unittest.TestCase):

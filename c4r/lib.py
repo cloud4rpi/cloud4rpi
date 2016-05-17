@@ -102,14 +102,13 @@ def register(variables):
     global reg_vars
     variables_decl = [{'name': name, 'type': value['type']}
                       for name, value in variables.iteritems()]
-    config = {'variables': variables_decl}
 
     reg_vars = variables
     c4r.on_broker_message += broker_message_handler
 
     log.info('Sending device configuration...')
     transport = get_active_transport()
-    return transport.send_config(api_key, config)
+    return transport.send_config(api_key, variables_decl)
 
 
 def run_handler(self, address):
