@@ -133,7 +133,11 @@ def process_event(variables, payload):
         bind = helpers.get_variable_bind(props)
         if helpers.bind_is_handler(bind):
             val = helpers.get_by_key(payload, name)
-            run_bind_method(name, bind, val)
+            try:
+                result = run_bind_method(name, bind, val)
+                variables['name']['value'] = bool(result) if variables['name']['type'] == 'bool' else result
+            except Exception as e:
+                print 'Error processing {0} variable\' bind function: {1}'.format(name, e)
 
 
 def process_variables(variables, server_msg):  # only for http-data-exchange scenario
