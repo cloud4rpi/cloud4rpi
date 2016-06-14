@@ -107,17 +107,18 @@ def join_strings(args):
     return '/'.join(args)
 
 
-def format_message_topic(api_key, name):
-    return join_strings([config.mqttMessageTopicPrefix, api_key, name])
+def format_message_topic(api_key):
+    return join_strings([config.mqttMessageTopicPrefix, api_key])
 
 
 def format_subscription_topic(api_key):
     return join_strings([config.mqttCommandsTopicPrefix, api_key])
 
 
-def wrap_message(api_key, payload):
+def wrap_message(api_key, type, payload):
     return {
         'token': api_key,
+        'type': type,
         'ts': datetime.datetime.utcnow().isoformat(),
         'payload': payload
     }

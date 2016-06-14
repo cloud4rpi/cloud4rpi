@@ -352,8 +352,8 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual('a/b/c', helpers.join_strings(['a', 'b', 'c']))
 
     def testFormatMessagesTopic(self):
-        result = helpers.format_message_topic('test-api-key', 'params')
-        self.assertEqual(result, 'iot-hub/messages/test-api-key/params')
+        result = helpers.format_message_topic('test-api-key')
+        self.assertEqual(result, 'iot-hub/messages/test-api-key')
 
     def testFormatSubscriptionTopic(self):
         result = helpers.format_subscription_topic('ledOn')
@@ -367,6 +367,16 @@ class TestHelpers(unittest.TestCase):
         self.assertFalse(helpers.is_token_valid('00000000-0000-0000-b000-000000000000'))
 
         self.assertTrue(helpers.is_token_valid('a5751fc6-0ed0-4e77-ba40-b2a410b15e26'))
+
+
+    def testWrapMessages(self):
+        payload = {'some': 'thing', 'int': 123 }
+        result = helpers.wrap_message('test-api-key', 'my-type', payload)
+
+        self.assertEqual(result['token'], 'test-api-key')
+        self.assertEqual(result['type'], 'my-type')
+        self.assertEqual(result['payload'], payload)
+
 
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):

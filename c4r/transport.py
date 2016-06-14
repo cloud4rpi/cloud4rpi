@@ -17,10 +17,10 @@ class Transport(object):
 
 class MqttTransport(Transport):
     def send_config(self, api_key, config):
-        return mqtt.publish(helpers.format_message_topic(api_key, 'config'), helpers.wrap_message(api_key, config))
+        return mqtt.publish(helpers.format_message_topic(api_key), helpers.wrap_message(api_key, 'config', config))
 
     def send_stream(self, api_key, stream):
-        return mqtt.publish(helpers.format_message_topic(api_key, 'stream'), helpers.wrap_message(api_key, stream))
+        return mqtt.publish(helpers.format_message_topic(api_key), helpers.wrap_message(api_key, 'data', stream))
 
 
 class HttpTransport(Transport):
