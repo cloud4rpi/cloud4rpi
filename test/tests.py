@@ -15,12 +15,10 @@ from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 from c4r import transport
 from c4r import errors
-from c4r import mqtt
 from c4r import mqtt_listener
 import pyfakefs.fake_filesystem_unittest as fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
-
 
 api_key = '00000000-0000-4000-a000-000000000000'
 
@@ -88,7 +86,7 @@ class TestLibrary(unittest.TestCase):
         ds_sensors.read = self.sensorReadingMock
 
     def restoreSensorReadingMock(self):
-        if not self.sensorReadingMock is None:
+        if self.sensorReadingMock is not None:
             self.sensorReadingMock.reset_mock()
 
     def methods_exists(self, methods):
@@ -102,7 +100,6 @@ class TestLibrary(unittest.TestCase):
 
     def testDefauls(self):
         self.assertIsNone(lib.api_key)
-
 
     def testStaticMethodsExists(self):
         self.static_methods_exists([
@@ -132,7 +129,6 @@ class TestLibrary(unittest.TestCase):
         self.assertFalse(lib.bind_handler_exists(var2))
         self.assertTrue(lib.bind_handler_exists(var1))
 
-
     @staticmethod
     @patch('c4r.ds18b20.read')
     def testReadPersistent(mock):
@@ -161,7 +157,6 @@ class TestLibrary(unittest.TestCase):
         lib.read_system(variables)
         mock.assert_called_with({'title': 'cpu_temp', 'bind': cpuObj})
 
-
     @patch.object(Cpu, 'read')
     def testReadCpu(self, mock):
         mock.return_value = 0
@@ -170,10 +165,9 @@ class TestLibrary(unittest.TestCase):
 
         cpuVar = {'title': 'cpu_temp', 'bind': cpuObj}
 
-        self.assertFalse(cpuVar.has_key('value'))
+        self.assertFalse('value' in cpuVar)
         lib.read_cpu(cpuVar)
         self.assertEqual(cpuVar['value'], 36.6)
-
 
     def testUpdateVariableValueOnRead(self):
         addr = '10-000802824e58'
@@ -198,7 +192,6 @@ class TestLibrary(unittest.TestCase):
     #     readings = lib.collect_readings(variables)
     #     expected = {'temp2': None, 'temp1': 22.4}
     #     self.assertEqual(readings, expected)
-
 
     @patch.object(Cpu, 'read')
     def testCollectCpuTemperatureReadings(self, mock):
@@ -244,7 +237,6 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
     def setUpDefaultResponses(self):
         self.setUpPOSTStatus(201)
 
-
     @staticmethod
     def startPatching(target):
         return patch(target).start()
@@ -277,7 +269,11 @@ class TestDataExchange(TestFileSystemAndRequests):
 
     def testSendReceive(self):
         variables = {
-            'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}}
+            'temp1': {
+                'title': '123',
+                'value': 22.4,
+                'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}
+            }
         }
         self.setUpResponse(self.post, variables, 201)
         json = lib.send_receive(variables)
@@ -369,7 +365,7 @@ class TestHelpers(unittest.TestCase):
         self.assertTrue(helpers.is_token_valid('a5751fc6-0ed0-4e77-ba40-b2a410b15e26'))
 
     def testWrapMessages(self):
-        payload = {'some': 'thing', 'int': 123 }
+        payload = {'some': 'thing', 'int': 123}
         result = helpers.wrap_message('test-api-key', 'my-type', payload)
 
         self.assertEqual(result['token'], 'test-api-key')
@@ -443,8 +439,7 @@ class TestEvents(unittest.TestCase):
         mqtt_listener.raise_event('other')
         self.assertEqual(self.call_args, None)
 
-
-    def messageHandler(self, *args, **kwargs):
+    def messageHandler(self, *args):
         self.call_args = args
 
 
