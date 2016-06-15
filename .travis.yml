@@ -9,6 +9,7 @@ install:
 
 
 script:
+    - bash tools/pep8.sh
     - bash tools/lint.sh
     - bash tools/test.sh
 
