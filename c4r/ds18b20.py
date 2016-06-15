@@ -12,12 +12,15 @@ SUPPORTED_TYPE = 'ds18b20'
 def sensor_full_path(sensor):
     return os.path.join(W1_DEVICES, sensor, 'w1_slave')
 
+
 def __create_sensor(address):
     return {'type': SUPPORTED_TYPE, 'address': address}
+
 
 def find_all():
     return [__create_sensor(x) for x in os.listdir(W1_DEVICES)
             if W1_SENSOR_PATTERN.match(x) and os.path.isfile(sensor_full_path(x))]
+
 
 def read(address):
     readings = read_whole_file(sensor_full_path(address))

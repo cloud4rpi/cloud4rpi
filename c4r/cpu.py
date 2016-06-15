@@ -6,6 +6,7 @@ import subprocess
 SUPPORTED_TYPE = 'cpu'
 CPU_TEMPERATURE_CMD = "vcgencmd measure_temp"
 
+
 class Cpu(object):
     def __init__(self):
         self.type = SUPPORTED_TYPE

@@ -16,5 +16,5 @@ mqttMessageTopicPrefix = mqttTopicRoot + '/messages'
 mqttCommandsTopicPrefix = mqttTopicRoot + '/commands'
 
 
-#logging
+# logging
 LOG_FILE_NAME = 'cloud4rpi.log'
