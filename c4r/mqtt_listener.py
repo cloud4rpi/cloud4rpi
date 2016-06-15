@@ -33,7 +33,7 @@ class MqttListener(object):
             log.info('MqttListener - listening stopped')
 
     def connect(self):
-        log.info('MqttListener connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
+        log.info('Connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
         try:
             self.client.username_pw_set(config.mqqtBrokerUsername, config.mqttBrokerPassword)
             self.client.connect(config.mqqtBrokerHost, config.mqttBrokerPort)

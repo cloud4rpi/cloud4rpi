@@ -368,7 +368,6 @@ class TestHelpers(unittest.TestCase):
 
         self.assertTrue(helpers.is_token_valid('a5751fc6-0ed0-4e77-ba40-b2a410b15e26'))
 
-
     def testWrapMessages(self):
         payload = {'some': 'thing', 'int': 123 }
         result = helpers.wrap_message('test-api-key', 'my-type', payload)
@@ -377,6 +376,22 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(result['type'], 'my-type')
         self.assertEqual(result['payload'], payload)
 
+    def testSetVariableBoolValue(self):
+        variables = {
+            'BoolVar': {'type': 'bool', 'value': False},
+            'IntVar': {'type': 'numeric', 'value': 0}
+        }
+        bool_var = variables['BoolVar']
+        helpers.set_bool_variable_value(bool_var, '123')
+        self.assertEquals(bool_var['value'], True)
+        self.assertIsInstance(bool_var['value'], bool)
+        self.assertNotIsInstance(bool_var['value'], basestring)
+
+        int_var = variables['IntVar']
+        helpers.set_bool_variable_value(int_var, '123')
+        self.assertEquals(int_var['value'], '123')
+        self.assertNotIsInstance(int_var['value'], bool)
+        self.assertIsInstance(int_var['value'], basestring)
 
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):

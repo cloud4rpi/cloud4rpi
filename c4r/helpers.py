@@ -62,6 +62,14 @@ def extract_variable_prop(props, prop_name):
     return get_by_key(props, prop_name)
 
 
+def variable_of_type(variable, type_value):
+    return extract_variable_prop(variable, 'type') == type_value
+
+
+def set_bool_variable_value(variable, value):
+    variable['value'] = bool(value) if variable_of_type(variable, 'bool') else value
+
+
 def get_variable_address(variable):
     return extract_variable_bind_prop(variable, 'address')
 

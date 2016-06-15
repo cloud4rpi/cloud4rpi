@@ -95,7 +95,7 @@ def broker_message_handler(msg):
         bind = helpers.get_variable_bind(reg_vars[var_name])
         if helpers.bind_is_handler(bind):
             result = run_bind_method(var_name, bind, value)
-            reg_vars[var_name]['value'] = bool(result) if reg_vars[var_name]['type'] == 'bool' else result
+            helpers.set_bool_variable_value(reg_vars[var_name], result)
 
 
 def register(variables):
@@ -135,7 +135,7 @@ def process_event(variables, payload):
             val = helpers.get_by_key(payload, name)
             try:
                 result = run_bind_method(name, bind, val)
-                variables['name']['value'] = bool(result) if variables['name']['type'] == 'bool' else result
+                helpers.set_bool_variable_value(variables['name'], result)
             except Exception as e:
                 print 'Error processing {0} variable\' bind function: {1}'.format(name, e)
 
