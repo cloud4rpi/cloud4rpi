@@ -1,6 +1,7 @@
 git+https://github.com/jmcgeheeiv/pyfakefs.git
 teamcity-messages
 timeout-decorator
+pep8
 pylint
 nose
 coverage
