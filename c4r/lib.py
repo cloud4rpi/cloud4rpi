@@ -15,6 +15,8 @@ api_key = None
 reg_vars = None
 log = get_logger()
 
+cpuObj = cpu.Cpu()
+
 
 def set_api_key(token):
     global api_key  # pylint: disable=W0603
@@ -79,6 +81,13 @@ def send_receive(variables):
 def send_stream(stream):
     transport = get_active_transport()
     return transport.send_stream(api_key, stream)
+
+
+def send_system_info():
+    transport = get_active_transport()
+    cpuObj.read()
+    readings = {'CPU': cpuObj.get_temperature()}
+    return transport.send_system_stream(api_key, readings)
 
 
 def get_active_transport():

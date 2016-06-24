@@ -54,6 +54,11 @@ def send_receive(variables):
     return api_wrapper(lib.send_receive, variables)
 
 
+def send_system_info():
+    verify_token(lib.api_key)
+    return api_wrapper(lib.send_system_info)
+
+
 def start_message_broker_listen():
     verify_token(lib.api_key)
     return api_wrapper(lib.start_mqtt_listen)

@@ -27,6 +27,10 @@ class MqttTransport(Transport):
         topic = self.get_topic(api_key)
         return mqtt.publish(topic, helpers.wrap_message(api_key, 'data', stream))
 
+    def send_system_stream(self, api_key, stream):
+        topic = self.get_topic(api_key)
+        return mqtt.publish(topic, helpers.wrap_message(api_key, 'system', stream))
+
 
 class HttpTransport(Transport):
     @staticmethod
@@ -56,3 +60,6 @@ class HttpTransport(Transport):
                             timeout=helpers.REQUEST_TIMEOUT_SECONDS)
         HttpTransport.check_response(res)
         return res.json()
+
+    def send_system_stream(self, api_key, stream):
+        pass  # not implemented

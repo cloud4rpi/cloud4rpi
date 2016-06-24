@@ -76,6 +76,7 @@ def main():
             c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors
             c4r.read_system(Variables)  # Reads CPU temperature
 
+            c4r.send_system_info()
             c4r.send_receive(Variables)
 
             time.sleep(10)
