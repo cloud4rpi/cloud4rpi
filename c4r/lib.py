@@ -6,6 +6,7 @@ from c4r.logger import get_logger
 from c4r import helpers
 import c4r.ds18b20 as ds_sensor
 from c4r import cpu
+from c4r.ipaddress import get_ip_address
 from c4r import transport
 from c4r import mqtt_listener
 import c4r
@@ -86,7 +87,7 @@ def send_stream(stream):
 def send_system_info():
     transport = get_active_transport()
     cpuObj.read()
-    readings = {'CPU': cpuObj.get_temperature()}
+    readings = {'CPU': cpuObj.get_temperature(), 'IPAddress': get_ip_address()}
     return transport.send_system_stream(api_key, readings)
 
 
