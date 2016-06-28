@@ -20,6 +20,8 @@ branches:
 
 
 notifications:
-  slack: cloud4rpi:SLACK_TOKEN
+  slack:
     on_success: always
     on_failure: always
+    rooms:
+      cloud4rpi:SLACK_TOKEN
