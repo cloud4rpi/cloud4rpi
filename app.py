@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 
 import sys
+import signal
 import time
 from threading import Timer
 import c4r  # Lib to send and receive commands
@@ -77,12 +78,20 @@ def start_send_system_data():
     Timer(SEND_DIAGNOSTIC_TIMEOUT_IN_SEC, start_send_system_data).start()
 
 
+def signal_handler():
+    print 'Keyboard interrupt received. Stopping...'
+    c4r.finalize()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+
 def main():
 
     c4r.start_message_broker_listen()
     c4r.register(variables=Variables)  # Send variable declarations to server
 
-    start_send_system_data()
+    start_send_system_data()    # Send system diagnostic data to server every 60 sec
     try:
         while True:
             c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors
@@ -90,10 +99,6 @@ def main():
 
             time.sleep(10)
 
-    except KeyboardInterrupt:
-        print 'Keyboard interrupt received. Stopping...'
-        c4r.finalize()
-        sys.exit(0)
     except Exception as e:
         error = c4r.get_error_message(e)
         print "error", error, sys.exc_info()[0]
