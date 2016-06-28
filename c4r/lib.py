@@ -53,7 +53,7 @@ def read_ds_sensor(variable):
         variable['value'] = ds_sensor.read(address)
 
 
-def read_system(variables):
+def read_system(variables):  # not in use
     [read_cpu(x) for x in variables.itervalues() if is_cpu(x)]
 
 

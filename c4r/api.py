@@ -41,8 +41,8 @@ def read_persistent(variables):
     api_wrapper(lib.read_persistent, variables)
 
 
-def read_system(variables):
-    api_wrapper(lib.read_system, variables)
+# def read_system(variables):
+#     api_wrapper(lib.read_system, variables)
 
 # only for http-data-exchange scenario
 # def process_variables(variables, server_msg):
