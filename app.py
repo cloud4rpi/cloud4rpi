@@ -88,14 +88,14 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def main():
 
-    c4r.start_message_broker_listen()
-    c4r.register(variables=Variables)  # Send variable declarations to server
+    c4r.start_message_broker_listen()  # Receives control commands from server
+    c4r.register(variables=Variables)  # Sends variable declarations to server
 
-    start_send_system_data()    # Send system diagnostic data to server every 60 sec
+    start_send_system_data()    # Sends system diagnostic data to server every 60 sec
     try:
         while True:
-            c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors
-            c4r.send_receive(Variables)
+            c4r.read_persistent(Variables)  # Reads bounded values from persistent memory, sensors
+            c4r.send_receive(Variables)  # Sends variable values data to server
 
             time.sleep(10)
 
