@@ -8,6 +8,7 @@ log = get_logger()
 
 KEEP_ALIVE_INTERVAL = 60 * 10
 
+
 def raise_event(content):
     events.on_broker_message(content)
 
