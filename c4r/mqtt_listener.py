@@ -6,6 +6,7 @@ import paho.mqtt.client as mqtt
 
 log = get_logger()
 
+KEEP_ALIVE_INTERVAL = 60 * 10
 
 def raise_event(content):
     events.on_broker_message(content)
@@ -36,7 +37,7 @@ class MqttListener(object):
         log.info('Connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
         try:
             self.client.username_pw_set(config.mqqtBrokerUsername, config.mqttBrokerPassword)
-            self.client.connect(config.mqqtBrokerHost, config.mqttBrokerPort)
+            self.client.connect(config.mqqtBrokerHost, config.mqttBrokerPort, KEEP_ALIVE_INTERVAL)
         except Exception as e:
             log.error('Connection failed: {0}'.format(e))
             raise e
