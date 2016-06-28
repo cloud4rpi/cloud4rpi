@@ -5,13 +5,13 @@ python:
 
 
 install:
-    - "pip install -r dev-requirements.txt"
+  - "pip install -r dev-requirements.txt"
 
 
 script:
-    - bash tools/pep8.sh
-    - bash tools/lint.sh
-    - bash tools/test.sh
+   - bash tools/pep8.sh
+   - bash tools/lint.sh
+   - bash tools/test.sh
 
 
 branches:
@@ -20,8 +20,6 @@ branches:
 
 
 notifications:
-  slack:
-    on_success: change
+  slack: cloud4rpi:SLACK_TOKEN
+    on_success: always
     on_failure: always
-    rooms:
-      cloud4rpi:SLACK_TOKEN#builds
