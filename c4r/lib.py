@@ -85,6 +85,7 @@ def send_stream(stream):
 
 
 def send_system_info():
+    log.info('------System information------')
     transport = get_active_transport()
     cpuObj.read()
     net = get_network_info()
@@ -116,8 +117,7 @@ def register(variables):
 
     reg_vars = variables
     c4r.on_broker_message += broker_message_handler
-
-    log.info('Sending device configuration...')
+    log.info('------Device configuration------')
     transport = get_active_transport()
     return transport.send_config(api_key, variables_decl)
 

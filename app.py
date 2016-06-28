@@ -2,6 +2,7 @@
 
 import sys
 import time
+from threading import Timer
 import c4r  # Lib to send and receive commands
 
 try:
@@ -68,15 +69,25 @@ Variables = {
 }
 
 
+SEND_DIAGNOSTIC_TIMEOUT_IN_SEC = 60
+
+
+def start_send_system_data():
+    c4r.send_system_info()
+    Timer(SEND_DIAGNOSTIC_TIMEOUT_IN_SEC, start_send_system_data).start()
+
+
 def main():
+
     c4r.start_message_broker_listen()
     c4r.register(variables=Variables)  # Send variable declarations to server
+
+    start_send_system_data()
     try:
         while True:
             c4r.read_persistent(Variables)  # Reads values from persistent memory, sensors
             c4r.read_system(Variables)  # Reads CPU temperature
 
-            c4r.send_system_info()
             c4r.send_receive(Variables)
 
             time.sleep(10)
