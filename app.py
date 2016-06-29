@@ -94,7 +94,7 @@ def main():
     start_send_system_data()    # Sends system diagnostic data to server every 60 sec
     try:
         while True:
-            c4r.read_persistent(Variables)  # Reads bounded values from persistent memory, sensors
+            c4r.read_variables(Variables)  # Reads bounded values from persistent memory, sensors
             c4r.send_receive(Variables)  # Sends variable values data to server
 
             time.sleep(10)

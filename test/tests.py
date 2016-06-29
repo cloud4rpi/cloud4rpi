@@ -37,18 +37,11 @@ class TestApi(unittest.TestCase):
         c4r.set_api_key(api_key)
 
     @staticmethod
-    @patch('c4r.lib.read_persistent')
-    def testReadPersistent(mock):
+    @patch('c4r.lib.read_variables')
+    def testReadVariables(mock):
         var = {'A': 1}
-        c4r.read_persistent(var)
+        c4r.read_variables(var)
         mock.assert_called_once_with({'A': 1})
-
-    # @staticmethod
-    # @patch('c4r.lib.read_system')
-    # def testReadSystem(mock):
-    #     var = {'A': 1}
-    #     c4r.read_system(var)
-    #     mock.assert_called_once_with({'A': 1})
 
     @patch('c4r.ds18b20.find_all')
     def testFindDSSensors(self, mock):

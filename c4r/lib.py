@@ -44,6 +44,10 @@ def is_ds_sensor(variable):
     return False
 
 
+def read_variables(variables):
+    return read_persistent(variables) + read_system(variables)
+
+
 def is_cpu(variable):
     return helpers.bind_is_instance_of(variable, cpu.Cpu)
 
@@ -54,7 +58,7 @@ def read_ds_sensor(variable):
         variable['value'] = ds_sensor.read(address)
 
 
-def read_system(variables):  # not in use
+def read_system(variables):
     [read_cpu(x) for x in variables.itervalues() if is_cpu(x)]
 
 
