@@ -6,7 +6,7 @@ from c4r.logger import get_logger
 from c4r import helpers
 import c4r.ds18b20 as ds_sensor
 from c4r import cpu
-from c4r.net import get_network_info
+from c4r import net
 from c4r import transport
 from c4r import mqtt_listener
 import c4r
@@ -17,6 +17,7 @@ reg_vars = None
 log = get_logger()
 
 cpuObj = cpu.Cpu()
+netObj = net.NetworkInfo()
 
 
 def set_api_key(token):
@@ -84,13 +85,17 @@ def send_stream(stream):
     return transport.send_stream(api_key, stream)
 
 
+def collect_system_readings():
+    cpuObj.read()  # TODO re-write
+    return {'CPU': cpuObj.get_temperature(),
+            'IPAddress': netObj.get_ipaddress(),
+            'Host': netObj.get_host()}
+
+
 def send_system_info():
     log.info('------System information------')
     transport = get_active_transport()
-    cpuObj.read()
-    net = get_network_info()
-    readings = {'CPU': cpuObj.get_temperature(), 'IPAddress': net['ipaddr'], 'Host': net['host']}
-    return transport.send_system_stream(api_key, readings)
+    return transport.send_system_stream(api_key, collect_system_readings())
 
 
 def get_active_transport():

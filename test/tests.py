@@ -11,6 +11,7 @@ import c4r
 from c4r import lib
 from c4r import ds18b20 as ds_sensors
 from c4r.cpu import Cpu
+from c4r.net import NetworkInfo
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 from c4r import transport
@@ -104,11 +105,15 @@ class TestLibrary(unittest.TestCase):
     def testStaticMethodsExists(self):
         self.static_methods_exists([
             lib.set_api_key,
+            lib.register,
+            lib.broker_message_handler,
             lib.run_handler,
             lib.find_ds_sensors,
             lib.create_ds18b20_sensor,
             lib.read_persistent,
-            lib.send_receive
+            lib.send_receive,
+            lib.send_system_info,
+            lib.send_stream
         ])
 
     def testSetApiKey(self):
@@ -205,6 +210,15 @@ class TestLibrary(unittest.TestCase):
         readings = lib.collect_readings(variables)
         expected = {'CPU': 36.6}
         self.assertEqual(readings, expected)
+    #  Test collect_system_readings, send_system_info
+
+
+class TestNetworkInfo(unittest.TestCase):
+    @patch.object(NetworkInfo, 'get_network_info')
+    def testGetNetworkInfo(self, mock):
+        netObj = NetworkInfo()
+        self.assertIsNone(netObj.get_ipaddress())
+        self.assertIsNone(netObj.get_host())
 
 
 class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
