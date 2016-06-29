@@ -45,7 +45,8 @@ def is_ds_sensor(variable):
 
 
 def read_variables(variables):
-    return read_persistent(variables) + read_system(variables)
+    read_persistent(variables)
+    read_system(variables)
 
 
 def is_cpu(variable):
@@ -70,8 +71,7 @@ def read_cpu(variable):
 
 
 def read_persistent(variables):
-    values = [read_ds_sensor(x) for x in variables.itervalues() if is_ds_sensor(x)]
-    return values
+    [read_ds_sensor(x) for x in variables.itervalues() if is_ds_sensor(x)]
 
 
 def collect_readings(variables):

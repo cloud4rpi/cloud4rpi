@@ -128,6 +128,16 @@ class TestLibrary(unittest.TestCase):
         self.assertTrue(lib.bind_handler_exists(var1))
 
     @staticmethod
+    @patch('c4r.lib.read_persistent')
+    @patch('c4r.lib.read_system')
+    def testReadVariables(mock_sys, mock_persist):
+        variables = {'Test': {}}
+        lib.read_variables(variables)
+
+        mock_persist.assert_called_with(variables)
+        mock_sys.assert_called_with(variables)
+
+    @staticmethod
     @patch('c4r.ds18b20.read')
     def testReadPersistent(mock):
         addr = '10-000802824e58'
@@ -203,7 +213,7 @@ class TestLibrary(unittest.TestCase):
         readings = lib.collect_readings(variables)
         expected = {'CPU': 36.6}
         self.assertEqual(readings, expected)
-    #  Test collect_system_readings, send_system_info
+        #  Test collect_system_readings, send_system_info
 
 
 class TestNetworkInfo(unittest.TestCase):
