@@ -380,9 +380,8 @@ class TestHelpers(unittest.TestCase):
 
     def testWrapMessages(self):
         payload = {'some': 'thing', 'int': 123}
-        result = helpers.wrap_message('test-api-key', 'my-type', payload)
+        result = helpers.wrap_message('my-type', payload)
 
-        self.assertEqual(result['token'], 'test-api-key')
         self.assertEqual(result['type'], 'my-type')
         self.assertEqual(result['payload'], payload)
 

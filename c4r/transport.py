@@ -21,15 +21,15 @@ class MqttTransport(Transport):
 
     def send_config(self, api_key, config):
         topic = self.get_topic(api_key)
-        return mqtt.publish(topic, helpers.wrap_message(api_key, 'config', config))
+        return mqtt.publish(topic, helpers.wrap_message('config', config))
 
     def send_stream(self, api_key, stream):
         topic = self.get_topic(api_key)
-        return mqtt.publish(topic, helpers.wrap_message(api_key, 'data', stream))
+        return mqtt.publish(topic, helpers.wrap_message('data', stream))
 
     def send_system_stream(self, api_key, stream):
         topic = self.get_topic(api_key)
-        return mqtt.publish(topic, helpers.wrap_message(api_key, 'system', stream))
+        return mqtt.publish(topic, helpers.wrap_message('system', stream))
 
 
 class HttpTransport(Transport):
