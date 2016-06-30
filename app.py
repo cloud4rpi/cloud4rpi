@@ -67,11 +67,11 @@ Variables = {
     }
 }
 
-INTERVAL_IN_SEC = 10
+INTERVAL_IN_SEC = 60
 
 
 def stop_all(timer):
-    timer.stop()  # stop_send_system_data()
+    timer.stop()  # stop sending system diagnostic data
     c4r.finalize()
 
 
