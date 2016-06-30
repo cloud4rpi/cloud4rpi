@@ -70,16 +70,22 @@ Variables = {
 }
 
 
-SEND_DIAGNOSTIC_TIMEOUT_IN_SEC = 60
-
-
 def start_send_system_data():
     c4r.send_system_info()
-    Timer(SEND_DIAGNOSTIC_TIMEOUT_IN_SEC, start_send_system_data).start()
+    timer.start()
 
 
-def signal_handler():
-    print 'Keyboard interrupt received. Stopping...'
+def stop_send_system_data():
+    timer.cancel()
+
+SEND_DIAGNOSTIC_TIMEOUT_IN_SEC = 60
+
+timer = Timer(SEND_DIAGNOSTIC_TIMEOUT_IN_SEC, start_send_system_data)
+
+
+def signal_handler(signum, _):
+    print 'Keyboard interrupt received. Stopping...', signum
+    stop_send_system_data()
     c4r.finalize()
     sys.exit(0)
 
@@ -102,6 +108,7 @@ def main():
     except Exception as e:
         error = c4r.get_error_message(e)
         print "error", error, sys.exc_info()[0]
+        stop_send_system_data()
         c4r.finalize()
         raise
 
