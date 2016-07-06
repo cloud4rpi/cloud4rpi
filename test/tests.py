@@ -14,7 +14,6 @@ from c4r.cpu import Cpu
 from c4r.net import NetworkInfo
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
-from c4r import transport
 from c4r import errors
 from c4r import mqtt_listener
 import pyfakefs.fake_filesystem_unittest as fake_filesystem_unittest
@@ -237,12 +236,6 @@ class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):
         self.setUpStatusCode(verb, status_code)
 
     @staticmethod
-    def setUpDefaultHttpTransport():
-        r_mock = MagicMock()
-        r_mock.return_value = transport.HttpTransport()
-        lib.get_active_transport = r_mock
-
-    @staticmethod
     def setUpStatusCode(verb, code):
         verb.return_value.status_code = code
 
@@ -278,41 +271,27 @@ class TestDataExchange(TestFileSystemAndRequests):
     def setUp(self):
         super(TestDataExchange, self).setUp()
         self.setUpDefaultResponses()
-        self.setUpDefaultHttpTransport()
         lib.set_api_key(api_key)
 
     def tearDown(self):
         lib.set_api_key(None)
 
-    def testSendReceive(self):
-        variables = {
-            'temp1': {
-                'title': '123',
-                'value': 22.4,
-                'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}
-            }
-        }
-        self.setUpResponse(self.post, variables, 201)
-        json = lib.send_receive(variables)
-        self.assertEqual(json, variables)
+    # def testSendReceive(self):
+    #     variables = {
+    #         'temp1': {
+    #             'title': '123',
+    #             'value': 22.4,
+    #             'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}
+    #         }
+    #     }
+    #     self.setUpResponse(self.post, variables, 201)
+    #     json = lib.send_receive(variables)
+    #     self.assertEqual(json, variables)
 
-    def testRaiseExceptionOnUnAuthStreamPostRequest(self):
-        self.setUpPOSTStatus(401)
-        with self.assertRaises(errors.AuthenticationError):
-            lib.send_receive({})
-
-    @staticmethod
-    @patch('c4r.transport.HttpTransport.send_config')
-    def test_register_variables(mock):
-        variables = {
-            'var1': {
-                'title': 'temp',
-                'type': 'number',
-                'bind': 'ds18b20'
-            }
-        }
-        c4r.register(variables)
-        mock.assert_called_with(api_key, [{'type': 'number', 'name': 'var1'}])
+    # def testRaiseExceptionOnUnAuthStreamPostRequest(self):
+    #     self.setUpPOSTStatus(401)
+    #     with self.assertRaises(errors.AuthenticationError):
+    #         lib.send_receive({})
 
 
 class TestHelpers(unittest.TestCase):
