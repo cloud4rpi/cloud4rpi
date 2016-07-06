@@ -70,19 +70,12 @@ Variables = {
 INTERVAL_IN_SEC = 60
 
 
-def stop_all(timer):
-    timer.stop()  # stop sending system diagnostic data
-    c4r.finalize()
-
-
 def main():
 
     c4r.start_message_broker_listen()  # Receives control commands from server
-    c4r.register(variables=Variables)  # Sends variable declarations to server
+    c4r.register(Variables)  # Sends variable declarations to server
+    c4r.start_polling(INTERVAL_IN_SEC)
 
-    # Sends system diagnostic data to server every 60 sec
-    timer = c4r.RecurringTimer(INTERVAL_IN_SEC, c4r.send_system_info)
-    timer.start()
     try:
         while True:
             c4r.read_variables(Variables)  # Reads bounded values from persistent memory, sensors
@@ -92,13 +85,13 @@ def main():
 
     except KeyboardInterrupt:
         print 'Keyboard interrupt received. Stopping...'
-        stop_all(timer)
+        c4r.finalize()
         sys.exit(0)
 
     except Exception as e:
         error = c4r.get_error_message(e)
         print "error", error, sys.exc_info()[0]
-        stop_all(timer)
+        c4r.finalize()
         raise
 
 
