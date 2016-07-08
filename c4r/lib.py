@@ -97,7 +97,7 @@ def collect_system_readings():
 
 
 def send_system_info():
-    log.info('------System information------')
+    log.info('[x] Sending system information...')
     transport = get_active_transport()
     return transport.send_system_stream(api_key, collect_system_readings())
 
@@ -120,13 +120,13 @@ def broker_message_handler(msg):
 
 
 def register(variables):
+    log.info('[x] Sending device configuration...')
     global reg_vars
     variables_decl = [{'name': name, 'type': value['type']}
                       for name, value in variables.iteritems()]
 
     reg_vars = variables
     c4r.on_broker_message += broker_message_handler
-    log.info('------Device configuration------')
     transport = get_active_transport()
     return transport.send_config(api_key, variables_decl)
 
@@ -141,7 +141,7 @@ def init_worker():
 
 
 def run_bind_method(var_name, method, current_value):
-    print 'Call bind method for {0} variable...'.format(var_name)
+    print '[x] Call bind method for {0} variable...'.format(var_name)
     result = method(current_value)
     print 'Done bind method for {0} variable... Result: {1}'.format(var_name, result)
 

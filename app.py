@@ -74,7 +74,7 @@ def main():
 
     c4r.start_message_broker_listen()  # Receives control commands from server
     c4r.register(Variables)  # Sends variable declarations to server
-    c4r.start_polling(INTERVAL_IN_SEC)
+    c4r.start_polling(INTERVAL_IN_SEC)  # Sends system diagnostic data to server
 
     try:
         while True:

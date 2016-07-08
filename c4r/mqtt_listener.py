@@ -27,7 +27,6 @@ class MqttListener(object):
         log.info('MqttListener - starting')
         self.connect()
         self.client.loop_start()
-        log.info('MqttListener - listening started')
 
     def stop(self):
         if self.client is not None:
@@ -45,7 +44,7 @@ class MqttListener(object):
 
     def listen(self):
         topic = helpers.format_subscription_topic(self.api_key)
-        log.info('subscribing for [{0}]'.format(topic))
+        log.info('Listen for [{0}]'.format(topic))
         self.client.subscribe(topic, 0)
 
     def on_connect(self, client, userdata, flags, rc):
@@ -58,7 +57,7 @@ class MqttListener(object):
         log.info('MqttListener disconnected. Reason: {0}. Reconnecting ...'.format(rc))
 
     def on_message(self, client, userdata, message):
-        log.info('MQTT message received: [{0}] - [{1}]'.format(message.topic, message.payload))
+        log.info('[x] MQTT message received: [{0}] - [{1}]'.format(message.topic, message.payload))
         raise_event(message.payload)
 
 
