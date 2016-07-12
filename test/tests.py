@@ -276,22 +276,22 @@ class TestDataExchange(TestFileSystemAndRequests):
     def tearDown(self):
         lib.set_api_key(None)
 
-    # def testSendReceive(self):
-    #     variables = {
-    #         'temp1': {
-    #             'title': '123',
-    #             'value': 22.4,
-    #             'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}
-    #         }
-    #     }
-    #     self.setUpResponse(self.post, variables, 201)
-    #     json = lib.send_receive(variables)
-    #     self.assertEqual(json, variables)
+        # def testSendReceive(self):
+        #     variables = {
+        #         'temp1': {
+        #             'title': '123',
+        #             'value': 22.4,
+        #             'bind': {'type': 'ds18b20', 'address': '10-000802824e58'}
+        #         }
+        #     }
+        #     self.setUpResponse(self.post, variables, 201)
+        #     json = lib.send_receive(variables)
+        #     self.assertEqual(json, variables)
 
-    # def testRaiseExceptionOnUnAuthStreamPostRequest(self):
-    #     self.setUpPOSTStatus(401)
-    #     with self.assertRaises(errors.AuthenticationError):
-    #         lib.send_receive({})
+        # def testRaiseExceptionOnUnAuthStreamPostRequest(self):
+        #     self.setUpPOSTStatus(401)
+        #     with self.assertRaises(errors.AuthenticationError):
+        #         lib.send_receive({})
 
 
 class TestHelpers(unittest.TestCase):
@@ -426,12 +426,12 @@ class TestEvents(unittest.TestCase):
         self.call_args = None
         c4r.on_broker_message += self.messageHandler
 
-        mqtt_listener.raise_event('test42')
+        mqtt_listener.MqttListener.emit_event('test42')
         self.assertEqual(self.call_args[0], 'test42')
 
         self.call_args = None
         c4r.on_broker_message -= self.messageHandler
-        mqtt_listener.raise_event('other')
+        mqtt_listener.MqttListener.emit_event('other')
         self.assertEqual(self.call_args, None)
 
     def messageHandler(self, *args):

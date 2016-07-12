@@ -4,26 +4,23 @@ from c4r import events
 from c4r.logger import get_logger
 import paho.mqtt.client as mqtt
 
-log = get_logger()
-
 KEEP_ALIVE_INTERVAL = 60 * 10
 
+log = get_logger()
 
-def raise_event(content):
-    events.on_broker_message(content)
+listener = None
 
 
 class MqttListener(object):
-    def __init__(self):
+    def __init__(self, api_key=''):
         self.process = None
-        self.api_key = None
-        self.client = mqtt.Client()
+        self.client = mqtt.Client(client_id=api_key)
+        self.api_key = api_key
         self.client.on_message = self.on_message
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
 
-    def start(self, api_key):
-        self.api_key = api_key
+    def start(self):
         log.info('MqttListener - starting')
         self.connect()
         self.client.loop_start()
@@ -58,18 +55,19 @@ class MqttListener(object):
 
     def on_message(self, client, userdata, message):
         log.info('[x] MQTT message received: [{0}] - [{1}]'.format(message.topic, message.payload))
-        raise_event(message.payload)
+        self.emit_event(message.payload)
 
-
-listener = MqttListener()
+    @staticmethod
+    def emit_event(payload):
+        events.on_broker_message(payload)
 
 
 def start_listen(api_key):
     global listener
     if listener is None:
-        listener = MqttListener()
+        listener = MqttListener(api_key)
 
-    listener.start(api_key)
+    listener.start()
 
 
 def stop_listen():
