@@ -352,13 +352,16 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(result, 'iot-hub/commands/ledOn')
 
     def testIsTokenValid(self):
-        self.assertFalse(helpers.is_token_valid('5693813ab288f00b4cb31904'))
+        self.assertFalse(helpers.is_token_valid('sosmaltokenlength'))
+        # deny symbols and 0lIO
+        self.assertFalse(helpers.is_token_valid('=3ZQ9NJFcMEK3TWEebnpwUknvB'))
+        self.assertFalse(helpers.is_token_valid('-3ZQ9NJFcMEK3TWEebnpwUknvB'))
+        self.assertFalse(helpers.is_token_valid('03ZQ9NJFcMEK3TWEebnpwUknv'))
+        self.assertFalse(helpers.is_token_valid('l3ZQ9NJFcMEK3TWEebnpwUknv'))
+        self.assertFalse(helpers.is_token_valid('I3ZQ9NJFcMEK3TWEebnpwUknv'))
+        self.assertFalse(helpers.is_token_valid('O3ZQ9NJFcMEK3TWEebnpwUknv'))
 
-        self.assertFalse(helpers.is_token_valid('00000000-0000-3000-c000-000000000000'))
-        self.assertFalse(helpers.is_token_valid('00000000-0000-4000-0000-000000000000'))
-        self.assertFalse(helpers.is_token_valid('00000000-0000-0000-b000-000000000000'))
-
-        self.assertTrue(helpers.is_token_valid('a5751fc6-0ed0-4e77-ba40-b2a410b15e26'))
+        self.assertTrue(helpers.is_token_valid('3ZQ9NJFcMEK3TWEebnpwUknvB'))
 
     def testWrapMessages(self):
         payload = {'some': 'thing', 'int': 123}

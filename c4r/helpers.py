@@ -31,8 +31,8 @@ def check_response(res):
 
 
 def is_token_valid(token):
-    r = re.compile('[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}')
-    return token and len(token) == 36 and r.match(token)
+    r = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
+    return token and r.match(token)
 
 
 def verify_token(token):
