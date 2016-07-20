@@ -14,7 +14,9 @@ listener = None
 class MqttListener(object):
     def __init__(self, api_key=''):
         self.process = None
-        self.client = mqtt.Client(client_id='c4r-', clean_session=False)
+
+        client_id = helpers.format_mqtt_client_id(api_key)
+        self.client = mqtt.Client(client_id=client_id, clean_session=False)
         self.api_key = api_key
         self.client.on_message = self.on_message
         self.client.on_connect = self.on_connect

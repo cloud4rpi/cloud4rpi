@@ -122,9 +122,13 @@ def format_subscription_topic(api_key):
     return join_strings([config.mqttCommandsTopicPrefix, api_key])
 
 
-def wrap_message(messageType, payload):
+def format_mqtt_client_id(api_key):
+    return 'c4r-{0}-'.format(api_key)
+
+
+def wrap_message(message_type, payload):
     return {
-        'type': messageType,
+        'type': message_type,
         'ts': datetime.datetime.utcnow().isoformat(),
         'payload': payload
     }
