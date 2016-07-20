@@ -14,7 +14,7 @@ listener = None
 class MqttListener(object):
     def __init__(self, api_key=''):
         self.process = None
-        self.client = mqtt.Client(client_id=api_key)
+        self.client = mqtt.Client(client_id='c4r-', clean_session=False)
         self.api_key = api_key
         self.client.on_message = self.on_message
         self.client.on_connect = self.on_connect
@@ -42,7 +42,7 @@ class MqttListener(object):
     def listen(self):
         topic = helpers.format_subscription_topic(self.api_key)
         log.info('Listen for [{0}]'.format(topic))
-        self.client.subscribe(topic, 0)
+        self.client.subscribe(topic, qos=1)
 
     def on_connect(self, client, userdata, flags, rc):
         if rc != 0:
