@@ -20,7 +20,7 @@ import pyfakefs.fake_filesystem_unittest as fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
 
-api_key = '00000000-0000-4000-a000-000000000000'
+device_token = '00000000-0000-4000-a000-000000000000'
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -33,7 +33,7 @@ sensor_28 = \
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        c4r.set_api_key(api_key)
+        c4r.set_device_token(device_token)
 
     @staticmethod
     @patch('c4r.lib.read_variables')
@@ -48,7 +48,7 @@ class TestApi(unittest.TestCase):
         self.assertTrue(mock.called)
 
     def call_without_token(self, methods):
-        lib.api_key = None
+        lib.device_token = None
         for fn, args in methods.items():
             with self.assertRaises(errors.InvalidTokenError):
                 if args is None:
@@ -92,11 +92,11 @@ class TestLibrary(unittest.TestCase):
             self.assertTrue(is_instance)
 
     def testDefauls(self):
-        self.assertIsNone(lib.api_key)
+        self.assertIsNone(lib.device_token)
 
     def testStaticMethodsExists(self):
         self.static_methods_exists([
-            lib.set_api_key,
+            lib.set_device_token,
             lib.register,
             lib.broker_message_handler,
             lib.run_handler,
@@ -109,9 +109,9 @@ class TestLibrary(unittest.TestCase):
         ])
 
     def testSetApiKey(self):
-        self.assertIsNone(lib.api_key)
-        lib.set_api_key(api_key)
-        self.assertEqual(lib.api_key, api_key)
+        self.assertIsNone(lib.device_token)
+        lib.set_device_token(device_token)
+        self.assertEqual(lib.device_token, device_token)
 
     def testHandlerExists(self):
         var1 = {
@@ -271,10 +271,10 @@ class TestDataExchange(TestFileSystemAndRequests):
     def setUp(self):
         super(TestDataExchange, self).setUp()
         self.setUpDefaultResponses()
-        lib.set_api_key(api_key)
+        lib.set_device_token(device_token)
 
     def tearDown(self):
-        lib.set_api_key(None)
+        lib.set_device_token(None)
 
         # def testSendReceive(self):
         #     variables = {

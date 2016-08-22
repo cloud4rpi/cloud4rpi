@@ -6,28 +6,28 @@ log = get_logger()
 
 
 class Transport(object):
-    def send_config(self, api_key, config):
+    def send_config(self, device_token, config):
         pass
 
-    def send_stream(self, api_key, stream):
+    def send_stream(self, device_token, stream):
         pass
 
-    def send_system_stream(self, api_key, stream):
+    def send_system_stream(self, device_token, stream):
         pass
 
 
 class MqttTransport(Transport):
-    def get_topic(self, api_key):
-        return helpers.format_message_topic(api_key)
+    def get_topic(self, device_token):
+        return helpers.format_message_topic(device_token)
 
-    def send_config(self, api_key, config):
-        topic = self.get_topic(api_key)
+    def send_config(self, device_token, config):
+        topic = self.get_topic(device_token)
         return mqtt.publish(topic, helpers.wrap_message('config', config))
 
-    def send_stream(self, api_key, stream):
-        topic = self.get_topic(api_key)
+    def send_stream(self, device_token, stream):
+        topic = self.get_topic(device_token)
         return mqtt.publish(topic, helpers.wrap_message('data', stream))
 
-    def send_system_stream(self, api_key, stream):
-        topic = self.get_topic(api_key)
+    def send_system_stream(self, device_token, stream):
+        topic = self.get_topic(device_token)
         return mqtt.publish(topic, helpers.wrap_message('system', stream))

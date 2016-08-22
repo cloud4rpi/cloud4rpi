@@ -12,12 +12,12 @@ listener = None
 
 
 class MqttListener(object):
-    def __init__(self, api_key=''):
+    def __init__(self, device_token=''):
         self.process = None
 
-        client_id = helpers.format_mqtt_client_id(api_key)
+        client_id = helpers.format_mqtt_client_id(device_token)
         self.client = mqtt.Client(client_id=client_id, clean_session=False)
-        self.api_key = api_key
+        self.device_token = device_token
         self.client.on_message = self.on_message
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
@@ -42,7 +42,7 @@ class MqttListener(object):
             raise e
 
     def listen(self):
-        topic = helpers.format_subscription_topic(self.api_key)
+        topic = helpers.format_subscription_topic(self.device_token)
         log.info('Listen for [{0}]'.format(topic))
         self.client.subscribe(topic, qos=1)
 
@@ -64,10 +64,10 @@ class MqttListener(object):
         events.on_broker_message(payload)
 
 
-def start_listen(api_key):
+def start_listen(device_token):
     global listener
     if listener is None:
-        listener = MqttListener(api_key)
+        listener = MqttListener(device_token)
 
     listener.start()
 

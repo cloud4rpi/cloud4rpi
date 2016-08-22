@@ -17,9 +17,9 @@ c4r.modprobe('w1-gpio')
 c4r.modprobe('w1-therm')
 
 
-# Put your API key here. To get a token, register at https://cloud4rpi.io
-API_KEY = 'YOUR_ACCESS_TOKEN'
-c4r.set_api_key(API_KEY)
+# Put your device token here. To get a token, register at https://cloud4rpi.io
+DEVICE_TOKEN = 'YOUR_DEVICE_TOKEN'
+c4r.set_device_token(DEVICE_TOKEN)
 
 cpu = c4r.find_cpu()
 ds_sensors = c4r.find_ds_sensors()

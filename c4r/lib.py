@@ -12,7 +12,7 @@ from c4r import mqtt_listener
 import c4r
 import json
 
-api_key = None
+device_token = None
 reg_vars = None
 log = get_logger()
 
@@ -20,9 +20,9 @@ cpuObj = cpu.Cpu()
 netObj = net.NetworkInfo()
 
 
-def set_api_key(token):
-    global api_key  # pylint: disable=W0603
-    api_key = token
+def set_device_token(token):
+    global device_token  # pylint: disable=W0603
+    device_token = token
 
 
 def create_ds18b20_sensor(address):
@@ -86,7 +86,7 @@ def send_receive(variables):
 
 def send_stream(stream):
     transport = get_active_transport()
-    return transport.send_stream(api_key, stream)
+    return transport.send_stream(device_token, stream)
 
 
 def collect_system_readings():
@@ -99,7 +99,7 @@ def collect_system_readings():
 def send_system_info():
     log.info('[x] Sending system information...')
     transport = get_active_transport()
-    return transport.send_system_stream(api_key, collect_system_readings())
+    return transport.send_system_stream(device_token, collect_system_readings())
 
 
 def get_active_transport():
@@ -128,7 +128,7 @@ def register(variables):
     reg_vars = variables
     c4r.on_broker_message += broker_message_handler
     transport = get_active_transport()
-    return transport.send_config(api_key, variables_decl)
+    return transport.send_config(device_token, variables_decl)
 
 
 def run_handler(self, address):
@@ -168,7 +168,7 @@ def process_variables(variables, server_msg):  # only for http-data-exchange sce
 
 
 def start_mqtt_listen():
-    mqtt_listener.start_listen(api_key)
+    mqtt_listener.start_listen(device_token)
 
 
 def stop_mqtt_listen():

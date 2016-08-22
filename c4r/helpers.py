@@ -10,16 +10,16 @@ REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 log = get_logger()
 
 
-def request_headers(api_key):
-    return {'api_key': api_key}
+def request_headers(device_token):
+    return {'api_key': device_token}
 
 
-def device_request_url(api_key):
-    return '{0}/devices/{1}/'.format(config.baseApiUrl, api_key)
+def device_request_url(device_token):
+    return '{0}/devices/{1}/'.format(config.baseApiUrl, device_token)
 
 
-def stream_request_url(api_key):
-    return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, api_key)
+def stream_request_url(device_token):
+    return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, device_token)
 
 
 def check_response(res):
@@ -114,16 +114,16 @@ def join_strings(args):
     return '/'.join(args)
 
 
-def format_message_topic(api_key):
-    return join_strings([config.mqttMessageTopicPrefix, api_key])
+def format_message_topic(device_token):
+    return join_strings([config.mqttMessageTopicPrefix, device_token])
 
 
-def format_subscription_topic(api_key):
-    return join_strings([config.mqttCommandsTopicPrefix, api_key])
+def format_subscription_topic(device_token):
+    return join_strings([config.mqttCommandsTopicPrefix, device_token])
 
 
-def format_mqtt_client_id(api_key):
-    return 'c4r-{0}-'.format(api_key)
+def format_mqtt_client_id(device_token):
+    return 'c4r-{0}-'.format(device_token)
 
 
 def wrap_message(message_type, payload):

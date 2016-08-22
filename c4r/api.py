@@ -20,12 +20,12 @@ def get_error_message(e):
     return error_messages.get_error_message(e)
 
 
-def set_api_key(token):
-    api_wrapper(lib.set_api_key, token)
+def set_device_token(token):
+    api_wrapper(lib.set_device_token, token)
 
 
 def register(variables):
-    verify_token(lib.api_key)
+    verify_token(lib.device_token)
     api_wrapper(lib.register, variables)
 
 
@@ -42,20 +42,20 @@ def read_variables(variables):
 
 
 def send_receive(variables):
-    verify_token(lib.api_key)
+    verify_token(lib.device_token)
     return api_wrapper(lib.send_receive, variables)
 
 
 def send_system_info():
-    verify_token(lib.api_key)
+    verify_token(lib.device_token)
     return api_wrapper(lib.send_system_info)
 
 
 def start_message_broker_listen():
-    verify_token(lib.api_key)
+    verify_token(lib.device_token)
     return api_wrapper(lib.start_mqtt_listen)
 
 
 def stop_message_broker_listen():
-    verify_token(lib.api_key)
+    verify_token(lib.device_token)
     return api_wrapper(lib.stop_mqtt_listen)
