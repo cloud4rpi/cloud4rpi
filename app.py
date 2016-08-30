@@ -21,7 +21,10 @@ c4r.modprobe('w1-therm')
 DEVICE_TOKEN = 'YOUR_DEVICE_TOKEN'
 c4r.set_device_token(DEVICE_TOKEN)
 
-cpu = c4r.find_cpu()
+# object to provide cpu temperature
+cpu_temp = c4r.find_cpu()
+
+# detect connected ds18b20 temp sensors
 ds_sensors = c4r.find_ds_sensors()
 print 'SENSORS FOUND ', ds_sensors
 
@@ -31,51 +34,55 @@ def bind_sensor(sensors, index):
         return sensors[index]
     return None
 
+# Constants
+DS_SENSOR_1_INDEX = 0
+DS_SENSOR_2_INDEX = 1
+LED_PIN = 12
+POOLING_INTERVAL_IN_SEC = 60
 
-led_pin = 12
+# configure GPIO library
 if gpio_loaded:
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(led_pin, GPIO.OUT)
+    GPIO.setup(LED_PIN, GPIO.OUT)
 
 
+# button or switch variable handler
 def led_control(value=None):
-    GPIO.output(led_pin, value)
-    return GPIO.input(led_pin)
+    GPIO.output(LED_PIN, value)
+    return GPIO.input(LED_PIN)
 
 
 # Put required variable declaration here
 Variables = {
     # 'CurrentTemp_1': {
     #     'type': 'numeric',
-    #     'bind': bind_sensor(ds_sensors, 0)
+    #     'bind': bind_sensor(ds_sensors, DS_SENSOR_1_INDEX)
     # },
     #
     # 'CurrentTemp_2': {
     #     'type': 'numeric',
-    #     'bind': bind_sensor(ds_sensors, 1)
+    #     'bind': bind_sensor(ds_sensors, DS_SENSOR_2_INDEX)
     # },
     #
-    'LEDOn': {
-        'type': 'bool',
-        'value': False,
-        'bind': led_control
-    },
+    # 'LEDOn': {
+    #     'type': 'bool',
+    #     'value': False,
+    #     'bind': led_control
+    # },
 
     'CPU': {
         'type': 'numeric',
-        'bind': cpu
+        'bind': cpu_temp
     }
 }
-
-INTERVAL_IN_SEC = 60
-
 
 def main():
 
     c4r.start_message_broker_listen()  # Receives control commands from server
     c4r.register(Variables)  # Sends variable declarations to server
-    c4r.start_polling(INTERVAL_IN_SEC)  # Sends system diagnostic data to server
+    c4r.start_polling(POOLING_INTERVAL_IN_SEC)  # Sends system diagnostic data to server
 
+    # main loop
     try:
         while True:
             c4r.read_variables(Variables)  # Reads bounded values from persistent memory, sensors
