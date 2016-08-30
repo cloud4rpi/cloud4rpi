@@ -91,7 +91,7 @@ def send_stream(stream):
 
 def collect_system_readings():
     cpuObj.read()  # TODO re-write
-    return {'CPU': cpuObj.get_temperature(),
+    return {'CPU Temperature': cpuObj.get_temperature(),
             'IPAddress': netObj.get_ipaddress(),
             'Host': netObj.get_host()}
 
