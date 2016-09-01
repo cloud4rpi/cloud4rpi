@@ -2,6 +2,7 @@
 
 import sys
 import time
+import logging
 import c4r  # Lib to send and receive commands
 
 try:
@@ -33,6 +34,8 @@ LOG_FILE_PATH = '/var/log/cloud4rpi.log'
 
 # configure logging
 c4r.set_logging_to_file(LOG_FILE_PATH)
+c4r.set_logger_level(logging.INFO)
+# c4r.set_logger_level(logging.DEBUG)  # uncomment to show debug messages
 log = c4r.get_logger()
 
 
