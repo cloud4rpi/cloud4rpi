@@ -18,8 +18,11 @@ c4r.modprobe('w1-therm')
 
 
 # Put your device token here. To get a token, register at https://cloud4rpi.io
+# ====================================
 DEVICE_TOKEN = 'YOUR_DEVICE_TOKEN'
 c4r.set_device_token(DEVICE_TOKEN)
+# ====================================
+
 
 # object to provide cpu temperature
 cpu_temp = c4r.find_cpu()
@@ -39,6 +42,12 @@ DS_SENSOR_1_INDEX = 0
 DS_SENSOR_2_INDEX = 1
 LED_PIN = 12
 POOLING_INTERVAL_IN_SEC = 60
+LOG_FILE_PATH = '/var/log/cloud4rpi.log'
+
+# configure logging
+c4r.set_logging_to_file(LOG_FILE_PATH)
+log = c4r.get_logger()
+
 
 # configure GPIO library
 if gpio_loaded:
@@ -79,6 +88,8 @@ Variables = {
 
 def main():
 
+    log.info('App running...')
+
     c4r.start_message_broker_listen()  # Receives control commands from server
     c4r.register(Variables)  # Sends variable declarations to server
     c4r.start_polling(POOLING_INTERVAL_IN_SEC)  # Sends system diagnostic data to server
@@ -92,13 +103,13 @@ def main():
             time.sleep(10)
 
     except KeyboardInterrupt:
-        print 'Keyboard interrupt received. Stopping...'
+        log.info('Keyboard interrupt received. Stopping...')
         c4r.finalize()
         sys.exit(0)
 
     except Exception as e:
         error = c4r.get_error_message(e)
-        print "error", error, sys.exc_info()[0]
+        log.error("ERROR! {0} {1}".format(error, sys.exc_info()[0]))
         c4r.finalize()
         raise
 
