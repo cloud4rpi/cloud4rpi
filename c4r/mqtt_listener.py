@@ -23,17 +23,17 @@ class MqttListener(object):
         self.client.on_disconnect = self.on_disconnect
 
     def start(self):
-        log.info('MqttListener - starting')
+        log.debug('MqttListener - starting')
         self.connect()
         self.client.loop_start()
 
     def stop(self):
         if self.client is not None:
             self.client.loop_stop(force=True)
-            log.info('MqttListener - listening stopped')
+            log.debug('MqttListener - listening stopped')
 
     def connect(self):
-        log.info('Connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
+        log.debug('Connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
         try:
             self.client.username_pw_set(config.mqqtBrokerUsername, config.mqttBrokerPassword)
             self.client.connect(config.mqqtBrokerHost, config.mqttBrokerPort, KEEP_ALIVE_INTERVAL)
@@ -43,7 +43,7 @@ class MqttListener(object):
 
     def listen(self):
         topic = helpers.format_subscription_topic(self.device_token)
-        log.info('Listen for [{0}]'.format(topic))
+        log.debug('Listen for [{0}]'.format(topic))
         self.client.subscribe(topic, qos=1)
 
     def on_connect(self, client, userdata, flags, rc):
@@ -53,7 +53,7 @@ class MqttListener(object):
         self.listen()
 
     def on_disconnect(self, client, userdata, rc):
-        log.info('MqttListener disconnected. Reason: {0}. Reconnecting ...'.format(rc))
+        log.debug('MqttListener disconnected. Reason: {0}. Reconnecting ...'.format(rc))
 
     def on_message(self, client, userdata, message):
         log.info('[x] MQTT message received: [{0}] - [{1}]'.format(message.topic, message.payload))

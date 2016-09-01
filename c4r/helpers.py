@@ -23,7 +23,7 @@ def stream_request_url(device_token):
 
 
 def check_response(res):
-    log.info(res.status_code)
+    log.debug(res.status_code)
     if res.status_code == 401:
         raise errors.AuthenticationError
     if res.status_code >= 500:

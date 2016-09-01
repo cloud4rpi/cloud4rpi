@@ -7,11 +7,11 @@ log = get_logger()
 
 
 def on_connect(client, userdata, flags, rc):
-    log.info('MQTT broker connected with result code {0}'.format(rc))
+    log.debug('MQTT broker connected with result code {0}'.format(rc))
 
 
 def on_disconnect(client, userdata, rc):
-    log.info('MQTT broker disconnected with result code {0}'.format(rc))
+    log.debug('MQTT broker disconnected with result code {0}'.format(rc))
 
 
 def on_publish(mosq, obj, mid):
@@ -30,5 +30,5 @@ client.on_disconnect = on_disconnect
 client.on_publish = on_publish
 client.username_pw_set(config.mqqtBrokerUsername, config.mqttBrokerPassword)
 
-log.info('MQTT connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
+log.debug('MQTT connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
 client.connect(config.mqqtBrokerHost, config.mqttBrokerPort)

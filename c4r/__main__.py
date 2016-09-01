@@ -25,7 +25,7 @@ def modprobe(module):
 
 
 def start_polling(interval=60):
-    log.info('start pooling')
+    log.debug('start pooling')
     global timer
     timer = RecurringTimer(interval, send_system_info)
     timer.start()
