@@ -24,19 +24,6 @@ c4r.set_device_token(DEVICE_TOKEN)
 # ====================================
 
 
-# object to provide cpu temperature
-cpu_temp = c4r.find_cpu()
-
-# detect connected ds18b20 temp sensors
-ds_sensors = c4r.find_ds_sensors()
-print 'SENSORS FOUND ', ds_sensors
-
-
-def bind_sensor(sensors, index):
-    if sensors is not None and len(sensors) > index:
-        return sensors[index]
-    return None
-
 # Constants
 DS_SENSOR_1_INDEX = 0
 DS_SENSOR_2_INDEX = 1
@@ -47,6 +34,20 @@ LOG_FILE_PATH = '/var/log/cloud4rpi.log'
 # configure logging
 c4r.set_logging_to_file(LOG_FILE_PATH)
 log = c4r.get_logger()
+
+
+# object to provide cpu temperature
+cpu_temp = c4r.find_cpu()
+
+# detect connected ds18b20 temp sensors
+ds_sensors = c4r.find_ds_sensors()
+log.info('SENSORS FOUND: {0}'.format(ds_sensors))
+
+
+def bind_sensor(sensors, index):
+    if sensors is not None and len(sensors) > index:
+        return sensors[index]
+    return None
 
 
 # configure GPIO library
