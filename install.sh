@@ -13,7 +13,7 @@ cat ./cloud4rpi.tmpl | sed "s;%CLOUD4RPI_DIR%;$(pwd);" > $SERVICE_NAME
 echo "Done"
 
 echo "Setting permissions..."
-chmod +x ./cloud4rpi
+chmod +x app.py
 echo "Done"
 
 echo "Copying init script to /etc/init.d..."

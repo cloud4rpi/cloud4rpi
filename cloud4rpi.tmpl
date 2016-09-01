@@ -1,9 +1,9 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:          cloud4rpi_service
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
+# Provides:          cloud4rpi
+# Required-Start:    $local_fs $network $named $time $syslog
+# Required-Stop:     $local_fs $network $named $time $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Cloud4RPi demon
@@ -11,60 +11,77 @@
 #                    Raspberry Pi GPIO from Python
 ### END INIT INFO
 
-# Daemon name, where is the actual executable
 DIR=%CLOUD4RPI_DIR%
-DAEMON=/usr/bin/python
-DAEMON_NAME=cloud4rpi
+SCRIPT=$DIR/app.py
+RUNAS=root
 
-# Process name ( For display )
-NAME=cloud4rpi
+PIDFILE=/var/run/cloud4rpi.pid
+LOGFILE=/var/log/cloud4rpi.log
 
-# Add any command line options for your daemon here
-DAEMON_OPTS="app.py"
-
-# This next line determines what user the script runs as.
-# Root generally not recommended but necessary if you are using the Raspberry Pi GPIO from Python.
-DAEMON_USER=root
-
-# The process ID of the script when it runs is stored here:
-PIDFILE=/var/run/$DAEMON_NAME.pid
-
-# Using the lsb functions to perform the operations.
-. /lib/lsb/init-functions
-
-do_start () {
-    log_daemon_msg "Starting the process $NAME"
-    start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile --chdir $DIR --user $DAEMON_USER --startas $DAEMON -- $DAEMON_OPTS
-    log_end_msg $?
-}
-do_stop () {
-    log_daemon_msg "Stopping the $NAME process"
-    start-stop-daemon --stop --pidfile $PIDFILE --retry 10
-    log_end_msg $?
+start() {
+  if is_running; then
+    echo 'Service already running' >&2
+    return 1
+  fi
+  echo 'Starting service…' >&2
+  local CMD="$SCRIPT &> \"$LOGFILE\" & echo \$!"
+  su -c "$CMD" $RUNAS > "$PIDFILE"
+  echo 'Service started' >&2
 }
 
-# If the daemon is not there, then exit.
-test -x $DAEMON || exit 5
+stop() {
+  if ! is_running; then
+    echo 'Service not running' >&2
+    return 1
+  fi
+  echo 'Stopping service…' >&2
+  kill -15 `get_pid` && rm -f "$PIDFILE"
+  echo 'Service stopped' >&2
+}
+
+uninstall() {
+  echo -n "Are you really sure you want to uninstall this service? That cannot be undone. [yes|No] "
+  local SURE
+  read SURE
+  if [ "$SURE" = "yes" ]; then
+    stop
+    rm -f "$PIDFILE"
+    echo "Notice: log file is not be removed: '$LOGFILE'" >&2
+    update-rc.d -f cloud4rpi remove
+    rm -fv "$0"
+  fi
+}
+
+get_pid() {
+    cat "$PIDFILE"
+}
+
+is_running() {
+    [ -f "$PIDFILE" ] && ps `get_pid` > /dev/null 2>&1
+}
 
 case "$1" in
-
-    start|stop)
-        do_${1}
-        ;;
-
-    restart|reload|force-reload)
-        do_stop
-        do_start
-        ;;
-
-    status)
-        status_of_proc "$DAEMON_NAME" "$DAEMON" && exit 0 || exit $?
-        ;;
-
-    *)
-        echo "Usage: /etc/init.d/$DAEMON_NAME {start|stop|restart|status}"
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  uninstall)
+    uninstall
+    ;;
+  retart)
+    stop
+    start
+    ;;
+  status)
+    if is_running; then
+        echo "Running"
+    else
+        echo "Stopped"
         exit 1
-        ;;
-
+    fi
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|uninstall}"
 esac
-exit 0
