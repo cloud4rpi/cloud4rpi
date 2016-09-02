@@ -6,26 +6,28 @@ function quit_on_error() {
     }
 }
 
-SERVICE_NAME=cloud4rpi
+SERVICE_NAME=cloud4rpi.service
 
 echo "Generating init script..."
 cat ./cloud4rpi.tmpl | sed "s;%CLOUD4RPI_DIR%;$(pwd);" > $SERVICE_NAME
 echo "Done"
 
-echo "Setting permissions..."
-chmod +x app.py
-echo "Done"
-
-echo "Copying init script to /etc/init.d..."
-cp $SERVICE_NAME /etc/init.d/$SERVICE_NAME
+echo "Copying init script to /lib/systemd/system..."
+cp $SERVICE_NAME /lib/systemd/system/$SERVICE_NAME
 quit_on_error
 echo "Done"
 
-echo "Installing init script links..."
-update-rc.d $SERVICE_NAME defaults
+echo "Setting permissions..."
+chmod +x app.py
+chmod 644 /lib/systemd/system/$SERVICE_NAME
+echo "Done"
+
+echo "Configure systemd..."
+systemctl daemon-reload
+systemctl enable $SERVICE_NAME
 quit_on_error
 echo "Done"
 
 echo -e "Please see the \e[1mcloud4rpid.log \e[0mfile in the /var/log/ directory to get logging information."
 echo "Usage example:"
-echo -e "$ sudo service \e[1mcloud4rpi \e[0mstart|stop|status"
+echo -e "$ sudo systemctl \e[0mstart|stop|status \e[1mcloud4rpi.service"

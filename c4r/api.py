@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 from c4r import ds18b20
 from c4r import cpu
 from c4r import lib
+from c4r import mqtt
 from c4r import error_messages
 from c4r.helpers import verify_token
 
@@ -49,6 +51,23 @@ def send_receive(variables):
 def send_system_info():
     verify_token(lib.device_token)
     return api_wrapper(lib.send_system_info)
+
+
+def connect():
+    verify_token(lib.device_token)
+    for attempt in range(10):
+        try:
+            mqtt.connect()
+        except Exception as e:
+            print 'MQTT connection error {0}. Attempt {1}'.format(e, attempt)
+            time.sleep(5)
+            continue
+        else:
+            break
+    else:
+        msg = 'Impossible to connect to MQTT broker. Quiting.'
+        print msg
+        raise Exception(msg)
 
 
 def start_message_broker_listen():

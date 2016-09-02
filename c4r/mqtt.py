@@ -24,11 +24,13 @@ def publish(topic, stream):
     client.publish(topic, payload, 0, True)
 
 
+def connect():
+    log.debug('MQTT connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
+    client.connect(config.mqqtBrokerHost, config.mqttBrokerPort)
+
+
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_disconnect = on_disconnect
 client.on_publish = on_publish
 client.username_pw_set(config.mqqtBrokerUsername, config.mqttBrokerPassword)
-
-log.debug('MQTT connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
-client.connect(config.mqqtBrokerHost, config.mqttBrokerPort)

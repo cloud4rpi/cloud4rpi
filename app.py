@@ -94,6 +94,7 @@ def main():
 
     log.info('App running...')
 
+    c4r.connect()
     c4r.start_message_broker_listen()  # Receives control commands from server
     c4r.register(Variables)  # Sends variable declarations to server
     c4r.start_polling(POOLING_INTERVAL_IN_SEC)  # Sends system diagnostic data to server
