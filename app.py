@@ -36,10 +36,9 @@ c4r.set_logger_level(logging.INFO)
 log = c4r.get_logger()
 
 # detect connected ds18b20 temp sensors
-log.info('Sensors found:')
 ds_sensors = DS18b20.find_all()
-for x in ds_sensors:
-    log.info("ds18b20 - {0}".format(x.address))
+log.info('Sensors found: ' + ','.join(['[ds18b20: {0}]'.format(x.address) for x in ds_sensors]))
+
 
 # configure GPIO library
 if gpio_loaded:
