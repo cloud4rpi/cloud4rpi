@@ -10,26 +10,6 @@ REQUEST_TIMEOUT_SECONDS = 3 * 60 + 0.05
 log = get_logger()
 
 
-def request_headers(device_token):
-    return {'api_key': device_token}
-
-
-def device_request_url(device_token):
-    return '{0}/devices/{1}/'.format(config.baseApiUrl, device_token)
-
-
-def stream_request_url(device_token):
-    return '{0}/devices/{1}/streams/'.format(config.baseApiUrl, device_token)
-
-
-def check_response(res):
-    log.debug(res.status_code)
-    if res.status_code == 401:
-        raise errors.AuthenticationError
-    if res.status_code >= 500:
-        raise errors.ServerError
-
-
 def is_token_valid(token):
     r = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
     return token and r.match(token)
@@ -37,7 +17,7 @@ def is_token_valid(token):
 
 def verify_token(token):
     if not is_token_valid(token):
-        raise errors.InvalidTokenError
+        raise errors.InvalidTokenError(token)
 
 
 def key_exists(obj, key_name):
@@ -99,15 +79,15 @@ def extract_all_payloads(new_events):
     return [extract_event_payload(x) for x in new_events]
 
 
-def bind_is_instance_of(variable, cls):
-    bind = get_variable_bind(variable)
-    return isinstance(bind, cls)
-
-
 def bind_is_handler(bind):
     if bind is None:
         return False
     return hasattr(bind, '__call__')
+
+
+def bind_is_instance_of(variable, cls):
+    bind = get_variable_bind(variable)
+    return isinstance(bind, cls)
 
 
 def join_strings(args):

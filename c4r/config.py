@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Server parameters
-baseApiUrl = 'https://cloud4rpi.io/api'
-
-
 # MQTT broker parameters
 mqqtBrokerHost = 'mq.cloud4rpi.io'
 mqttBrokerPort = 1883
@@ -14,7 +10,3 @@ mqttBrokerPassword = 'c4r-password'
 mqttTopicRoot = 'iot-hub'
 mqttMessageTopicPrefix = mqttTopicRoot + '/messages'
 mqttCommandsTopicPrefix = mqttTopicRoot + '/commands'
-
-
-# logging
-LOG_FILE_NAME = 'cloud4rpi.log'

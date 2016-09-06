@@ -31,7 +31,7 @@ def start_polling(interval=60):
     timer.start()
 
 
-def finalize():
+def cleanup():
     timer.stop()  # stop sending system diagnostic data
     stop_listen()
     log.info('STOPPED')

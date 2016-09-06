@@ -10,7 +10,7 @@ import os  # should be imported before fake_filesystem_unittest
 import c4r
 from c4r import lib
 from c4r import ds18b20 as ds_sensors
-from c4r.cpu import Cpu
+from c4r.cpu_temperature import CpuTemperature
 from c4r.net import NetworkInfo
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
@@ -59,7 +59,7 @@ class TestApi(unittest.TestCase):
     def testVerifyToken(self):
         methods = {
             c4r.register: ({},),
-            c4r.send_receive: ({},)
+            c4r.send: ({},)
         }
         self.call_without_token(methods)
 
@@ -76,7 +76,7 @@ class TestLibrary(unittest.TestCase):
     def setUpSensorReading(self, expected_val):
         self.restoreSensorReadingMock()
         self.sensorReadingMock = MagicMock(return_value=expected_val)
-        ds_sensors.read = self.sensorReadingMock
+        ds_sensors.DS18b20.read = self.sensorReadingMock
 
     def restoreSensorReadingMock(self):
         if self.sensorReadingMock is not None:
@@ -100,12 +100,9 @@ class TestLibrary(unittest.TestCase):
             lib.register,
             lib.broker_message_handler,
             lib.run_handler,
-            lib.find_ds_sensors,
-            lib.create_ds18b20_sensor,
-            lib.read_persistent,
-            lib.send_receive,
+            lib.read_variables,
+            lib.send,
             lib.send_system_info,
-            lib.send_stream
         ])
 
     def testSetApiKey(self):
@@ -113,7 +110,7 @@ class TestLibrary(unittest.TestCase):
         lib.set_device_token(device_token)
         self.assertEqual(lib.device_token, device_token)
 
-    def testHandlerExists(self):
+    def testBindIsHandler(self):
         var1 = {
             'title': 'valid',
             'bind': MockHandler.empty
@@ -122,97 +119,49 @@ class TestLibrary(unittest.TestCase):
             'title': 'invalid',
             'bind': {'address': 'abc'}
         }
-        self.assertFalse(lib.bind_handler_exists(None))
-        self.assertFalse(lib.bind_handler_exists(var2))
-        self.assertTrue(lib.bind_handler_exists(var1))
+        self.assertFalse(helpers.bind_is_handler(None))
+        self.assertTrue(helpers.bind_is_handler(var1['bind']))
+        self.assertFalse(helpers.bind_is_handler(var2['bind']))
 
-    @staticmethod
-    @patch('c4r.lib.read_persistent')
-    @patch('c4r.lib.read_system')
-    def testReadVariables(mock_sys, mock_persist):
-        variables = {'Test': {}}
+    @patch('c4r.lib.read_sensor')
+    def testReadVariables(self, read_sensor_mock):
+        print read_sensor_mock
+        variables = {'First': {}, 'Last': {}}
         lib.read_variables(variables)
+        self.assertEqual(read_sensor_mock.call_count, 2)
 
-        mock_persist.assert_called_with(variables)
-        mock_sys.assert_called_with(variables)
-
-    @staticmethod
-    @patch('c4r.ds18b20.read')
-    def testReadPersistent(mock):
-        addr = '10-000802824e58'
-        body = {
-            'title': 'temp',
-            'bind': {
-                'type': 'ds18b20',
-                'address': addr
-            }
-        }
-        variables = {"Var1": body}
-
-        lib.read_persistent(variables)
-        mock.assert_called_with(addr)
-
-    @staticmethod
-    @patch('c4r.lib.read_cpu')
-    def testReadSystemOnlyWithCpu(mock):
-        cpuObj = Cpu()
-        variables = {
-            'any': {'title': 'abc'},
-            'CPU': {'title': 'cpu_temp', 'bind': cpuObj},
-            'noCPU': {'title': 'no_bind'}
-        }
-        lib.read_system(variables)
-        mock.assert_called_with({'title': 'cpu_temp', 'bind': cpuObj})
-
-    @patch.object(Cpu, 'read')
-    def testReadCpu(self, mock):
-        mock.return_value = 0
-        cpuObj = Cpu()
-        cpuObj.get_temperature = MagicMock(return_value=36.6)
-
-        cpuVar = {'title': 'cpu_temp', 'bind': cpuObj}
-
-        self.assertFalse('value' in cpuVar)
-        lib.read_cpu(cpuVar)
-        self.assertEqual(cpuVar['value'], 36.6)
-
-    def testUpdateVariableValueOnRead(self):
-        addr = '10-000802824e58'
-        var = {
-            'title': 'temp',
-            'bind': {'type': 'ds18b20', 'address': addr}
-        }
-        variables = {'Test': var}
-
-        self.setUpSensorReading(22.4)
-
-        lib.read_persistent(variables)
-        self.assertEqual(var['value'], 22.4)
-
-    # TODO discuss
-    # def testCollectReadings(self):
-    # variables = {
-    # 'temp1': {'title': '123', 'value': 22.4, 'bind': {'type': 'ds18b20'}},
-    # 'some': {'title': '456', 'bind': {'type': 'unknown'}},
-    # 'temp2': {'title': '456', 'bind': {'type': 'ds18b20'}}
+    # @staticmethod
+    # @patch('c4r.lib.read_cpu')
+    # def testReadSystemOnlyWithCpu(mock):
+    #     cpuObj = CpuTemperature()
+    #     variables = {
+    #         'any': {'title': 'abc'},
+    #         'CPU': {'title': 'cpu_temp', 'bind': cpuObj},
+    #         'noCPU': {'title': 'no_bind'}
     #     }
-    #     readings = lib.collect_readings(variables)
-    #     expected = {'temp2': None, 'temp1': 22.4}
-    #     self.assertEqual(readings, expected)
+    #     lib.read_system(variables)
+    #     mock.assert_called_with({'title': 'cpu_temp', 'bind': cpuObj})
 
-    @patch.object(Cpu, 'read')
-    def testCollectCpuTemperatureReadings(self, mock):
-        mock.return_value = 0
-        cpuObj = Cpu()
-        cpuObj.get_temperature = MagicMock(return_value=36.6)
-        variables = {
-            'CPU': {'title': 'cpu_temp', 'bind': cpuObj}
-        }
-        lib.read_cpu(variables['CPU'])
-        readings = lib.collect_readings(variables)
-        expected = {'CPU': 36.6}
-        self.assertEqual(readings, expected)
-        #  Test collect_system_readings, send_system_info
+    # @patch.object(CpuTemperature, 'read')
+
+    def testReadCpuVariable(self):
+        cpu_temp = CpuTemperature()
+        cpu_temp.read = MagicMock(return_value=36.6)
+
+        cpu_var = {'title': 'cpu_temp', 'bind': cpu_temp}
+        self.assertFalse('value' in cpu_var)
+        lib.read_variables({'CPU': cpu_var})
+        self.assertEqual(cpu_var.get('value'), 36.6)
+
+    def testReadDS18B20Variable(self):
+        sensor = ds_sensors.DS18b20('10-000802824e58')
+        sensor.read = MagicMock(return_value=22.4)
+
+        var = {'title': 'temp', 'bind': sensor}
+        variables = {'Test': var}
+        self.assertFalse('value' in var)
+        lib.read_variables(variables)
+        self.assertEqual(var.get('value'), 22.4)
 
 
 class TestNetworkInfo(unittest.TestCase):
@@ -309,14 +258,14 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(actual, addr)
 
     def testBindIsCPUInstance(self):
-        obj = Cpu()
+        obj = CpuTemperature()
         variables = {
             'CPU': {'title': 'cpu_temp', 'bind': obj},
             'NoCPU': {'title': 'no_cpu', 'bind': None}
         }
-        self.assertTrue(helpers.bind_is_instance_of(variables['CPU'], Cpu))
+        self.assertTrue(helpers.bind_is_instance_of(variables['CPU'], CpuTemperature))
         self.assertFalse(helpers.bind_is_instance_of(variables['CPU'], MagicMock))
-        self.assertFalse(helpers.bind_is_instance_of(variables['NoCPU'], Cpu))
+        self.assertFalse(helpers.bind_is_instance_of(variables['NoCPU'], CpuTemperature))
 
     def testBindIsHandler(self):
         variables = {
@@ -399,19 +348,18 @@ class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):
         self.setUpSensor('10-000802824e58', sensor_10)
         self.setUpSensor('28-000802824e58', sensor_28)
 
-    def testCreate_ds18b20_sensor(self):
-        sensor = lib.create_ds18b20_sensor('abc')
-        self.assertEqual(sensor, {'address': 'abc', 'type': 'ds18b20'})
+    def testCreateSensorInfo(self):
+        sensor = ds_sensors.create_sensor_info('abc')
+        self.assertEqual(sensor, {'address': 'abc'})
 
     def testFindDSSensors(self):
         self.setUpSensors()
-        sensors = lib.find_ds_sensors()
+        sensors = ds_sensors.DS18b20.find_all()
         self.assertTrue(len(sensors) > 0)
-        expected = [
-            {'address': '10-000802824e58', 'type': 'ds18b20'},
-            {'address': '28-000802824e58', 'type': 'ds18b20'}
-        ]
-        self.assertEqual(sensors, expected)
+        self.assertIsInstance(sensors[0], ds_sensors.DS18b20)
+        self.assertEqual(sensors[0].address, '10-000802824e58')
+        self.assertIsInstance(sensors[1], ds_sensors.DS18b20)
+        self.assertEqual(sensors[1].address, '28-000802824e58')
 
 
 class MockHandler(object):
@@ -445,8 +393,8 @@ class ErrorMessages(unittest.TestCase):
     def testGetErrorMessage(self):
         m = c4r.get_error_message(KeyboardInterrupt('test_key_err'))
         self.assertEqual(m, 'Interrupted')
-        m = c4r.get_error_message(c4r.errors.ServerError('crash'))
-        self.assertEqual(m, 'Unexpected error: crash')
+        m = c4r.get_error_message(c4r.errors.InvalidTokenError('abc'))
+        self.assertEqual(m, 'API key abc is incorrect. Please verify it.')
         m = c4r.get_error_message(c4r.errors.AuthenticationError())
         self.assertEqual(m, 'Authentication failed. Check your API key.')
 

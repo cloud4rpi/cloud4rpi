@@ -3,21 +3,21 @@
 
 import signal
 from c4r.logger import get_logger
-from c4r import helpers
-import c4r.ds18b20 as ds_sensor
-from c4r import cpu
+from c4r.cpu_temperature import CpuTemperature
 from c4r import net
+from c4r import helpers
 from c4r import transport
 from c4r import mqtt_listener
 import c4r
 import json
 
 device_token = None
-reg_vars = None
+reg_vars = {}
 log = get_logger()
 
-cpuObj = cpu.Cpu()
+cpuTemp = CpuTemperature()
 netObj = net.NetworkInfo()
+mqtt = transport.MqttTransport()
 
 
 def set_device_token(token):
@@ -25,98 +25,34 @@ def set_device_token(token):
     device_token = token
 
 
-def create_ds18b20_sensor(address):
-    return {'type': 'ds18b20', 'address': address}
-
-
-def find_ds_sensors():
-    return ds_sensor.find_all()
-
-
-def bind_handler_exists(variable):
-    bind = helpers.get_variable_bind(variable)
-    return helpers.bind_is_handler(bind)
-
-
-def is_ds_sensor(variable):
-    if ds_sensor.SUPPORTED_TYPE == helpers.get_variable_type(variable):
-        return not helpers.get_variable_address(variable) is None
-    return False
-
-
 def read_variables(variables):
-    read_persistent(variables)
-    read_system(variables)
+    [read_sensor(x) for x in variables.itervalues()]
 
 
-def is_cpu(variable):
-    return helpers.bind_is_instance_of(variable, cpu.Cpu)
+def read_sensor(variable):
+    sensor_or_handler = variable.get('bind', None)
+    if sensor_or_handler is None:
+        return
+    try:
+        variable['value'] = sensor_or_handler.read()
+    except AttributeError:
+        pass
 
 
-def read_ds_sensor(variable):
-    address = helpers.get_variable_address(variable)
-    if address is not None:
-        variable['value'] = ds_sensor.read(address)
-
-
-def read_system(variables):
-    [read_cpu(x) for x in variables.itervalues() if is_cpu(x)]
-
-
-def read_cpu(variable):
-    if helpers.bind_is_instance_of(variable, cpu.Cpu):
-        c = helpers.get_variable_bind(variable)
-        c.read()
-        variable['value'] = c.get_temperature()
-
-
-def read_persistent(variables):
-    [read_ds_sensor(x) for x in variables.itervalues() if is_ds_sensor(x)]
-
-
-def collect_readings(variables):
-    readings = {name: helpers.get_variable_value(value) for name, value in variables.iteritems()}
-    return readings
-
-
-def send_receive(variables):
-    readings = collect_readings(variables)
-    return send_stream(readings)
-
-
-def send_stream(stream):
-    transport = get_active_transport()
-    return transport.send_stream(device_token, stream)
+def send(variables):
+    readings = {name: variable.get('value') for name, variable in variables.iteritems()}
+    return mqtt.send_stream(device_token, readings)
 
 
 def collect_system_readings():
-    cpuObj.read()  # TODO re-write
-    return {'CPU Temperature': cpuObj.get_temperature(),
+    return {'CPU Temperature': cpuTemp.read(),
             'IPAddress': netObj.get_ipaddress(),
             'Host': netObj.get_host()}
 
 
 def send_system_info():
     log.info('[x] Sending system information...')
-    transport = get_active_transport()
-    return transport.send_system_stream(device_token, collect_system_readings())
-
-
-def get_active_transport():
-    return transport.MqttTransport()
-
-
-def broker_message_handler(msg):
-    if reg_vars is None:
-        print 'No variables registered. Skipping.'
-        return
-    print 'Handle message:', msg
-    new_values = json.loads(msg)
-    for var_name, value in new_values.iteritems():
-        bind = helpers.get_variable_bind(reg_vars[var_name])
-        if helpers.bind_is_handler(bind):
-            result = run_bind_method(var_name, bind, value)
-            helpers.set_bool_variable_value(reg_vars[var_name], result)
+    return mqtt.send_system_stream(device_token, collect_system_readings())
 
 
 def register(variables):
@@ -127,8 +63,7 @@ def register(variables):
 
     reg_vars = variables
     c4r.on_broker_message += broker_message_handler
-    transport = get_active_transport()
-    return transport.send_config(device_token, variables_decl)
+    return mqtt.send_config(device_token, variables_decl)
 
 
 def run_handler(self, address):
@@ -140,31 +75,25 @@ def init_worker():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def run_bind_method(var_name, method, current_value):
-    print '[x] Call bind method for {0} variable...'.format(var_name)
-    result = method(current_value)
-    print 'Done bind method for {0} variable... Result: {1}'.format(var_name, result)
+def broker_message_handler(msg):
+    log.info('Handle message: {0}'.format(msg))
+    payload = json.loads(msg)
+    for name, value in payload.iteritems():
+        variable = reg_vars.get(name, {})
+        sensor_or_handler = variable.get('bind', None)
+        if sensor_or_handler is None:
+            log.info('No variable with name {0} registered. Skipping.'.format(name))
+            continue
 
-    return result
-
-
-def process_event(variables, payload):
-    for name, props in variables.iteritems():
-        bind = helpers.get_variable_bind(props)
-        if helpers.bind_is_handler(bind):
-            val = helpers.get_by_key(payload, name)
-            try:
-                result = run_bind_method(name, bind, val)
-                helpers.set_bool_variable_value(variables['name'], result)
-            except Exception as e:
-                print 'Error processing {0} variable\' bind function: {1}'.format(name, e)
-
-
-def process_variables(variables, server_msg):  # only for http-data-exchange scenario
-    events = helpers.extract_server_events(server_msg)
-    payloads = helpers.extract_all_payloads(events)
-    for x in payloads:
-        process_event(variables, x)
+        try:
+            log.info('[x] Call bind method for {0} variable with {1}'.format(name, value))
+            result = sensor_or_handler(value)
+            helpers.set_bool_variable_value(variable, result)
+            log.info('[x] Done bind method for {0} variable with result: {1}'.format(name, result))
+        except TypeError:
+            pass
+        except Exception as e:
+            log.error('Error processing {0} variable\' bind function: {1}'.format(name, e))
 
 
 def start_mqtt_listen():
