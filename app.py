@@ -24,8 +24,6 @@ c4r.set_device_token(DEVICE_TOKEN)
 # ====================================
 
 # Constants
-DS_SENSOR_1_INDEX = 0
-DS_SENSOR_2_INDEX = 1
 LED_PIN = 12
 POOLING_INTERVAL_IN_SEC = 60
 SENDING_INTERVAL_IN_SEC = 30
@@ -66,7 +64,7 @@ Variables = {
 
     # 'CurrentTemp_2': {
     #     'type': 'numeric',
-    #     'bind': bind_sensor(ds_sensors, DS_SENSOR_2_INDEX)
+    #     'bind': ds_sensors[1]
     # },
     #
     # 'LEDOn': {
