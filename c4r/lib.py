@@ -40,6 +40,8 @@ def read_sensor(variable):
 
 
 def send(variables):
+    if len(variables) == 0:
+        return
     readings = {name: variable.get('value') for name, variable in variables.iteritems()}
     return mqtt.send_stream(device_token, readings)
 

@@ -12,6 +12,7 @@ from c4r import lib
 from c4r import ds18b20 as ds_sensors
 from c4r.cpu_temperature import CpuTemperature
 from c4r.net import NetworkInfo
+from c4r.transport import MqttTransport
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 from c4r import errors
@@ -162,6 +163,18 @@ class TestLibrary(unittest.TestCase):
         self.assertFalse('value' in var)
         lib.read_variables(variables)
         self.assertEqual(var.get('value'), 22.4)
+
+    @patch.object(MqttTransport, 'send_stream')
+    def testSendingVariables(self, mock):
+        variables = {'First': {}, 'Last': {}}
+        lib.send(variables)
+        self.assertEqual(mock.call_count, 1)
+
+    @patch.object(MqttTransport, 'send_stream')
+    def testSkipSendingVariables(self, mock):
+        variables = {}
+        lib.send(variables)
+        self.assertFalse(mock.called)
 
 
 class TestNetworkInfo(unittest.TestCase):
