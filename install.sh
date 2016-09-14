@@ -9,7 +9,7 @@ function quit_on_error() {
 SERVICE_NAME=cloud4rpi.service
 
 echo "Generating init script..."
-cat ./cloud4rpi.tmpl | sed "s;%CLOUD4RPI_DIR%;$(pwd);" > $SERVICE_NAME
+cat ./tools/templates/service.tmpl | sed "s;%CLOUD4RPI_DIR%;$(pwd);" > $SERVICE_NAME
 echo "Done"
 
 echo "Copying init script to /lib/systemd/system..."
