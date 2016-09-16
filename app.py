@@ -35,7 +35,7 @@ c4r.set_logger_level(logging.INFO)
 # c4r.set_logger_level(logging.DEBUG)  # uncomment to show debug messages
 log = c4r.get_logger()
 
-# detect connected ds18b20 temp sensors
+# detect the connected ds18b20 temperature sensors
 ds_sensors = DS18b20.find_all()
 log.info('Sensors found: ' + ','.join(['[ds18b20: {0}]'.format(x.address) for x in ds_sensors]))
 
@@ -46,7 +46,7 @@ if gpio_loaded:
     GPIO.setup(LED_PIN, GPIO.OUT)
 
 
-# button or switch variable handler
+# handler for the button or switch variable
 def led_control(value=None):
     GPIO.output(LED_PIN, value)
     current = GPIO.input(LED_PIN)
@@ -54,7 +54,7 @@ def led_control(value=None):
     return current
 
 
-# Put required variable declaration here
+# Put variable declarations here
 Variables = {
     # 'CurrentTemp_1': {
     #     'type': 'numeric',
@@ -84,15 +84,16 @@ def main():
     log.info('App running...')
 
     c4r.connect_to_message_broker()
-    c4r.start_message_broker_listen()  # Receives control commands from server
-    c4r.register(Variables)  # Sends variable declarations to server
-    c4r.start_polling(POOLING_INTERVAL_IN_SEC)  # Sends system diagnostic data to server
+    c4r.start_message_broker_listen()  # Receives control commands from the server
+    c4r.register(Variables)  # Sends variable declarations to the server
+    c4r.start_polling(POOLING_INTERVAL_IN_SEC)  # Sends variable declarations to the server
 
     # main loop
     try:
         while True:
-            c4r.read_variables(Variables)  # Reads bounded values from persistent memory, sensors
-            c4r.send(Variables)  # Sends variable values data to server
+            # Reads bound values from the persistent memory and sensors
+            c4r.read_variables(Variables)
+            c4r.send(Variables)  # Sends variable values to the server
 
             time.sleep(SENDING_INTERVAL_IN_SEC)
 
