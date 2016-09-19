@@ -5,13 +5,20 @@ import json
 
 log = get_logger()
 
+MQTT_ERR_SUCCESS = 0
+
 
 def on_connect(client, userdata, flags, rc):
     log.debug('MQTT broker connected with result code {0}'.format(rc))
 
 
 def on_disconnect(client, userdata, rc):
-    log.debug('MQTT broker disconnected with result code {0}'.format(rc))
+    if rc != MQTT_ERR_SUCCESS:
+        try:
+            log.debug("Attempting to reconnect...")
+            client.reconnect()
+        except Exception as e:
+            log.debug("Reconnect error:", e.message)
 
 
 def on_publish(mosq, obj, mid):
