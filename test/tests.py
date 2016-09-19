@@ -178,11 +178,12 @@ class TestLibrary(unittest.TestCase):
 
 
 class TestNetworkInfo(unittest.TestCase):
-    @patch.object(NetworkInfo, 'get_network_info')
+    @patch.object(NetworkInfo, 'read')
     def testGetNetworkInfo(self, mock):
         netObj = NetworkInfo()
-        self.assertIsNone(netObj.get_ipaddress())
-        self.assertIsNone(netObj.get_host())
+        netObj.read()
+        self.assertIsNone(netObj.addr)
+        self.assertIsNone(netObj.host)
 
 
 class TestFileSystemAndRequests(fake_filesystem_unittest.TestCase):

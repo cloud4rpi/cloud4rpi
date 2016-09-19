@@ -47,9 +47,10 @@ def send(variables):
 
 
 def collect_system_readings():
+    netObj.read()
     return {'CPU Temperature': cpuTemp.read(),
-            'IPAddress': netObj.get_ipaddress(),
-            'Host': netObj.get_host()}
+            'IPAddress': netObj.addr,
+            'Host': netObj.host}
 
 
 def send_system_info():

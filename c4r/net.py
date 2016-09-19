@@ -1,8 +1,12 @@
 import socket
 import os
 from c4r.logger import get_logger
+from c4r.helpers import get_by_key
 
 log = get_logger()
+
+NETWORK_HOST_PARAM = 'host'
+NETWORK_ADDR_PARAM = 'addr'
 
 
 def connect_socket():
@@ -12,23 +16,29 @@ def connect_socket():
     return s
 
 
+def get_network_info():
+    result = {}
+    try:
+        result[NETWORK_HOST_PARAM] = socket.gethostname()
+        s = connect_socket()
+        result[NETWORK_ADDR_PARAM] = s.getsockname()[0]
+    except Exception as e:
+        log.error('Gathering network information failed: {0}'.format(e))
+
+    return result
+
+
 class NetworkInfo(object):
     def __init__(self):
-        self.ipaddr = None
-        self.host = None
+        self.info = {}
 
-        self.get_network_info()
+    def read(self):
+        self.info = get_network_info()
 
-    def get_ipaddress(self):
-        return self.ipaddr
+    @property
+    def addr(self):
+        return get_by_key(self.info, NETWORK_ADDR_PARAM)
 
-    def get_host(self):
-        return self.host
-
-    def get_network_info(self):
-        try:
-            self.host = socket.gethostname()
-            s = connect_socket()
-            self.ipaddr = s.getsockname()[0]
-        except Exception as e:
-            log.error('Gathering network information failed: {0}'.format(e))
+    @property
+    def host(self):
+        return get_by_key(self.info, NETWORK_HOST_PARAM)
