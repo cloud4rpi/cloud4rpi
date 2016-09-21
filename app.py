@@ -3,6 +3,7 @@
 import sys
 import time
 import logging
+from datetime import datetime
 import c4r  # Lib to send and receive commands
 from c4r.cpu_temperature import CpuTemperature
 from c4r.ds18b20 import DS18b20
@@ -25,7 +26,7 @@ c4r.set_device_token(DEVICE_TOKEN)
 
 # Constants
 LED_PIN = 12
-POOLING_INTERVAL_IN_SEC = 60
+POLLING_INTERVAL_IN_SEC = 60
 SENDING_INTERVAL_IN_SEC = 30
 LOG_FILE_PATH = '/var/log/cloud4rpi.log'
 
@@ -80,22 +81,24 @@ Variables = {
 
 
 def main():
-
     log.info('App running...')
 
     c4r.connect_to_message_broker()
     c4r.start_message_broker_listen()  # Receives control commands from the server
     c4r.register(Variables)  # Sends variable declarations to the server
-    c4r.start_polling(POOLING_INTERVAL_IN_SEC)  # Sends variable declarations to the server
+    c4r.start_polling(POLLING_INTERVAL_IN_SEC)  # Sends variable declarations to the server
 
     # main loop
     try:
+        last_sent = datetime.now()
         while True:
-            # Reads bound values from the persistent memory and sensors
-            c4r.read_variables(Variables)
-            c4r.send(Variables)  # Sends variable values to the server
+            if (datetime.now() - last_sent).seconds >= SENDING_INTERVAL_IN_SEC:
+                # Reads bound values from the persistent memory and sensors
+                c4r.read_variables(Variables)
+                c4r.send(Variables)  # Sends variable values to the server
+                last_sent = datetime.now()
 
-            time.sleep(SENDING_INTERVAL_IN_SEC)
+            time.sleep(1)
 
     except KeyboardInterrupt:
         log.info('Keyboard interrupt received. Stopping...')

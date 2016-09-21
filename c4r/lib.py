@@ -93,6 +93,8 @@ def broker_message_handler(msg):
             result = sensor_or_handler(value)
             helpers.set_bool_variable_value(variable, result)
             log.info('[x] Done bind method for {0} variable with result: {1}'.format(name, result))
+            read_variables(reg_vars)
+            send(reg_vars)
         except TypeError:
             pass
         except Exception as e:
