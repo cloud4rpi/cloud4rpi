@@ -4,7 +4,7 @@
 import time
 from c4r import ds18b20
 from c4r import lib
-from c4r import mqtt
+from c4r import mqtt_client
 from c4r import error_messages
 from c4r.helpers import verify_token
 from c4r.logger import get_logger
@@ -55,7 +55,7 @@ def connect_to_message_broker():
     verify_token(lib.device_token)
     for attempt in range(10):
         try:
-            mqtt.connect()
+            mqtt_client.connect()
         except Exception as e:
             log.debug('MQTT connection error {0}. Attempt {1}'.format(e, attempt))
             time.sleep(5)
@@ -66,13 +66,3 @@ def connect_to_message_broker():
         msg = 'Impossible to connect to MQTT broker. Quiting.'
         log.error(msg)
         raise Exception(msg)
-
-
-def start_message_broker_listen():
-    verify_token(lib.device_token)
-    return api_wrapper(lib.start_mqtt_listen)
-
-
-def stop_message_broker_listen():
-    verify_token(lib.device_token)
-    return api_wrapper(lib.stop_mqtt_listen)

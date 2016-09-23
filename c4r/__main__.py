@@ -10,7 +10,7 @@ from c4r.logger import get_logger
 from c4r.logger import set_logger_level
 from c4r.logger import set_logging_to_file
 
-from c4r.mqtt_listener import stop_listen
+from c4r import mqtt_client
 
 
 log = get_logger()
@@ -33,5 +33,5 @@ def start_polling(interval=60):
 
 def cleanup():
     timer.stop()  # stop sending system diagnostic data
-    stop_listen()
+    mqtt_client.disconnect()
     log.info('STOPPED')

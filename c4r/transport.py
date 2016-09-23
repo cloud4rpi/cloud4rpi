@@ -1,4 +1,4 @@
-from c4r import mqtt
+from c4r import mqtt_client
 from c4r import helpers
 from c4r.logger import get_logger
 
@@ -22,12 +22,12 @@ class MqttTransport(Transport):
 
     def send_config(self, device_token, config):
         topic = self.get_topic(device_token)
-        return mqtt.publish(topic, helpers.wrap_message('config', config))
+        return mqtt_client.publish(topic, helpers.wrap_message('config', config))
 
     def send_stream(self, device_token, stream):
         topic = self.get_topic(device_token)
-        return mqtt.publish(topic, helpers.wrap_message('data', stream))
+        return mqtt_client.publish(topic, helpers.wrap_message('data', stream))
 
     def send_system_stream(self, device_token, stream):
         topic = self.get_topic(device_token)
-        return mqtt.publish(topic, helpers.wrap_message('system', stream))
+        return mqtt_client.publish(topic, helpers.wrap_message('system', stream))

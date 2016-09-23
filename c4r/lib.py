@@ -7,7 +7,7 @@ from c4r.cpu_temperature import CpuTemperature
 from c4r import net
 from c4r import helpers
 from c4r import transport
-from c4r import mqtt_listener
+from c4r import token
 import c4r
 import json
 
@@ -20,9 +20,10 @@ netObj = net.NetworkInfo()
 mqtt = transport.MqttTransport()
 
 
-def set_device_token(token):
+def set_device_token(new_token):
     global device_token  # pylint: disable=W0603
-    device_token = token
+    device_token = new_token
+    token.set_device_token(new_token)
 
 
 def read_variables(variables):
@@ -99,11 +100,3 @@ def broker_message_handler(msg):
             pass
         except Exception as e:
             log.error('Error processing {0} variable\' bind function: {1}'.format(name, e))
-
-
-def start_mqtt_listen():
-    mqtt_listener.start_listen(device_token)
-
-
-def stop_mqtt_listen():
-    mqtt_listener.stop_listen()

@@ -16,7 +16,7 @@ from c4r.transport import MqttTransport
 from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 from c4r import errors
-from c4r import mqtt_listener
+from c4r import mqtt_client
 import pyfakefs.fake_filesystem_unittest as fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
@@ -391,12 +391,12 @@ class TestEvents(unittest.TestCase):
         self.call_args = None
         c4r.on_broker_message += self.messageHandler
 
-        mqtt_listener.MqttListener.emit_event('test42')
+        mqtt_client.emit_event('test42')
         self.assertEqual(self.call_args[0], 'test42')
 
         self.call_args = None
         c4r.on_broker_message -= self.messageHandler
-        mqtt_listener.MqttListener.emit_event('other')
+        mqtt_client.emit_event('other')
         self.assertEqual(self.call_args, None)
 
     def messageHandler(self, *args):
