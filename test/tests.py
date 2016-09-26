@@ -17,6 +17,7 @@ from c4r.ds18b20 import W1_DEVICES
 from c4r import helpers
 from c4r import errors
 from c4r import mqtt_client
+from c4r import token
 import pyfakefs.fake_filesystem_unittest as fake_filesystem_unittest
 from mock import patch
 from mock import MagicMock
@@ -349,6 +350,15 @@ class TestHelpers(unittest.TestCase):
         self.assertEquals(int_var['value'], '123')
         self.assertNotIsInstance(int_var['value'], bool)
         self.assertIsInstance(int_var['value'], basestring)
+
+    def testSetDeviceToken(self):
+        token.set_device_token(device_token)
+        self.assertEquals(token.get_device_token(), device_token)
+
+    def testResetToken(self):
+        token.reset_token()
+        with self.assertRaises(errors.InvalidTokenError):
+            token.get_device_token()
 
 
 class TestDs18b20Sensors(fake_filesystem_unittest.TestCase):

@@ -13,3 +13,8 @@ def get_device_token():
     if device_token is None:
         raise InvalidTokenError
     return device_token
+
+
+def reset_token():
+    global device_token  # pylint: disable=W0603
+    device_token = None
