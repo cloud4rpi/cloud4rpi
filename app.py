@@ -3,7 +3,7 @@
 import sys
 import time
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 import c4r  # Lib to send and receive commands
 from c4r.cpu_temperature import CpuTemperature
 from c4r.ds18b20 import DS18b20
@@ -89,13 +89,13 @@ def main():
 
     # main loop
     try:
-        last_sent = datetime.now()
+        next_sent = datetime.now()
         while True:
-            if (datetime.now() - last_sent).seconds >= SENDING_INTERVAL_IN_SEC:
+            if datetime.now() >= next_sent:
                 # Reads bound values from the persistent memory and sensors
                 c4r.read_variables(Variables)
                 c4r.send(Variables)  # Sends variable values to the server
-                last_sent = datetime.now()
+                next_sent = next_sent + timedelta(seconds=SENDING_INTERVAL_IN_SEC)
 
             time.sleep(1)
 
