@@ -1,6 +1,7 @@
 import json
 import time
 import token
+from datetime import datetime
 
 from c4r import config
 from c4r import helpers
@@ -97,3 +98,50 @@ def disconnect():
         client.loop_stop()
         client.disconnect()
         client = None
+
+
+class MqttApi(object):
+    def __init__(self,
+                 device_token,
+                 username='c4r-user',
+                 password='c4r-password',
+                 host='localhost',
+                 port=1883):
+        # guard args
+        client_id = 'c4r-{0}'.format(device_token)
+        self.__client = mqtt.Client(client_id)
+        self.__host = host
+        self.__port = port
+        self.__msg_topic = 'iot-hub/messages/{0}'.format(device_token)
+
+    def connect(self):
+        self.__client.connect(self.__host, port=self.__port)
+        self.__client.loop_start()
+
+    def disconnect(self):
+        self.__client.loop_stop()
+        self.__client.disconnect()
+
+    def publishConfig(self, config):
+        msg = {
+            'type': 'config',
+            'ts': datetime.utcnow().isoformat(),
+            'payload': config
+        }
+        self.__client.publish(self.__msg_topic, payload=json.dumps(msg))
+
+    def publishData(self, data):
+        msg = {
+            'type': 'data',
+            'ts': datetime.utcnow().isoformat(),
+            'payload': data
+        }
+        self.__client.publish(self.__msg_topic, payload=json.dumps(msg))
+
+    def publishDiag(self, diag):
+        msg = {
+            'type': 'system',
+            'ts': datetime.utcnow().isoformat(),
+            'payload': diag
+        }
+        self.__client.publish(self.__msg_topic, payload=json.dumps(msg))
