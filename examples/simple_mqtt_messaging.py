@@ -2,7 +2,7 @@
 # To run this sample,
 # 1. git clone https://github.com/cloud4rpi/cloud4rpi.git && cd cloud4rpi
 # 2. pip install -r requirements.txt
-# 3 .python examples/simple_mqtt_messaging.py
+# 3. python examples/simple_mqtt_messaging.py
 # =============================================================================
 
 
