@@ -113,8 +113,11 @@ class MqttApi(object):
         self.__host = host
         self.__port = port
         self.__msg_topic = 'iot-hub/messages/{0}'.format(device_token)
+        self.__username = username
+        self.__password = password
 
     def connect(self):
+        self.__client.username_pw_set(self.__username, self.__password)
         self.__client.connect(self.__host, port=self.__port)
         self.__client.loop_start()
 
