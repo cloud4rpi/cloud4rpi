@@ -90,7 +90,7 @@ class TestTemp(AsyncTestCase):
             {'name': 'Cooler', 'type': 'bool'},
             {'name': 'TheAnswer', 'type': 'numeric'},
         ]
-        client.publishConfig(variables)
+        client.publish_config(variables)
 
         self.wait()
 
@@ -110,7 +110,7 @@ class TestTemp(AsyncTestCase):
             'Cooler': True,
             'TheAnswer': 42
         }
-        client.publishData(data)
+        client.publish_data(data)
 
         self.wait()
 
@@ -130,7 +130,7 @@ class TestTemp(AsyncTestCase):
             'Hostname': 'weather_station',
             'CPU Load': 99
         }
-        client.publishDiag(diag)
+        client.publish_diag(diag)
 
         self.wait()
 

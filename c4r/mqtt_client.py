@@ -122,7 +122,7 @@ class MqttApi(object):
         self.__client.loop_stop()
         self.__client.disconnect()
 
-    def publishConfig(self, config):
+    def publish_config(self, config):
         msg = {
             'type': 'config',
             'ts': datetime.utcnow().isoformat(),
@@ -130,7 +130,7 @@ class MqttApi(object):
         }
         self.__client.publish(self.__msg_topic, payload=json.dumps(msg))
 
-    def publishData(self, data):
+    def publish_data(self, data):
         msg = {
             'type': 'data',
             'ts': datetime.utcnow().isoformat(),
@@ -138,7 +138,7 @@ class MqttApi(object):
         }
         self.__client.publish(self.__msg_topic, payload=json.dumps(msg))
 
-    def publishDiag(self, diag):
+    def publish_diag(self, diag):
         msg = {
             'type': 'system',
             'ts': datetime.utcnow().isoformat(),
