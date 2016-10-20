@@ -75,7 +75,7 @@ class TestTemp(AsyncTestCase):
 
     @staticmethod
     def create_api_client():
-        client = MqttApi('c4r-unique-device-token', host='localhost')
+        client = MqttApi('4GPZFMVuacadesU21dBw47zJi', host='localhost')
         client.connect()
         return client
 
@@ -92,7 +92,7 @@ class TestTemp(AsyncTestCase):
         self.wait()
 
         actual_msg = self.test_probe.last_message
-        self.assertEqual('iot-hub/messages/c4r-unique-device-token', actual_msg.topic)
+        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi', actual_msg.topic)
         self.assertEqual('config', json.loads(actual_msg.payload)['type'])
         self.assertEqual(variables, json.loads(actual_msg.payload)['payload'])
 
@@ -109,7 +109,7 @@ class TestTemp(AsyncTestCase):
         self.wait()
 
         actual_msg = self.test_probe.last_message
-        self.assertEqual('iot-hub/messages/c4r-unique-device-token', actual_msg.topic)
+        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi', actual_msg.topic)
         self.assertEqual('data', json.loads(actual_msg.payload)['type'])
         self.assertEqual(data, json.loads(actual_msg.payload)['payload'])
 
@@ -126,6 +126,6 @@ class TestTemp(AsyncTestCase):
         self.wait()
 
         actual_msg = self.test_probe.last_message
-        self.assertEqual('iot-hub/messages/c4r-unique-device-token', actual_msg.topic)
+        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi', actual_msg.topic)
         self.assertEqual('system', json.loads(actual_msg.payload)['type'])
         self.assertEqual(diag, json.loads(actual_msg.payload)['payload'])

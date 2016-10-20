@@ -1,3 +1,4 @@
+import re
 import json
 import time
 import token
@@ -100,6 +101,10 @@ def disconnect():
         client = None
 
 
+class InvalidTokenError(Exception):
+    pass
+
+
 class MqttApi(object):
     def __init__(self,
                  device_token,
@@ -107,7 +112,10 @@ class MqttApi(object):
                  password='c4r-password',
                  host='mq.cloud4rpi.io',
                  port=1883):
-        # guard args
+        token_re = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
+        if not token_re.match(device_token):
+            raise InvalidTokenError('Invalid device token')
+
         client_id = 'c4r-{0}'.format(device_token)
         self.__client = mqtt.Client(client_id)
         self.__host = host
