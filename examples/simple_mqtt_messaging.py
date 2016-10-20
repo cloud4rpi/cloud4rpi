@@ -16,16 +16,18 @@ from c4r import mqtt_client
 
 
 def main():
-    # First of all obtain the _token_ for your device from the device page and connect to the api.
+    # First of all obtain the _token_ for your device from the device page
+    # and connect to the api.
     # The token looks something like "4GPZFMVuacadesU21dBw47zJi"
     # it is the key that allows the device to communicate with the cloud4rpi.
     device_token = '!!! put your device token here !!!'
     client = mqtt_client.MqttApi(device_token)
     client.connect()
 
-    # Next declare the device _variables_. A device variable is a key/value pair of
-    # the variable name and its type.
-    # Only the "numeric" & "bool" types are currently supported. The name should be unique.
+    # Next declare the device _variables_. A device variable is
+    # a key/value pair of the variable name and its type.
+    # Only the "numeric" & "bool" types are currently supported.
+    # The name should be unique.
     variables = [
         {'name': 'Temperature', 'type': 'numeric'},
         {'name': 'Cooler', 'type': 'bool'},
@@ -49,8 +51,9 @@ def main():
     }
     client.publish_data(data)
 
-    # You can also send some _diagnostic_ data. It has the same form as the "useful" data except
-    # you don't have to declare any variables beforehand.
+    # You can also send some _diagnostic_ data. It has the same form as
+    # the "useful" data except you don't have to declare any variables
+    # beforehand.
     diag = {
         'IPAddress': '127.0.0.1',
         'Hostname': 'weather_station',
