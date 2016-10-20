@@ -105,7 +105,7 @@ class MqttApi(object):
                  device_token,
                  username='c4r-user',
                  password='c4r-password',
-                 host='localhost',
+                 host='mq.cloud4rpi.io',
                  port=1883):
         # guard args
         client_id = 'c4r-{0}'.format(device_token)

@@ -73,9 +73,14 @@ class TestTemp(AsyncTestCase):
         super(TestTemp, self).tearDown()
         self.test_probe.dispose()
 
-    def testPublishConfig(self):
-        client = MqttApi('c4r-unique-device-token')
+    @staticmethod
+    def create_api_client():
+        client = MqttApi('c4r-unique-device-token', host='localhost')
         client.connect()
+        return client
+
+    def testPublishConfig(self):
+        client = self.create_api_client()
 
         variables = [
             {'name': 'Temperature', 'type': 'numeric'},
@@ -92,8 +97,7 @@ class TestTemp(AsyncTestCase):
         self.assertEqual(variables, json.loads(actual_msg.payload)['payload'])
 
     def testPublishData(self):
-        client = MqttApi('c4r-unique-device-token')
-        client.connect()
+        client = self.create_api_client()
 
         data = {
             'Temperature': 36.6,
@@ -110,8 +114,7 @@ class TestTemp(AsyncTestCase):
         self.assertEqual(data, json.loads(actual_msg.payload)['payload'])
 
     def testPublishDiag(self):
-        client = MqttApi('c4r-unique-device-token')
-        client.connect()
+        client = self.create_api_client()
 
         diag = {
             'IPAddress': '127.0.0.1',
