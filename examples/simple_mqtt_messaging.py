@@ -23,7 +23,8 @@ def main():
     client = mqtt_client.MqttApi(device_token)
     client.connect()
 
-    # Next declare the device _variables_. A device variable is a key/value pair of the variable name and its type.
+    # Next declare the device _variables_. A device variable is a key/value pair of
+    # the variable name and its type.
     # Only the "numeric" & "bool" types are currently supported. The name should be unique.
     variables = [
         {'name': 'Temperature', 'type': 'numeric'},
