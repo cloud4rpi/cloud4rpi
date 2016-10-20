@@ -10,7 +10,7 @@
 if __name__ == '__main__' and __package__ is None:
     from os import sys, path
 
-    sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
+    sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from c4r import mqtt_client
 
