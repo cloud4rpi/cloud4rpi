@@ -63,22 +63,6 @@ def get_async_test_timeout(default=5):
 class TestTemp(AsyncTestCase):
     # TODO: setUp/tearDown
 
-    def testAsyncTest(self):
-        client = mqtt.Client(client_id='c4r-unique-device-token')
-
-        def on_connect(*args):
-            self.stop()
-
-        client.on_connect = on_connect
-
-        client.connect('localhost')
-        client.loop_start()
-
-        self.wait()
-
-        client.loop_stop()
-        client.disconnect()
-
     def testPublishConfig(self):
         test_probe = MqttMessageProbe(on_message=lambda: self.stop())
 
