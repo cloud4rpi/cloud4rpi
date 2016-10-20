@@ -22,6 +22,10 @@ class MqttMessageProbe(object):
         self.__client.subscribe('iot-hub/messages/#')
         self.__client.loop_start()
 
+    def dispose(self):
+        self.__client.loop_stop()
+        self.__client.disconnect()
+
 
 class TimeoutError(Exception):
     pass
@@ -61,11 +65,15 @@ def get_async_test_timeout(default=5):
 
 
 class TestTemp(AsyncTestCase):
-    # TODO: setUp/tearDown
+    def setUp(self):
+        super(TestTemp, self).setUp()
+        self.test_probe = MqttMessageProbe(on_message=lambda: self.stop())
+
+    def tearDown(self):
+        super(TestTemp, self).tearDown()
+        self.test_probe.dispose()
 
     def testPublishConfig(self):
-        test_probe = MqttMessageProbe(on_message=lambda: self.stop())
-
         client = MqttApi('c4r-unique-device-token')
         client.connect()
 
@@ -78,14 +86,12 @@ class TestTemp(AsyncTestCase):
 
         self.wait()
 
-        actual_msg = test_probe.last_message
+        actual_msg = self.test_probe.last_message
         self.assertEqual('iot-hub/messages/c4r-unique-device-token', actual_msg.topic)
         self.assertEqual('config', json.loads(actual_msg.payload)['type'])
         self.assertEqual(variables, json.loads(actual_msg.payload)['payload'])
 
     def testPublishData(self):
-        test_probe = MqttMessageProbe(on_message=lambda: self.stop())
-
         client = MqttApi('c4r-unique-device-token')
         client.connect()
 
@@ -98,14 +104,12 @@ class TestTemp(AsyncTestCase):
 
         self.wait()
 
-        actual_msg = test_probe.last_message
+        actual_msg = self.test_probe.last_message
         self.assertEqual('iot-hub/messages/c4r-unique-device-token', actual_msg.topic)
         self.assertEqual('data', json.loads(actual_msg.payload)['type'])
         self.assertEqual(data, json.loads(actual_msg.payload)['payload'])
 
     def testPublishDiag(self):
-        test_probe = MqttMessageProbe(on_message=lambda: self.stop())
-
         client = MqttApi('c4r-unique-device-token')
         client.connect()
 
@@ -118,7 +122,7 @@ class TestTemp(AsyncTestCase):
 
         self.wait()
 
-        actual_msg = test_probe.last_message
+        actual_msg = self.test_probe.last_message
         self.assertEqual('iot-hub/messages/c4r-unique-device-token', actual_msg.topic)
         self.assertEqual('system', json.loads(actual_msg.payload)['type'])
         self.assertEqual(diag, json.loads(actual_msg.payload)['payload'])
