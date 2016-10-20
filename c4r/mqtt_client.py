@@ -1,6 +1,8 @@
+import re
 import json
 import time
 import token
+from datetime import datetime
 
 from c4r import config
 from c4r import helpers
@@ -97,3 +99,53 @@ def disconnect():
         client.loop_stop()
         client.disconnect()
         client = None
+
+
+class InvalidTokenError(Exception):
+    pass
+
+
+class MqttApi(object):
+    def __init__(self,
+                 device_token,
+                 username='c4r-user',
+                 password='c4r-password',
+                 host='mq.cloud4rpi.io',
+                 port=1883):
+        token_re = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
+        if not token_re.match(device_token):
+            raise InvalidTokenError('Invalid device token')
+
+        client_id = 'c4r-{0}'.format(device_token)
+        self.__client = mqtt.Client(client_id)
+        self.__host = host
+        self.__port = port
+        self.__msg_topic = 'iot-hub/messages/{0}'.format(device_token)
+        self.__username = username
+        self.__password = password
+
+    def connect(self):
+        self.__client.username_pw_set(self.__username, self.__password)
+        self.__client.connect(self.__host, port=self.__port)
+        self.__client.loop_start()
+
+    def disconnect(self):
+        self.__client.loop_stop()
+        self.__client.disconnect()
+
+    def publish_config(self, config):
+        self.__publish('config', config)
+
+    def publish_data(self, data):
+        self.__publish('data', data)
+
+    def publish_diag(self, diag):
+        self.__publish('system', diag)
+
+    def __publish(self, type, payload):
+        msg = {
+            'type': type,
+            'ts': datetime.utcnow().isoformat(),
+            'payload': payload,
+        }
+        self.__client.publish(self.__msg_topic, payload=json.dumps(msg))

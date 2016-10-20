@@ -1,2 +1,2 @@
-axel
 paho-mqtt
+axel == 0.0.4
