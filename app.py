@@ -5,18 +5,32 @@ import time
 import logging
 from datetime import datetime, timedelta
 import c4r  # Lib to send and receive commands
+from c4r.platform import platform
 from c4r.cpu_temperature import CpuTemperature
 from c4r.ds18b20 import DS18b20
+
+PLATFORM = platform.get()
+
 try:
-    import RPi.GPIO as GPIO  # pylint: disable=F0401
+    if PLATFORM == "RPI":
+        import RPi.GPIO as GPIO  # pylint: disable=F0401
+    elif PLATFORM == "CHIP":
+        import CHIP_IO.GPIO as GPIO
     gpio_loaded = True
 except Exception as e:
     gpio_loaded = False
     print 'Warning! No RPi.GPIO loaded!'
 
-# load w1 modules
-c4r.modprobe('w1-gpio')
-c4r.modprobe('w1-therm')
+# attempt load w1 modules
+try:
+    if PLATFORM == "RPI":
+        c4r.modprobe('w1-gpio')
+        c4r.modprobe('w1-therm')
+    else:
+        c4r.modprobe('w1_gpio')
+        c4r.modprobe('w1_therm')
+except:
+    pass
 
 # Put your device token here. To get a token, register at https://cloud4rpi.io
 # ====================================
@@ -43,7 +57,7 @@ log.info('Sensors found: ' + ','.join(['[ds18b20: {0}]'.format(x.address) for x 
 
 # configure GPIO library
 if gpio_loaded:
-    GPIO.setmode(GPIO.BOARD)
+    if PLATFORM == "RPI": GPIO.setmode(GPIO.BOARD)
     GPIO.setup(LED_PIN, GPIO.OUT)
 
 
