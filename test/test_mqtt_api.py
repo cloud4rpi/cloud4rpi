@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # These tests need a running mqtt broker instance
 
 import os
