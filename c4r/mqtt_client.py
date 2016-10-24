@@ -125,10 +125,20 @@ class MqttApi(object):
         self.__host = host
         self.__port = port
         self.__msg_topic = 'iot-hub/messages/{0}'.format(device_token)
+        self.__cmd_topic = 'iot-hub/commands/{0}'.format(device_token)
         self.__username = username
         self.__password = password
 
     def connect(self):
+        def on_message(client, userdata, message):
+            if hasattr(self, 'on_command') and callable(self.on_command):
+                self.on_command(message)
+
+        def on_connect(*args):
+            self.__client.subscribe(self.__cmd_topic)
+
+        self.__client.on_connect = on_connect
+        self.__client.on_message = on_message
         self.__client.username_pw_set(self.__username, self.__password)
         self.__client.connect(self.__host, port=self.__port)
         self.__client.loop_start()

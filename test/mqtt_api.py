@@ -27,6 +27,21 @@ class MqttMessageProbe(object):
         self.__client.disconnect()
 
 
+class MqttCommandPublisher(object):
+    def __init__(self):
+        self.__client = mqtt.Client()
+        self.__client.connect('localhost')
+        self.__client.loop_start()
+
+    def dispose(self):
+        self.__client.loop_stop()
+        self.__client.disconnect()
+
+    def publish_command(self, device_token, command):
+        self.__client.publish('iot-hub/commands/{0}'.format(device_token),
+                              payload=json.dumps(command))
+
+
 class TimeoutError(Exception):
     pass
 
@@ -132,3 +147,19 @@ class TestTemp(AsyncTestCase):
                          actual_msg.topic)
         self.assertEqual('system', json.loads(actual_msg.payload)['type'])
         self.assertEqual(diag, json.loads(actual_msg.payload)['payload'])
+
+    def testOnCommand(self):
+        def on_command(command):
+            self.assertEqual('iot-hub/commands/4GPZFMVuacadesU21dBw47zJi',
+                             command.topic)
+            self.assertEqual({'Cooler': True},
+                             json.loads(command.payload))
+            self.stop()
+
+        client = self.create_api_client()
+        client.on_command = on_command
+
+        commander = MqttCommandPublisher()
+        commander.publish_command('4GPZFMVuacadesU21dBw47zJi', {'Cooler': True})
+
+        self.wait()
