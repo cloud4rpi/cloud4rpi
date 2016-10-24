@@ -105,6 +105,12 @@ def disconnect():
         client = None
 
 
+def guard_against_invalid_token(token):
+    token_re = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
+    if not token_re.match(token):
+        raise InvalidTokenError('Invalid device token')
+
+
 class InvalidTokenError(Exception):
     pass
 
@@ -116,9 +122,7 @@ class MqttApi(object):
                  password='c4r-password',
                  host='mq.cloud4rpi.io',
                  port=1883):
-        token_re = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
-        if not token_re.match(device_token):
-            raise InvalidTokenError('Invalid device token')
+        guard_against_invalid_token(device_token)
 
         client_id = 'c4r-{0}'.format(device_token)
         self.__client = mqtt.Client(client_id)

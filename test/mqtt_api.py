@@ -5,7 +5,7 @@ import json
 import unittest
 import paho.mqtt.client as mqtt
 from threading import Event
-from c4r.mqtt_client import MqttApi
+from c4r.mqtt_client import MqttApi, InvalidTokenError
 
 
 class MqttMessageProbe(object):
@@ -93,6 +93,10 @@ class TestMqttApi(AsyncTestCase):
         client = MqttApi('4GPZFMVuacadesU21dBw47zJi', host='localhost')
         client.connect()
         return client
+
+    def testCtorThrowsOnInvalidToken(self):
+        with self.assertRaises(InvalidTokenError):
+            MqttApi('invalid device token')
 
     def testPublishConfig(self):
         client = self.create_api_client()
