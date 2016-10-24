@@ -60,7 +60,8 @@ def on_disconnect(client, userdata, rc):
 
 
 def on_message(client, userdata, message):
-    log.info('[x] MQTT message received: [{0}] - [{1}]'.format(message.topic, message.payload))
+    log.info('[x] MQTT message received: [{0}] - [{1}]'.format(message.topic,
+                                                               message.payload))
     emit_event(message.payload)
 
 
@@ -83,10 +84,13 @@ def connect():
     client.on_message = on_message
     client.on_connect = on_connect
     client.on_disconnect = on_disconnect
-    log.info('MQTT connecting to {0}:{1}'.format(config.mqqtBrokerHost, config.mqttBrokerPort))
+    log.info('MQTT connecting to {0}:{1}'.format(config.mqqtBrokerHost,
+                                                 config.mqttBrokerPort))
     try:
-        client.username_pw_set(config.mqqtBrokerUsername, config.mqttBrokerPassword)
-        client.connect(config.mqqtBrokerHost, config.mqttBrokerPort, KEEP_ALIVE_INTERVAL)
+        client.username_pw_set(config.mqqtBrokerUsername,
+                               config.mqttBrokerPassword)
+        client.connect(config.mqqtBrokerHost, config.mqttBrokerPort,
+                       KEEP_ALIVE_INTERVAL)
         client.loop_start()
     except Exception as e:
         log.error('Connection failed: {0}'.format(e))
