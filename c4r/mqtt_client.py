@@ -125,6 +125,7 @@ class MqttApi(object):
         guard_against_invalid_token(device_token)
 
         client_id = 'c4r-{0}'.format(device_token)
+        # TODO: clean_session=False
         self.__client = mqtt.Client(client_id)
         self.__host = host
         self.__port = port
@@ -143,7 +144,9 @@ class MqttApi(object):
 
         self.__client.on_connect = on_connect
         self.__client.on_message = on_message
+        # TODO: on_disconnect
         self.__client.username_pw_set(self.__username, self.__password)
+        # TODO: keepalive=KEEP_ALIVE_INTERVAL
         self.__client.connect(self.__host, port=self.__port)
         self.__client.loop_start()
 
