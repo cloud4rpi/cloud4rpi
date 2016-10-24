@@ -79,13 +79,13 @@ def get_async_test_timeout(default=5):
         return default
 
 
-class TestTemp(AsyncTestCase):
+class TestMqttApi(AsyncTestCase):
     def setUp(self):
-        super(TestTemp, self).setUp()
+        super(TestMqttApi, self).setUp()
         self.test_probe = MqttMessageProbe(on_message=lambda: self.stop())
 
     def tearDown(self):
-        super(TestTemp, self).tearDown()
+        super(TestMqttApi, self).tearDown()
         self.test_probe.dispose()
 
     @staticmethod
