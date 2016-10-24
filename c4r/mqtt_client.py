@@ -118,10 +118,10 @@ class InvalidTokenError(Exception):
 class MqttApi(object):
     def __init__(self,
                  device_token,
-                 username='c4r-user',
-                 password='c4r-password',
-                 host='mq.cloud4rpi.io',
-                 port=1883):
+                 username=config.mqqtBrokerUsername,
+                 password=config.mqttBrokerPassword,
+                 host=config.mqqtBrokerHost,
+                 port=config.mqttBrokerPort):
         guard_against_invalid_token(device_token)
 
         client_id = 'c4r-{0}'.format(device_token)
