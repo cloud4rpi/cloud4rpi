@@ -137,7 +137,7 @@ class MqttApi(object):
     def connect(self):
         def on_message(client, userdata, message):
             if hasattr(self, 'on_command') and callable(self.on_command):
-                self.on_command(message)
+                self.on_command(json.loads(message.payload))
 
         def on_connect(*args):
             self.__client.subscribe(self.__cmd_topic)

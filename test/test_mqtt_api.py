@@ -155,10 +155,7 @@ class TestMqttApi(AsyncTestCase):
 
     def testOnCommand(self):
         def on_command(command):
-            self.assertEqual('iot-hub/commands/4GPZFMVuacadesU21dBw47zJi',
-                             command.topic)
-            self.assertEqual({'Cooler': True},
-                             json.loads(command.payload))
+            self.assertEqual({'Cooler': True}, command)
             self.stop()
 
         client = self.create_api_client()
