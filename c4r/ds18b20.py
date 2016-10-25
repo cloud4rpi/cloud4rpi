@@ -22,13 +22,24 @@ def read_whole_file(path):
         return f.read()
 
 
+class InvalidW1Address(Exception):
+    def __init__(self, address):
+        super(InvalidW1Address, self).__init__()
+        self.address = address
+
+
+def guard_against_invalid_address(address):
+    if not W1_SENSOR_PATTERN.match(address):
+        raise InvalidW1Address(address)
+
+
 class DS18b20(object):
     @staticmethod
     def find_all():
         return [DS18b20(x) for x in os.listdir(W1_DEVICES) if is_w1_sensor(x)]
 
     def __init__(self, address):
-        # TODO: W1_SENSOR_PATTERN.match(address) throw if invalid
+        guard_against_invalid_address(address)
         self.address = address
 
     def read(self):

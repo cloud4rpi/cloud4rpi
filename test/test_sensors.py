@@ -3,6 +3,7 @@
 import unittest
 import pyfakefs.fake_filesystem_unittest as ffut
 import c4r
+import c4r.ds18b20
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -38,6 +39,10 @@ class TestDs18b20Sensors(ffut.TestCase):
         sensor = c4r.DS18b20('28-000802824e58')
         result = sensor.read()
         self.assertEqual(result, 28.250)
+
+    def testRaisesExceptionOnInvalidAddress(self):
+        with self.assertRaises(c4r.ds18b20.InvalidW1Address):
+            c4r.DS18b20('invalid address')
 
 
 @unittest.skip("Not tests actually")
