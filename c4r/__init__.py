@@ -36,8 +36,7 @@ def get_error_message(e):
 def connect_mqtt(device_token):
     api = c4r.mqtt_client.MqttApi(device_token)
     api.connect()
-    device = c4r.device.Device(api)
-    return device
+    return c4r.device.Device(api)
 
 
 def create_logger():
