@@ -25,6 +25,9 @@ class MqttApi(object):
                  port=config.mqttBrokerPort):
         guard_against_invalid_token(device_token)
 
+        def noop_on_command(cmd):
+            pass
+
         client_id = 'c4r-{0}'.format(device_token)
         # TODO: clean_session=False
         self.__client = mqtt.Client(client_id)
@@ -34,6 +37,7 @@ class MqttApi(object):
         self.__cmd_topic = 'iot-hub/commands/{0}'.format(device_token)
         self.__username = username
         self.__password = password
+        self.on_command = noop_on_command
 
     def connect(self):
         def on_message(client, userdata, message):
