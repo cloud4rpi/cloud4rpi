@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import socket
-from c4r.logger import get_logger
+import logging
+import c4r.config
 
-log = get_logger()
-
-
-def connect_socket():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.connect(('8.8.8.8', 80))
-    return sock
+log = logging.getLogger(c4r.config.loggerName)
 
 
 class Hostname(object):
@@ -26,6 +21,12 @@ class Hostname(object):
             self.__host = socket.gethostname()
         except Exception as e:
             log.error('Gathering host information has failed: {0}'.format(e))
+
+
+def connect_socket():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.connect(('8.8.8.8', 80))
+    return sock
 
 
 class IPAddress(object):

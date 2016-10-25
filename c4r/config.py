@@ -10,3 +10,5 @@ mqttBrokerPassword = 'c4r-password'
 mqttTopicRoot = 'iot-hub'
 mqttMessageTopicPrefix = mqttTopicRoot + '/messages'
 mqttCommandsTopicPrefix = mqttTopicRoot + '/commands'
+
+loggerName = 'cloud4rpi logger'

@@ -8,8 +8,11 @@ from subprocess import CalledProcessError
 
 import os
 import subprocess
+import logging
+import logging.handlers
 import c4r.device
 import c4r.mqtt_client
+import c4r.config
 
 
 def modprobe(module):
@@ -35,3 +38,26 @@ def connect_mqtt(device_token):
     api.connect()
     device = c4r.device.Device(api)
     return device
+
+
+def create_logger():
+    logger = logging.getLogger(c4r.config.loggerName)
+    logger.setLevel(logging.INFO)
+    set_logging_to_console(logger)
+
+
+def set_logging_to_console(logger):
+    console = logging.StreamHandler()
+    console.setFormatter(logging.Formatter('%(message)s'))
+    logger.addHandler(console)
+
+
+def set_logging_to_file(logger, log_file_path):
+    file = logging.handlers.RotatingFileHandler(log_file_path,
+                                                maxBytes=1024 * 1024,
+                                                backupCount=10)
+    file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(file)
+
+
+create_logger()
