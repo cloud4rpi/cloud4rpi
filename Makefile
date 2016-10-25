@@ -14,4 +14,4 @@ test:
 
 ci: pep8 lint test
 
-.PHONY: init pep8 lint test
+.PHONY: init pep8 lint test ci
