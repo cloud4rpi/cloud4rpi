@@ -59,8 +59,8 @@ class MqttApi(object):
         self.__client.loop_stop()
         self.__client.disconnect()
 
-    def publish_config(self, config):
-        self.__publish('config', config)
+    def publish_config(self, cfg):
+        self.__publish('config', cfg)
 
     def publish_data(self, data):
         self.__publish('data', data)
