@@ -1,2 +1,5 @@
 paho-mqtt
-axel == 0.0.4
+pep8
+pylint
+mock
+git+https://github.com/jmcgeheeiv/pyfakefs.git
