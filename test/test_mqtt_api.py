@@ -80,6 +80,7 @@ def get_async_test_timeout(default=5):
         return default
 
 
+@unittest.skip("The Real mqtt broker required")
 class TestMqttApi(AsyncTestCase):
     def setUp(self):
         super(TestMqttApi, self).setUp()
