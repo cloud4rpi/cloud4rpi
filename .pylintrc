@@ -2,7 +2,6 @@
 # Show all warnings
 confidence=
 
-# Disable convention & refactor
 disable=C,R,W0613
 
 [BASIC]
