@@ -3,9 +3,12 @@
 from datetime import datetime
 from cloud4rpi import config
 
+import logging
 import re
 import json
 import paho.mqtt.client as mqtt
+
+log = logging.getLogger(config.loggerName)
 
 
 def guard_against_invalid_token(token):
@@ -43,16 +46,20 @@ class MqttApi(object):
 
     def connect(self):
         def on_message(client, userdata, message):
+            log.info('Command received %s: %s', message.topic,
+                     message.payload)
             if hasattr(self, 'on_command') and callable(self.on_command):
                 self.on_command(json.loads(message.payload))
 
-        def on_connect(*args):
+        def on_connect(client, userdata, flags, rc):
             self.__client.subscribe(self.__cmd_topic)
 
         self.__client.on_connect = on_connect
         self.__client.on_message = on_message
         # TODO: on_disconnect
         self.__client.username_pw_set(self.__username, self.__password)
+        log.info('MQTT connecting %s:%s', config.mqqtBrokerHost,
+                 config.mqttBrokerPort)
         # TODO: keepalive=KEEP_ALIVE_INTERVAL
         self.__client.connect(self.__host, port=self.__port)
         self.__client.loop_start()
@@ -76,4 +83,5 @@ class MqttApi(object):
             'ts': datetime.utcnow().isoformat(),
             'payload': payload,
         }
+        log.info('Publishing %s: %s', self.__msg_topic, msg)
         self.__client.publish(self.__msg_topic, payload=json.dumps(msg))
