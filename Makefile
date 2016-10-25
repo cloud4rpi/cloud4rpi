@@ -1,7 +1,7 @@
 build: init pep8 lint test
 
 init:
-	pip install -r requirements.txt
+	pip install --upgrade -r requirements.txt
 
 pep8:
 	pep8 --show-source --config=pep8_setup.cfg --show-pep8 .
