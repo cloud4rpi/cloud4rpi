@@ -3,7 +3,7 @@
 confidence=
 
 # Disable convention & refactor
-disable=C,R
+disable=C,R,W0613
 
 [BASIC]
 const-name-hint=(([A-Z_][A-Z0-9_]*)|(__.*__))$
