@@ -2,14 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from subprocess import CalledProcessError
-from c4r import errors as c4r_errors
+from mqtt_client import InvalidTokenError
 
 messages = {
     KeyboardInterrupt: 'Interrupted',
-    CalledProcessError: 'Try "sudo python cloud4rpi.py"',
-    c4r_errors.InvalidTokenError: 'API key {0} is incorrect. Please verify it.',
-    c4r_errors.AuthenticationError: 'Authentication failed. Check your API key.',
-    KeyError: 'Key "{0}" not found in server response.'
+    CalledProcessError: 'Try run with sudo',
+    InvalidTokenError: 'Device token {0} is invalid. Please verify it.',
 }
 
 
