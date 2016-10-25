@@ -4,7 +4,7 @@ init:
 	pip install --upgrade -r requirements.txt
 
 pep8:
-	pep8 --show-source --config=pep8_setup.cfg --show-pep8 .
+	pep8 --show-source --config=.pep8_setup.cfg --show-pep8 .
 
 lint:
 	pylint --rcfile=.pylintrc --reports=n c4r/*.py examples/*.py test/*.py
