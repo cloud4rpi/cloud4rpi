@@ -14,6 +14,7 @@ class MqttMessageProbe(object):
         self.__client = mqtt.Client()
         self.__on_message = on_message
         self.__client.connect('localhost')
+        self.last_message = None
 
         def on_msg(client, userdata, message):
             self.last_message = message
