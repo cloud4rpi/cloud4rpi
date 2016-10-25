@@ -68,9 +68,9 @@ class MqttApi(object):
     def publish_diag(self, diag):
         self.__publish('system', diag)
 
-    def __publish(self, type, payload):
+    def __publish(self, msg_type, payload):
         msg = {
-            'type': type,
+            'type': msg_type,
             'ts': datetime.utcnow().isoformat(),
             'payload': payload,
         }
