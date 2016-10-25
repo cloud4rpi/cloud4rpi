@@ -1,9 +1,9 @@
-build: init pep8 lint test
+build: init style lint test
 
 init:
 	pip install --upgrade -r requirements.txt
 
-pep8:
+style:
 	pep8 --show-source --config=.pep8_setup.cfg --show-pep8 .
 
 lint:
@@ -12,6 +12,6 @@ lint:
 test:
 	python -m unittest discover test
 
-ci: pep8 lint test
+ci: style lint test
 
-.PHONY: init pep8 lint test ci
+.PHONY: init style lint test ci
