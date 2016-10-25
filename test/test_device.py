@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import c4r.device
-import unittest
+from teamcity import is_running_under_teamcity
+from teamcity.unittestpy import TeamcityTestRunner
 from mock import Mock
+import unittest
+import c4r.device
 
 
 class ApiClientMock(object):
@@ -155,3 +157,15 @@ class TestDevice(unittest.TestCase):
             'IPAddress': '127.0.0.1',
             'Host': 'weather_station'
         })
+
+
+def main():
+    if is_running_under_teamcity():
+        runner = TeamcityTestRunner()
+    else:
+        runner = unittest.TextTestRunner()
+    unittest.main(testRunner=runner)
+
+
+if __name__ == '__main__':
+    main()
