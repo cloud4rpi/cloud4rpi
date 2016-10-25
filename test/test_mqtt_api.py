@@ -85,7 +85,7 @@ def get_async_test_timeout(default=5):
 class TestMqttApi(AsyncTestCase):
     def setUp(self):
         super(TestMqttApi, self).setUp()
-        self.test_probe = MqttMessageProbe(on_message=lambda: self.stop())
+        self.test_probe = MqttMessageProbe(on_message=self.stop)
 
     def tearDown(self):
         super(TestMqttApi, self).tearDown()
