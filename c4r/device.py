@@ -35,7 +35,7 @@ class Device(object):
         self.__diag = diag
 
     def send_data(self):
-        for varName, varConfig in self.__variables.items():
+        for _, varConfig in self.__variables.items():
             bind = varConfig.get('bind', None)
             if not hasattr(bind, 'read'):
                 continue
