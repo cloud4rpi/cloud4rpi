@@ -1,44 +1,50 @@
+# -*- coding: utf-8 -*-
+
 import socket
-import os
 from c4r.logger import get_logger
-from c4r.helpers import get_by_key
 
 log = get_logger()
 
-NETWORK_HOST_PARAM = 'host'
-NETWORK_ADDR_PARAM = 'addr'
-
 
 def connect_socket():
-    gw = os.popen("ip -4 route show default").read().split()
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((gw[2], 0))
-    return s
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.connect(('8.8.8.8', 80))
+    return sock
 
 
-def get_network_info():
-    result = {}
-    try:
-        result[NETWORK_HOST_PARAM] = socket.gethostname()
-        s = connect_socket()
-        result[NETWORK_ADDR_PARAM] = s.getsockname()[0]
-    except Exception as e:
-        log.error('Gathering network information failed: {0}'.format(e))
-
-    return result
-
-
-class NetworkInfo(object):
+class Hostname(object):
     def __init__(self):
-        self.info = {}
+        self.__host = None
 
     def read(self):
-        self.info = get_network_info()
+        if self.__host is None:
+            self.__read()
+        return self.__host
 
-    @property
-    def addr(self):
-        return get_by_key(self.info, NETWORK_ADDR_PARAM)
+    def __read(self):
+        try:
+            self.__host = socket.gethostname()
+        except Exception as e:
+            log.error('Gathering host information has failed: {0}'.format(e))
 
-    @property
-    def host(self):
-        return get_by_key(self.info, NETWORK_HOST_PARAM)
+
+class IPAddress(object):
+    def __init__(self):
+        self.__addr = None
+
+    def read(self):
+        if self.__addr is None:
+            self.__read()
+        return self.__addr
+
+    def __read(self):
+        sock = None
+        try:
+            sock = connect_socket()
+            (self.__addr, _) = sock.getsockname()
+        except Exception as e:
+            msg = 'Gathering ip address information has failed: {0}'.format(e)
+            log.error(msg)
+        finally:
+            if sock is not None:
+                sock.close()
