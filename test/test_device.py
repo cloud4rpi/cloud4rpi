@@ -7,9 +7,13 @@ import c4r.device
 
 class ApiClientMock(object):
     def __init__(self):
+        def noop_on_command(cmd):
+            pass
+
         self.publish_config = Mock()
         self.publish_data = Mock()
         self.publish_diag = Mock()
+        self.on_command = noop_on_command
 
     def raise_on_command(self, cmd):
         self.on_command(cmd)
