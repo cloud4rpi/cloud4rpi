@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 def guard_against_invalid_token(token):
     token_re = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
     if not token_re.match(token):
-        raise InvalidTokenError('Invalid device token')
+        raise InvalidTokenError(token)
 
 
 class InvalidTokenError(Exception):

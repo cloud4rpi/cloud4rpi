@@ -3,8 +3,6 @@
 from cloud4rpi.ds18b20 import DS18b20
 from cloud4rpi.cpu_temperature import CpuTemperature
 from cloud4rpi.net import IPAddress, Hostname
-from cloud4rpi.api_client import InvalidTokenError
-from subprocess import CalledProcessError
 
 import os
 import subprocess
@@ -22,15 +20,16 @@ def modprobe(module):
         raise subprocess.CalledProcessError(ret, cmd)
 
 
-messages = {
+__messages = {
     KeyboardInterrupt: 'Interrupted',
-    CalledProcessError: 'Try run with sudo',
-    InvalidTokenError: 'Device token {0} is invalid. Please verify it.',
+    subprocess.CalledProcessError: 'Try run with sudo',
+    cloud4rpi.api_client.InvalidTokenError:
+        'Device token {0} is invalid. Please verify it.',
 }
 
 
 def get_error_message(e):
-    return messages.get(type(e), 'Unexpected error: {0}').format(e.message)
+    return __messages.get(type(e), 'Unexpected error: {0}').format(e.message)
 
 
 def connect_mqtt(device_token):
