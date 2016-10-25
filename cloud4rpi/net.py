@@ -2,9 +2,9 @@
 
 import socket
 import logging
-import c4r.config
+import cloud4rpi.config
 
-log = logging.getLogger(c4r.config.loggerName)
+log = logging.getLogger(cloud4rpi.config.loggerName)
 
 
 class Hostname(object):
@@ -20,7 +20,7 @@ class Hostname(object):
         try:
             self.__host = socket.gethostname()
         except Exception as e:
-            log.error('Gathering host information has failed: {0}'.format(e))
+            log.error('Gathering host information has failed: %s', e)
 
 
 def connect_socket():

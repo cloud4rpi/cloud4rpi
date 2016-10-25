@@ -4,8 +4,8 @@
 # MQTT broker parameters
 mqqtBrokerHost = 'mq.cloud4rpi.io'
 mqttBrokerPort = 1883
-mqqtBrokerUsername = 'c4r-user'
-mqttBrokerPassword = 'c4r-password'
+mqqtBrokerUsername = 'cloud4rpi-user'
+mqttBrokerPassword = 'cloud4rpi-password'
 
 mqttTopicRoot = 'iot-hub'
 mqttMessageTopicPrefix = mqttTopicRoot + '/messages'

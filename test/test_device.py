@@ -2,7 +2,7 @@
 
 from mock import Mock
 import unittest
-import c4r.device
+import cloud4rpi.device
 
 
 class ApiClientMock(object):
@@ -27,7 +27,7 @@ class MockSensor(object):
 class TestDevice(unittest.TestCase):
     def testDeclareVariables(self):
         api = ApiClientMock()
-        device = c4r.device.Device(api)
+        device = cloud4rpi.device.Device(api)
         device.declare({
             'CPUTemp': {
                 'type': 'numeric',
@@ -41,7 +41,7 @@ class TestDevice(unittest.TestCase):
     def testCallsBoundFunctionOnCommand(self):
         api = ApiClientMock()
         handler = Mock()
-        device = c4r.device.Device(api)
+        device = cloud4rpi.device.Device(api)
         device.declare({
             'LEDOn': {
                 'type': 'bool',
@@ -56,7 +56,7 @@ class TestDevice(unittest.TestCase):
         api = ApiClientMock()
         led_handler = Mock(return_value=True)
         cooler_handler = Mock(return_value=False)
-        device = c4r.device.Device(api)
+        device = cloud4rpi.device.Device(api)
         device.declare({
             'LEDOn': {
                 'type': 'bool',
@@ -77,7 +77,7 @@ class TestDevice(unittest.TestCase):
 
     def testSkipsVarIfItsBindIsNotAFunctionOnCommand(self):
         api = ApiClientMock()
-        device = c4r.device.Device(api)
+        device = cloud4rpi.device.Device(api)
         device.declare({
             'LEDOn': {
                 'type': 'bool',
@@ -92,7 +92,7 @@ class TestDevice(unittest.TestCase):
         handler = Mock()
         del handler.read
         temperature_sensor = MockSensor(73)
-        device = c4r.device.Device(api)
+        device = cloud4rpi.device.Device(api)
         device.declare({
             'LEDOn': {
                 'type': 'bool',
@@ -113,7 +113,7 @@ class TestDevice(unittest.TestCase):
 
     def testSendDataDoesNotSendEmptyVars(self):
         api = ApiClientMock()
-        device = c4r.device.Device(api)
+        device = cloud4rpi.device.Device(api)
         device.send_data()
         api.publish_data.assert_not_called()
 
@@ -123,7 +123,7 @@ class TestDevice(unittest.TestCase):
         del led_handler.read
         cooler_handler = Mock(return_value=False)
         del cooler_handler.read
-        device = c4r.device.Device(api)
+        device = cloud4rpi.device.Device(api)
         device.declare({
             'LEDOn': {
                 'type': 'bool',
@@ -147,7 +147,7 @@ class TestDevice(unittest.TestCase):
     def testSendDiag(self):
         api = ApiClientMock()
         temperature_sensor = MockSensor(73)
-        device = c4r.device.Device(api)
+        device = cloud4rpi.device.Device(api)
         device.declare_diag({
             'CPUTemperature': temperature_sensor,
             'IPAddress': '127.0.0.1',

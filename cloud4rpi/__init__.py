@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from c4r.ds18b20 import DS18b20
-from c4r.cpu_temperature import CpuTemperature
-from c4r.net import IPAddress, Hostname
-from c4r.api_client import InvalidTokenError
+from cloud4rpi.ds18b20 import DS18b20
+from cloud4rpi.cpu_temperature import CpuTemperature
+from cloud4rpi.net import IPAddress, Hostname
+from cloud4rpi.api_client import InvalidTokenError
 from subprocess import CalledProcessError
 
 import os
 import subprocess
 import logging
 import logging.handlers
-import c4r.device
-import c4r.api_client
-import c4r.config
+import cloud4rpi.device
+import cloud4rpi.api_client
+import cloud4rpi.config
 
 
 def modprobe(module):
@@ -34,13 +34,13 @@ def get_error_message(e):
 
 
 def connect_mqtt(device_token):
-    api = c4r.api_client.MqttApi(device_token)
+    api = cloud4rpi.api_client.MqttApi(device_token)
     api.connect()
-    return c4r.device.Device(api)
+    return cloud4rpi.device.Device(api)
 
 
 def create_logger():
-    logger = logging.getLogger(c4r.config.loggerName)
+    logger = logging.getLogger(cloud4rpi.config.loggerName)
     logger.setLevel(logging.INFO)
     set_logging_to_console(logger)
 
@@ -52,11 +52,11 @@ def set_logging_to_console(logger):
 
 
 def set_logging_to_file(logger, log_file_path):
-    file = logging.handlers.RotatingFileHandler(log_file_path,
-                                                maxBytes=1024 * 1024,
-                                                backupCount=10)
-    file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
-    logger.addHandler(file)
+    log_file = logging.handlers.RotatingFileHandler(log_file_path,
+                                                    maxBytes=1024 * 1024,
+                                                    backupCount=10)
+    log_file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(log_file)
 
 
 create_logger()

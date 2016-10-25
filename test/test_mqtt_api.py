@@ -6,7 +6,7 @@ import json
 import unittest
 import paho.mqtt.client as mqtt
 from threading import Event
-from c4r.api_client import MqttApi, InvalidTokenError
+from cloud4rpi.api_client import MqttApi, InvalidTokenError
 
 
 class MqttMessageProbe(object):
@@ -81,7 +81,7 @@ def get_async_test_timeout(default=5):
         return default
 
 
-@unittest.skip("The Real mqtt broker required")
+# @unittest.skip("The Real mqtt broker required")
 class TestMqttApi(AsyncTestCase):
     def setUp(self):
         super(TestMqttApi, self).setUp()

@@ -6,13 +6,13 @@
 # =============================================================================
 
 
-# This needed to be able to import the c4r directory from examples
+# This needed to be able to import the cloud4rpi directory from examples
 if __name__ == '__main__' and __package__ is None:
     from os import sys, path
 
     sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
-from c4r import api_client
+from cloud4rpi import api_client
 
 
 def main():
