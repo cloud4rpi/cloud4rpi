@@ -164,6 +164,9 @@ class TestMqttApi(AsyncTestCase):
         client.on_command = on_command
 
         commander = MqttCommandPublisher()
-        commander.publish_command('4GPZFMVuacadesU21dBw47zJi', {'Cooler': True})
+        commander.publish_command(
+            '4GPZFMVuacadesU21dBw47zJi',
+            {'Cooler': True}
+        )
 
         self.wait()

@@ -35,7 +35,8 @@ def main():
     ]
     client.publish_config(variables)
 
-    # After publishing the device config you can start sending some useful data.
+    # After publishing the device config
+    # you can start sending some useful data.
     # Data consists of key/value pairs of variable name and its value.
     data = {
         'Temperature': 36.6,
