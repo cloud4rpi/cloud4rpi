@@ -1,6 +1,13 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
+# =============================================================================
+# To run this sample,
+# 1. git clone https://github.com/cloud4rpi/cloud4rpi.git && cd cloud4rpi
+# 2. pip install -r requirements.txt
+# 3. python examples/simple_mqtt_messaging.py
+# =============================================================================
+
 # This needed to be able to import the cloud4rpi directory from examples
 if __name__ == '__main__' and __package__ is None:
     from os import sys, path
