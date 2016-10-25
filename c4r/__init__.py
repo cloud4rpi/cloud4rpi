@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ds18b20 import DS18b20
-from cpu_temperature import CpuTemperature
-from net import IPAddress, Hostname
+from c4r.ds18b20 import DS18b20
+from c4r.cpu_temperature import CpuTemperature
+from c4r.net import IPAddress, Hostname
+from c4r.mqtt_client import InvalidTokenError
 from subprocess import CalledProcessError
-from mqtt_client import InvalidTokenError
 
 import os
 import subprocess
