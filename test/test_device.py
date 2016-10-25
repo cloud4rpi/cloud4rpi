@@ -107,6 +107,12 @@ class TestDevice(unittest.TestCase):
             'Temperature': 73
         })
 
+    def testSendDataDoesNotSendEmptyVars(self):
+        api = ApiClientMock()
+        device = c4r.device.Device(api)
+        device.send_data()
+        api.publish_data.assert_not_called()
+
     def testSendDataAfterCommand(self):
         api = ApiClientMock()
         led_handler = Mock(return_value=True)
