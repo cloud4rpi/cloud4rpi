@@ -6,7 +6,7 @@ import json
 import unittest
 import paho.mqtt.client as mqtt
 from threading import Event
-from c4r.mqtt_client import MqttApi, InvalidTokenError
+from c4r.api_client import MqttApi, InvalidTokenError
 
 
 class MqttMessageProbe(object):

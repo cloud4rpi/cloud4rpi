@@ -12,7 +12,7 @@ if __name__ == '__main__' and __package__ is None:
 
     sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
-from c4r import mqtt_client
+from c4r import api_client
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
     # The token looks something like "4GPZFMVuacadesU21dBw47zJi"
     # it is the key that allows the device to communicate with the cloud4rpi.
     device_token = '!!! put your device token here !!!'
-    client = mqtt_client.MqttApi(device_token)
+    client = api_client.MqttApi(device_token)
     client.connect()
 
     # Next declare the device _variables_. A device variable is

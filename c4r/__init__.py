@@ -3,7 +3,7 @@
 from c4r.ds18b20 import DS18b20
 from c4r.cpu_temperature import CpuTemperature
 from c4r.net import IPAddress, Hostname
-from c4r.mqtt_client import InvalidTokenError
+from c4r.api_client import InvalidTokenError
 from subprocess import CalledProcessError
 
 import os
@@ -11,7 +11,7 @@ import subprocess
 import logging
 import logging.handlers
 import c4r.device
-import c4r.mqtt_client
+import c4r.api_client
 import c4r.config
 
 
@@ -34,7 +34,7 @@ def get_error_message(e):
 
 
 def connect_mqtt(device_token):
-    api = c4r.mqtt_client.MqttApi(device_token)
+    api = c4r.api_client.MqttApi(device_token)
     api.connect()
     return c4r.device.Device(api)
 
