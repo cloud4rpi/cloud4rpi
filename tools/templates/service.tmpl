@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/python %CLOUD4RPI_DIR%/app.py
+ExecStart=/usr/bin/python %CLOUD4RPI_DIR%/examples/rpi_ds18b20_and_gpio.py
 
 [Install]
 WantedBy=multi-user.target
