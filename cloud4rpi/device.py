@@ -21,6 +21,10 @@ class Device(object):
             actual = handler(value)
             if actual is None:
                 continue
+
+            actual = bool(value) \
+                if variable.get('type', None) == 'bool' \
+                else value
             actual_var_values[varName] = actual
             variable['value'] = actual
         self.__api.publish_data(actual_var_values)
