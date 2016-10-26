@@ -8,6 +8,8 @@ import re
 import json
 import paho.mqtt.client as mqtt
 
+KEEP_ALIVE_INTERVAL = 60 * 10
+
 log = logging.getLogger(config.loggerName)
 
 
@@ -58,8 +60,8 @@ class MqttApi(object):
         self.__client.username_pw_set(self.__username, self.__password)
         log.info('MQTT connecting %s:%s', config.mqqtBrokerHost,
                  config.mqttBrokerPort)
-        # TODO: keepalive=KEEP_ALIVE_INTERVAL
-        self.__client.connect(self.__host, port=self.__port)
+        self.__client.connect(self.__host, self.__port,
+                              keepalive=KEEP_ALIVE_INTERVAL)
         self.__client.loop_start()
 
     def disconnect(self):
