@@ -44,11 +44,10 @@ class MqttApi(object):
         self.on_command = noop_on_command
 
     def connect(self):
-        def on_message(client, userdata, message):
-            log.info('Command received %s: %s', message.topic,
-                     message.payload)
-            if hasattr(self, 'on_command') and callable(self.on_command):
-                self.on_command(json.loads(message.payload))
+        def on_message(client, userdata, msg):
+            log.info('Command received %s: %s', msg.topic, msg.payload)
+            if callable(self.on_command):
+                self.on_command(json.loads(msg.payload))
 
         def on_connect(client, userdata, flags, rc):
             self.__client.subscribe(self.__cmd_topic)
