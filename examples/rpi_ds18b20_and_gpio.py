@@ -81,7 +81,7 @@ def main():
         'CPU Temperature': cloud4rpi.CpuTemperature(),
         'IPAddress': cloud4rpi.IPAddress(),
         'Host': cloud4rpi.Hostname(),
-        'OS Name': os.uname()
+        'OS Name': ' '.join(str(x) for x in os.uname())
     }
 
     device = cloud4rpi.connect_mqtt(DEVICE_TOKEN)
