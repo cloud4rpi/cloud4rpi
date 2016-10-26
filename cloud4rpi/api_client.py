@@ -34,8 +34,7 @@ class MqttApi(object):
             pass
 
         client_id = 'c4r-{0}'.format(device_token)
-        # TODO: clean_session=False
-        self.__client = mqtt.Client(client_id)
+        self.__client = mqtt.Client(client_id, clean_session=False)
         self.__host = host
         self.__port = port
         self.__msg_topic = 'iot-hub/messages/{0}'.format(device_token)
