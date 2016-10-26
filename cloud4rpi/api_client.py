@@ -25,6 +25,12 @@ class InvalidTokenError(Exception):
     pass
 
 
+class MqttConnectionError(Exception):
+    def __init__(self, code):
+        super(MqttConnectionError, self).__init__()
+        self.code = code
+
+
 class MqttApi(object):
     def __init__(self,
                  device_token,
@@ -49,6 +55,9 @@ class MqttApi(object):
 
     def connect(self):
         def on_connect(client, userdata, flags, rc):
+            if rc != MQTT_ERR_SUCCESS:
+                log.error('Connection failed: %s', rc)
+                raise MqttConnectionError(rc)
             log.debug('Listen for %s', self.__cmd_topic)
             self.__client.subscribe(self.__cmd_topic, qos=1)
 
