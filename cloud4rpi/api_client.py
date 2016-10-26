@@ -3,12 +3,14 @@
 from datetime import datetime
 from cloud4rpi import config
 
+import time
 import logging
 import re
 import json
 import paho.mqtt.client as mqtt
 
 KEEP_ALIVE_INTERVAL = 60 * 10
+MQTT_ERR_SUCCESS = 0
 
 log = logging.getLogger(config.loggerName)
 
@@ -46,23 +48,44 @@ class MqttApi(object):
         self.on_command = noop_on_command
 
     def connect(self):
+        def on_connect(client, userdata, flags, rc):
+            self.__client.subscribe(self.__cmd_topic)
+
         def on_message(client, userdata, msg):
             log.info('Command received %s: %s', msg.topic, msg.payload)
             if callable(self.on_command):
                 self.on_command(json.loads(msg.payload))
 
-        def on_connect(client, userdata, flags, rc):
-            self.__client.subscribe(self.__cmd_topic)
+        def on_disconnect(client, userdata, rc):
+            log.info('MQTT disconnected with code: %s', rc)
+            self.__on_disconnect(rc)
 
         self.__client.on_connect = on_connect
         self.__client.on_message = on_message
-        # TODO: on_disconnect
+        self.__client.on_disconnect = on_disconnect
         self.__client.username_pw_set(self.__username, self.__password)
         log.info('MQTT connecting %s:%s', config.mqqtBrokerHost,
                  config.mqttBrokerPort)
         self.__client.connect(self.__host, self.__port,
                               keepalive=KEEP_ALIVE_INTERVAL)
         self.__client.loop_start()
+
+    def __on_disconnect(self, rc):
+        if rc == MQTT_ERR_SUCCESS:
+            return
+
+        attempts = 0
+        retry_interval = 1
+        while True:
+            log.info('Attempting to reconnect... %s', attempts)
+            attempts += 1
+            try:
+                self.__client.reconnect()
+                log.info("Reconnected!")
+                return
+            except Exception as e:
+                log.info('Reconnection failed: %s', e.message)
+                time.sleep(retry_interval)
 
     def disconnect(self):
         self.__client.loop_stop()
