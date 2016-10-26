@@ -14,4 +14,4 @@ test:
 
 ci: style lint test
 
-.PHONY: init style lint test ci
+.PHONY: init style lint test
