@@ -49,7 +49,8 @@ class MqttApi(object):
 
     def connect(self):
         def on_connect(client, userdata, flags, rc):
-            self.__client.subscribe(self.__cmd_topic)
+            log.debug('Listen for %s', self.__cmd_topic)
+            self.__client.subscribe(self.__cmd_topic, qos=1)
 
         def on_message(client, userdata, msg):
             log.info('Command received %s: %s', msg.topic, msg.payload)
