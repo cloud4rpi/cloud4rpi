@@ -4,6 +4,7 @@ from cloud4rpi.ds18b20 import DS18b20
 from cloud4rpi.cpu_temperature import CpuTemperature
 from cloud4rpi.net import IPAddress, Hostname
 
+import time
 import os
 import subprocess
 import logging
@@ -11,6 +12,8 @@ import logging.handlers
 import cloud4rpi.device
 import cloud4rpi.api_client
 import cloud4rpi.config
+
+log = logging.getLogger(cloud4rpi.config.loggerName)
 
 
 def modprobe(module):
@@ -34,8 +37,25 @@ def get_error_message(e):
 
 def connect_mqtt(device_token):
     api = cloud4rpi.api_client.MqttApi(device_token)
-    api.connect()
+    __attempt_to_connect_with_retries(api)
     return cloud4rpi.device.Device(api)
+
+
+def __attempt_to_connect_with_retries(api, attempts=10):
+    retry_interval = 5
+    for attempt in range(attempts):
+        try:
+            api.connect()
+        except Exception as e:
+            log.debug('MQTT connection error %s. Attempt %s', e, attempt)
+            time.sleep(retry_interval)
+            continue
+        else:
+            break
+    else:
+        msg = 'Impossible to connect to MQTT broker. Quiting.'
+        log.error(msg)
+        raise Exception(msg)
 
 
 def create_logger():
