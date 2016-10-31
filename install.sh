@@ -16,22 +16,22 @@ if [ ! -f "$SCRIPT_PATH" ] || [[ "$SCRIPT_PATH" != /* ]]; then
 fi
 
 echo "Generating init script..."
-cat ./services/service.tmpl | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > $SERVICE_NAME
+cat ./services/service.tmpl | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > "$SERVICE_NAME"
 echo "Done"
 
 echo "Copying init script to /lib/systemd/system..."
-cp $SERVICE_NAME /lib/systemd/system/$SERVICE_NAME
+cp "$SERVICE_NAME" "/lib/systemd/system/$SERVICE_NAME"
 quit_on_error
 echo "Done"
 
 echo "Setting permissions..."
 chmod +x "$SCRIPT_PATH"
-chmod 644 /lib/systemd/system/$SERVICE_NAME
+chmod 644 "/lib/systemd/system/$SERVICE_NAME"
 echo "Done"
 
 echo "Configure systemd..."
 systemctl daemon-reload
-systemctl enable $SERVICE_NAME
+systemctl enable "$SERVICE_NAME"
 quit_on_error
 echo "Done"
 
