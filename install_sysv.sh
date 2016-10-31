@@ -27,6 +27,5 @@ update-rc.d $SERVICE_NAME defaults
 quit_on_error
 echo "Done"
 
-echo -e "Please see the \e[1mcloud4rpid.log \e[0mfile in the /var/log/ directory to get logging information."
 echo "Usage example:"
-echo -e "$ sudo service \e[1mcloud4rpi \e[0mstart|stop|status"
+echo -e "  $ sudo service \e[1mcloud4rpi\e[0m start|stop|status"

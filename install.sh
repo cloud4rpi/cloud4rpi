@@ -28,6 +28,5 @@ systemctl enable $SERVICE_NAME
 quit_on_error
 echo "Done"
 
-echo -e "Please see the \e[1mcloud4rpid.log \e[0mfile in the /var/log/ directory to get logging information."
 echo "Usage example:"
-echo -e "$ sudo systemctl \e[0mstart|stop|status \e[1mcloud4rpi.service"
+echo -e "  $ sudo systemctl \e[0mstart|stop|status\e[1m cloud4rpi.service"
