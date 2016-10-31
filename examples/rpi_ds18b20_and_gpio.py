@@ -5,7 +5,7 @@
 # To run this sample,
 # 1. git clone https://github.com/cloud4rpi/cloud4rpi.git && cd cloud4rpi
 # 2. pip install -r requirements.txt
-# 3. python examples/simple_mqtt_messaging.py
+# 3. python examples/rpi_ds18b20_and_gpio.py
 # =============================================================================
 
 # This needed to be able to import the cloud4rpi directory from examples
@@ -14,6 +14,8 @@ if __name__ == '__main__' and __package__ is None:
 
     sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
+import logging
+import logging.handlers
 import os
 import sys
 import time
@@ -30,6 +32,24 @@ DATA_SENDING_INTERVAL = 30  # secs
 DIAG_SENDING_INTERVAL = 60  # secs
 POLL_INTERVAL = 0.1  # 100 ms
 
+LOG_FILE_PATH = '/var/log/cloud4rpi.log'
+
+log = logging.getLogger(cloud4rpi.config.loggerName)
+log.setLevel(logging.INFO)
+
+
+def configure_logging(logger):
+    console = logging.StreamHandler()
+    console.setFormatter(logging.Formatter('%(message)s'))
+    logger.addHandler(console)
+    log_file = logging.handlers.RotatingFileHandler(
+        LOG_FILE_PATH,
+        maxBytes=1024 * 1024,
+        backupCount=10
+    )
+    log_file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(log_file)
+
 
 def configure_gpio():
     GPIO.setmode(GPIO.BOARD)
@@ -44,6 +64,7 @@ def led_control(value=None):
 
 
 def main():
+    configure_logging(log)
     configure_gpio()
 
     #  load w1 modules
@@ -108,11 +129,11 @@ def main():
             time_passed += POLL_INTERVAL
 
     except KeyboardInterrupt:
-        print('Keyboard interrupt received. Stopping...')
+        log.info('Keyboard interrupt received. Stopping...')
 
     except Exception as e:
         error = cloud4rpi.get_error_message(e)
-        print("ERROR! {0} {1}".format(error, sys.exc_info()[0]))
+        log.error("ERROR! %s %s", error, sys.exc_info()[0])
 
     finally:
         sys.exit(0)
