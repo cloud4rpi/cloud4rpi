@@ -3,7 +3,7 @@ cloud4rpi
 
 [![Build Status](https://travis-ci.org/cloud4rpi/cloud4rpi.svg?branch=master)](https://travis-ci.org/cloud4rpi/cloud4rpi)
 
-**Easily connect your Raspberry Pi to the Internet**
+**Cloud4Rpi client library**
 
 For Impatient
 -------------
