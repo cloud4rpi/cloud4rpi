@@ -3,9 +3,8 @@
 
 # =============================================================================
 # To run this sample,
-# 1. git clone https://github.com/cloud4rpi/cloud4rpi.git && cd cloud4rpi
-# 2. pip install -r requirements.txt
-# 3. python examples/rpi_ds18b20_and_gpio.py
+# 1. pip install cloud4rpi
+# 2. python examples/rpi_ds18b20_and_gpio.py
 # =============================================================================
 
 # This needed to be able to import the cloud4rpi directory from examples

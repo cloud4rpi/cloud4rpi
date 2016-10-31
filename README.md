@@ -12,9 +12,8 @@ On your Raspberry Pi:
 
 ```
 1. sudo apt-get update && sudo apt-get install git python python-pip
-2. git clone https://github.com/cloud4rpi/cloud4rpi && cd cloud4rpi
-3. sudo pip install -r requirements.txt
-4. write your code (you could see some samples under the examples directory)
+2. sudo pip install cloud4rpi
+3. write your code (you could see some samples under the examples directory)
 ```
 
 Introduction
