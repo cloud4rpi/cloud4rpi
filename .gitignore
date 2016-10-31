@@ -9,6 +9,9 @@
 # Setuptools distribution folder.
 /dist/
 
+# bdist_wheel results
+/build/
+
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
 *.iml

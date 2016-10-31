@@ -3,3 +3,5 @@ pep8
 pylint
 mock
 git+https://github.com/jmcgeheeiv/pyfakefs.git
+twine
+pypandoc

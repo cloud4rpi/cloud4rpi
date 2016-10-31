@@ -14,4 +14,13 @@ test:
 
 ci: style lint test
 
-.PHONY: init style lint test
+clean:
+	rm -rf build/*
+	rm -rf *.egg-info/*
+	rm -rf dist/*
+
+release: clean
+	python setup.py sdist bdist_wheel
+	twine upload dist/*
+
+.PHONY: init style lint test release
