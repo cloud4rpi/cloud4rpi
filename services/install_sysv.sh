@@ -6,8 +6,9 @@ function quit_on_error() {
     }
 }
 
-SERVICE_NAME=cloud4rpi.service
+SERVICE_NAME=cloud4rpid
 SCRIPT_PATH=$1
+DIR=$(dirname "$0")
 
 if [ ! -f "$SCRIPT_PATH" ] || [[ "$SCRIPT_PATH" != /* ]]; then
     echo "Usage: $0 /abs/path/to/the/script"
@@ -16,24 +17,23 @@ if [ ! -f "$SCRIPT_PATH" ] || [[ "$SCRIPT_PATH" != /* ]]; then
 fi
 
 echo "Generating init script..."
-cat ./services/service.tmpl | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > "$SERVICE_NAME"
+cat "$DIR/service_sysv.tmpl" | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > "$SERVICE_NAME"
 echo "Done"
 
-echo "Copying init script to /lib/systemd/system..."
-cp "$SERVICE_NAME" "/lib/systemd/system/$SERVICE_NAME"
+echo "Copying init script to /etc/init.d..."
+cp "$SERVICE_NAME" "/etc/init.d/$SERVICE_NAME"
 quit_on_error
 echo "Done"
 
 echo "Setting permissions..."
 chmod +x "$SCRIPT_PATH"
-chmod 644 "/lib/systemd/system/$SERVICE_NAME"
+chmod +x "/etc/init.d/$SERVICE_NAME"
 echo "Done"
 
-echo "Configure systemd..."
-systemctl daemon-reload
-systemctl enable "$SERVICE_NAME"
+echo "Installing init script links..."
+update-rc.d "$SERVICE_NAME" defaults
 quit_on_error
 echo "Done"
 
 echo "Usage example:"
-echo -e "  $ sudo systemctl \e[0mstart|stop|status\e[1m cloud4rpi.service"
+echo -e "  $ sudo service \e[1mcloud4rpi\e[0m start|stop|status"
