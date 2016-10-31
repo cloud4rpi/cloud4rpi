@@ -6,24 +6,31 @@ function quit_on_error() {
     }
 }
 
-SERVICE_NAME=cloud4rpi
+SERVICE_NAME=cloud4rpid
+SCRIPT_PATH=$1
+
+if [ ! -f "$SCRIPT_PATH" ] || [[ "$SCRIPT_PATH" != /* ]]; then
+    echo "Usage: $0 /abs/path/to/the/script"
+    echo "Invalid script path. Make sure it is absolute."
+    exit 1
+fi
 
 echo "Generating init script..."
-cat ./tools/templates/service_sysv.tmpl | sed "s;%CLOUD4RPI_DIR%;$(pwd);" > $SERVICE_NAME
+cat ./services/service_sysv.tmpl | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > "$SERVICE_NAME"
 echo "Done"
 
 echo "Copying init script to /etc/init.d..."
-cp $SERVICE_NAME /etc/init.d/$SERVICE_NAME
+cp "$SERVICE_NAME" "/etc/init.d/$SERVICE_NAME"
 quit_on_error
 echo "Done"
 
 echo "Setting permissions..."
-chmod +x app.py
-chmod +x /etc/init.d/$SERVICE_NAME
+chmod +x "$SCRIPT_PATH"
+chmod +x "/etc/init.d/$SERVICE_NAME"
 echo "Done"
 
 echo "Installing init script links..."
-update-rc.d $SERVICE_NAME defaults
+update-rc.d "$SERVICE_NAME" defaults
 quit_on_error
 echo "Done"
 
