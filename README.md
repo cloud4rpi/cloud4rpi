@@ -31,3 +31,9 @@ Contributing
 3. make
 4. prepare a PR
 ```
+
+Links
+-----
+* [Homepage](https://cloud4rpi.io "Cloud4Rpi's Homepage")
+* [Cloud4rpi on pypi](https://pypi.python.org/pypi/cloud4rpi)
+* [Docs](https://cloud4rpi.github.io/docs/)
