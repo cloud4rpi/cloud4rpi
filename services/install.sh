@@ -37,4 +37,4 @@ quit_on_error
 echo "Done"
 
 echo "Usage example:"
-echo -e "  $ sudo systemctl \e[0mstart|stop|status\e[1m cloud4rpi.service"
+echo -e "  $ sudo systemctl start|stop|status \e[0m$SERVICE_NAME\e[1m"

@@ -36,4 +36,4 @@ quit_on_error
 echo "Done"
 
 echo "Usage example:"
-echo -e "  $ sudo service \e[1mcloud4rpi\e[0m start|stop|status"
+echo -e "  $ sudo service \e[1m$SERVICE_NAME\e[0m start|stop|status"
