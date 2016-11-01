@@ -8,7 +8,7 @@ def readme():
 
 
 setup(name='cloud4rpi',
-      version='0.0.3',
+      version='0.0.4',
       description='Easily connect your Raspberry Pi to the Internet',
       long_description=readme(),
       url='https://github.com/cloud4rpi/cloud4rpi',
