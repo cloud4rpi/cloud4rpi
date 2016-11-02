@@ -1,3 +1,5 @@
+.PHONY: init style lint test clean release
+
 build: init style lint test
 
 init:
@@ -22,5 +24,3 @@ clean:
 release: clean
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
-
-.PHONY: init style lint test release
