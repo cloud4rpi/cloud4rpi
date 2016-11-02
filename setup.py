@@ -1,16 +1,18 @@
 from setuptools import setup
 
-import pypandoc
+description = ''
 
+try:
+    import pypandoc
 
-def readme():
-    return pypandoc.convert('README.md', 'rst')
-
+    description = pypandoc.convert('README.md', 'rst')
+except Exception:
+    pass
 
 setup(name='cloud4rpi',
-      version='0.0.4',
+      version='0.0.5',
       description='Easily connect your Raspberry Pi to the Internet',
-      long_description=readme(),
+      long_description=description,
       url='https://github.com/cloud4rpi/cloud4rpi',
       author='cloud4rpi team',
       author_email='cloud4rpi@gmail.com',
