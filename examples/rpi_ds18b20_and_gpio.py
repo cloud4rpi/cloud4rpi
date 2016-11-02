@@ -1,18 +1,6 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# =============================================================================
-# To run this sample,
-# 1. pip install cloud4rpi
-# 2. python examples/rpi_ds18b20_and_gpio.py
-# =============================================================================
-
-# This needed to be able to import the cloud4rpi directory from examples
-if __name__ == '__main__' and __package__ is None:
-    from os import sys, path
-
-    sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
-
 import logging
 import logging.handlers
 import os
