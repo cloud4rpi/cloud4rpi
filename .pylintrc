@@ -2,7 +2,7 @@
 # Show all warnings
 confidence=
 
-disable=C,R,W0613,W0703
+disable=R,W0613,W0703,C0111,C0103
 
 [BASIC]
 const-name-hint=(([A-Z_][A-Z0-9_]*)|(__.*__))$

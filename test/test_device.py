@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from mock import Mock
+
 import unittest
 import cloud4rpi.device
+
+from mock import Mock
 
 
 class ApiClientMock(object):
