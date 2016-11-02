@@ -11,7 +11,7 @@ except Exception:
 
 setup(name='cloud4rpi',
       version='0.0.5',
-      description='cloud4Rpi client library',
+      description='cloud4rpi client library',
       long_description=description,
       url='https://github.com/cloud4rpi/cloud4rpi',
       author='cloud4rpi team',
