@@ -1,12 +1,6 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# =============================================================================
-# To run this sample,
-# 1. pip install cloud4rpi
-# 2. python examples/simple_mqtt_messaging.py
-# =============================================================================
-
 from cloud4rpi import api_client
 
 
