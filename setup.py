@@ -11,7 +11,7 @@ except Exception:
 
 setup(name='cloud4rpi',
       version='0.0.5',
-      description='Easily connect your Raspberry Pi to the Internet',
+      description='cloud4Rpi client library',
       long_description=description,
       url='https://github.com/cloud4rpi/cloud4rpi',
       author='cloud4rpi team',
