@@ -1,18 +1,6 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# =============================================================================
-# To run this sample,
-# 1. pip install cloud4rpi
-# 2. python examples/simple_mqtt_messaging.py
-# =============================================================================
-
-# This needed to be able to import the cloud4rpi directory from examples
-if __name__ == '__main__' and __package__ is None:
-    from os import sys, path
-
-    sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
-
 from cloud4rpi import api_client
 
 

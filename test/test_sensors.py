@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import unittest
 import pyfakefs.fake_filesystem_unittest as ffut
 import cloud4rpi
