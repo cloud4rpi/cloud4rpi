@@ -7,12 +7,12 @@ function quit_on_error() {
 }
 
 SERVICE_NAME=cloud4rpid
-SCRIPT_PATH=$1
+SCRIPT_PATH=$(readlink -f "$1")
 DIR=$(dirname "$0")
 
-if [ ! -f "$SCRIPT_PATH" ] || [[ "$SCRIPT_PATH" != /* ]]; then
-    echo "Usage: $0 /abs/path/to/the/script"
-    echo "Invalid script path. Make sure it is absolute."
+if [ ! -f "$SCRIPT_PATH" ]; then
+    echo "Usage: $0 path/to/the/script"
+    echo "Invalid script path. Make sure it exists."
     exit 1
 fi
 
