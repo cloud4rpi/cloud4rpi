@@ -3,7 +3,7 @@ from setuptools import setup
 description = ''
 
 try:
-    import pypandoc
+    import pypandoc  # pylint: disable=F0401
 
     description = pypandoc.convert('README.md', 'rst')
 except Exception:
