@@ -44,7 +44,7 @@ class MqttApi(object):
         def noop_on_command(cmd):
             pass
 
-        client_id = 'c4r-{0}'.format(device_token)
+        client_id = 'c4r-{0}-'.format(device_token)
         self.__client = mqtt.Client(client_id, clean_session=False)
         self.__host = host
         self.__port = port
