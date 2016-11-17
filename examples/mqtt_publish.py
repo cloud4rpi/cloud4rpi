@@ -9,7 +9,7 @@ def main():
     # and connect to the api.
     # The token looks something like "4GPZFMVuacadesU21dBw47zJi"
     # it is the key that allows the device to communicate with the cloud4rpi.
-    device_token = '!!! put your device token here !!!'
+    device_token = '__YOUR_DEVICE_TOKEN__'
     client = api_client.MqttApi(device_token)
     client.connect()
 
