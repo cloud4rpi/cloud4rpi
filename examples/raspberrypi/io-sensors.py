@@ -54,9 +54,9 @@ def main():
     configure_logging(log)
     configure_gpio()
 
-    #  load w1 modules
-    cloud4rpi.modprobe('w1-gpio')
-    cloud4rpi.modprobe('w1-therm')
+    # #  load w1 modules
+    # cloud4rpi.modprobe('w1-gpio')
+    # cloud4rpi.modprobe('w1-therm')
 
     # detect ds18b20 temperature sensors
     # ds_sensors = cloud4rpi.DS18b20.find_all()
