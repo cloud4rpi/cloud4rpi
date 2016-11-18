@@ -3,10 +3,13 @@
 
 import logging
 import logging.handlers
-import os
 import sys
 import time
 import cloud4rpi
+
+from examples.raspberrypi.lib import ds18b20
+from examples.raspberrypi.lib import rpi
+
 import RPi.GPIO as GPIO  # pylint: disable=F0401
 
 # Put your device token here. To get the token,
@@ -55,18 +58,17 @@ def main():
     configure_gpio()
 
     # #  load w1 modules
-    # cloud4rpi.modprobe('w1-gpio')
-    # cloud4rpi.modprobe('w1-therm')
+    ds18b20.init_w1()
 
     # detect ds18b20 temperature sensors
-    # ds_sensors = cloud4rpi.DS18b20.find_all()
+    ds_sensors = ds18b20.DS18b20.find_all()
 
     # Put variable declarations here
     variables = {
-        # 'CurrentTemp_1': {
-        #     'type': 'numeric',
-        #     'bind': ds_sensors[0]
-        # },
+        'CurrentTemp_1': {
+            'type': 'numeric',
+            'bind': ds_sensors[0]
+        },
 
         # 'CurrentTemp_2': {
         #     'type': 'numeric',
@@ -78,18 +80,18 @@ def main():
             'value': False,
             'bind': led_control
         },
-
-        'CPUTemp': {
-            'type': 'numeric',
-            'bind': cloud4rpi.CpuTemperature()
-        }
+        #
+        # 'CPUTemp': {
+        #     'type': 'numeric',
+        #     'bind': rpi.cpu_temp()
+        # }
     }
 
     diagnostics = {
-        'CPU Temperature': cloud4rpi.CpuTemperature(),
-        'IPAddress': cloud4rpi.IPAddress(),
-        'Host': cloud4rpi.Hostname(),
-        'OS Name': ' '.join(str(x) for x in os.uname())
+        'CPU Temperature': rpi.cpu_temp(),
+        'IPAddress': rpi.ip_address(),
+        'Host': rpi.hostname(),
+        'OS Name': rpi.osname()
     }
 
     device = cloud4rpi.connect_mqtt(DEVICE_TOKEN)

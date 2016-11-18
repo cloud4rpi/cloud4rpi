@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 import unittest
 import pyfakefs.fake_filesystem_unittest as ffut
-import cloud4rpi
+
 from examples.raspberrypi.lib import ds18b20
+from examples.raspberrypi.lib import rpi
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -47,11 +46,16 @@ class TestDs18b20Sensors(ffut.TestCase):
             ds18b20.DS18b20('invalid address')
 
 
-@unittest.skip("Not tests actually")
-class TestNet(unittest.TestCase):
-    def testTemporary(self):
-        host = cloud4rpi.Hostname()
-        ip = cloud4rpi.IPAddress()
+class TestRpi(unittest.TestCase):
 
-        print(host.read())
-        print(ip.read())
+    def testHostName(self):
+        self.assertIsNotNone(rpi.hostname)
+
+    def testCpuTemp(self):
+        self.assertIsNotNone(rpi.cpu_temp)
+
+    def testOSName(self):
+        self.assertIsNotNone(rpi.osname)
+
+    def testIPAddress(self):
+        self.assertIsNotNone(rpi.ip_address)

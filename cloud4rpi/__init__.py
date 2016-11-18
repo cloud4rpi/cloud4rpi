@@ -7,11 +7,7 @@ import cloud4rpi.device
 import cloud4rpi.api_client
 import cloud4rpi.config
 
-from cloud4rpi.cpu_temperature import CpuTemperature
-from cloud4rpi.net import IPAddress, Hostname
-
 log = logging.getLogger(cloud4rpi.config.loggerName)
-
 
 __messages = {
     KeyboardInterrupt: 'Interrupted',
