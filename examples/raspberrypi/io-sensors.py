@@ -22,8 +22,6 @@ DATA_SENDING_INTERVAL = 30  # secs
 DIAG_SENDING_INTERVAL = 60  # secs
 POLL_INTERVAL = 0.1  # 100 ms
 
-LOG_FILE_PATH = '/var/log/cloud4rpi.log'
-
 log = logging.getLogger(cloud4rpi.config.loggerName)
 log.setLevel(logging.INFO)
 
@@ -32,13 +30,6 @@ def configure_logging(logger):
     console = logging.StreamHandler()
     console.setFormatter(logging.Formatter('%(message)s'))
     logger.addHandler(console)
-    log_file = logging.handlers.RotatingFileHandler(
-        LOG_FILE_PATH,
-        maxBytes=1024 * 1024,
-        backupCount=10
-    )
-    log_file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
-    logger.addHandler(log_file)
 
 
 def configure_gpio():
@@ -83,7 +74,7 @@ def main():
         #
         # 'CPUTemp': {
         #     'type': 'numeric',
-        #     'bind': rpi.cpu_temp()
+        #     'bind': rpi.cpu_temp() //TODO support for func
         # }
     }
 
