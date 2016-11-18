@@ -1,25 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import time
-import os
 import subprocess
 import logging
 import cloud4rpi.device
 import cloud4rpi.api_client
 import cloud4rpi.config
 
-from cloud4rpi.ds18b20 import DS18b20
 from cloud4rpi.cpu_temperature import CpuTemperature
 from cloud4rpi.net import IPAddress, Hostname
 
 log = logging.getLogger(cloud4rpi.config.loggerName)
-
-
-def modprobe(module):
-    cmd = 'modprobe {0}'.format(module)
-    ret = os.system(cmd)
-    if ret != 0:
-        raise subprocess.CalledProcessError(ret, cmd)
 
 
 __messages = {
