@@ -12,12 +12,12 @@ class Device(object):
         self.__diag = {}
 
     @staticmethod
-    def resolve_binding(binding):
-        if hasattr(binding, '__call__'):
-            return binding()
-
+    def __resolve_binding(binding):
         if hasattr(binding, 'read'):
             return binding.read()
+
+        if hasattr(binding, '__call__'):
+            return binding()
 
         return binding
 
@@ -51,9 +51,8 @@ class Device(object):
     def send_data(self):
         for _, varConfig in self.__variables.items():
             bind = varConfig.get('bind', None)
-            if not hasattr(bind, 'read'):
-                continue
-            varConfig['value'] = bind.read()
+            if bind:
+                varConfig['value'] = self.__resolve_binding(bind)
 
         readings = {varName: varConfig.get('value')
                     for varName, varConfig in self.__variables.items()}
@@ -65,5 +64,5 @@ class Device(object):
     def send_diag(self):
         readings = {}
         for name, value in self.__diag.items():
-            readings[name] = self.resolve_binding(value)
+            readings[name] = self.__resolve_binding(value)
         self.__api.publish_diag(readings)

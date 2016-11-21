@@ -25,20 +25,14 @@ class MockSensor(object):
         self.read = Mock(return_value=value)
 
 
-class VariableMock(object):
-    def __init__(self, value=42):
-        self._value = value
+class DiagFuncMock(object):
+    @staticmethod
+    def ip_address():
+        return '8.8.8.8'
 
     @staticmethod
-    def direct_val():
-        return 42
-
-    @staticmethod
-    def bound_func():
-        return 42
-
-    def read(self):
-        return self._value
+    def osname():
+        return 'Linux'
 
 
 class TestDevice(unittest.TestCase):
@@ -106,8 +100,7 @@ class TestDevice(unittest.TestCase):
 
     def testSendData(self):
         api = ApiClientMock()
-        handler = Mock()
-        del handler.read
+        handler = {}
         temperature_sensor = MockSensor(73)
         device = cloud4rpi.device.Device(api)
         device.declare({
@@ -163,28 +156,19 @@ class TestDevice(unittest.TestCase):
 
     def testSendDiag(self):
         api = ApiClientMock()
+
         temperature_sensor = MockSensor(73)
         device = cloud4rpi.device.Device(api)
         device.declare_diag({
             'CPUTemperature': temperature_sensor,
-            'IPAddress': '127.0.0.1',
+            'IPAddress': DiagFuncMock.ip_address,
+            'OSName': DiagFuncMock.osname(),
             'Host': 'weather_station'
         })
         device.send_diag()
         api.publish_diag.assert_called_with({
             'CPUTemperature': 73,
-            'IPAddress': '127.0.0.1',
+            'IPAddress': '8.8.8.8',
+            'OSName': 'Linux',
             'Host': 'weather_station'
         })
-
-    def testResolveDirectValueBinding(self):
-        device = cloud4rpi.device.Device
-        self.assertEqual(42, device.resolve_binding(VariableMock.direct_val()))
-
-    def testBoundFuncBinding(self):
-        device = cloud4rpi.device.Device
-        self.assertEqual(42, device.resolve_binding(VariableMock.bound_func))
-
-    def testReadableObjBinding(self):
-        device = cloud4rpi.device.Device
-        self.assertEqual(42, device.resolve_binding(VariableMock(42)))
