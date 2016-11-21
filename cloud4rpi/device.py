@@ -16,7 +16,7 @@ class Device(object):
         if hasattr(binding, 'read'):
             return binding.read()
 
-        if hasattr(binding, '__call__'):
+        if callable(binding):
             return binding()
 
         return binding
