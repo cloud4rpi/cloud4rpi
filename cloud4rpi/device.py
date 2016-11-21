@@ -11,6 +11,16 @@ class Device(object):
         self.__variables = {}
         self.__diag = {}
 
+    @staticmethod
+    def resolve_binding(binding):
+        if hasattr(binding, '__call__'):
+            return binding()
+
+        if hasattr(binding, 'read'):
+            return binding.read()
+
+        return binding
+
     def __on_command(self, cmd):
         actual_var_values = {}
         for varName, value in cmd.items():
@@ -47,16 +57,13 @@ class Device(object):
 
         readings = {varName: varConfig.get('value')
                     for varName, varConfig in self.__variables.items()}
-
         if len(readings) == 0:
+
             return
         self.__api.publish_data(readings)
 
     def send_diag(self):
         readings = {}
         for name, value in self.__diag.items():
-            if hasattr(value, 'read'):
-                readings[name] = value.read()
-                continue
-            readings[name] = value
+            readings[name] = self.resolve_binding(value)
         self.__api.publish_diag(readings)

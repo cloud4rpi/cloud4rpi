@@ -25,6 +25,22 @@ class MockSensor(object):
         self.read = Mock(return_value=value)
 
 
+class VariableMock(object):
+    def __init__(self, value=42):
+        self._value = value
+
+    @staticmethod
+    def direct_val():
+        return 42
+
+    @staticmethod
+    def bound_func():
+        return 42
+
+    def read(self):
+        return self._value
+
+
 class TestDevice(unittest.TestCase):
     def testDeclareVariables(self):
         api = ApiClientMock()
@@ -160,3 +176,15 @@ class TestDevice(unittest.TestCase):
             'IPAddress': '127.0.0.1',
             'Host': 'weather_station'
         })
+
+    def testResolveDirectValueBinding(self):
+        device = cloud4rpi.device.Device
+        self.assertEqual(42, device.resolve_binding(VariableMock.direct_val()))
+
+    def testBoundFuncBinding(self):
+        device = cloud4rpi.device.Device
+        self.assertEqual(42, device.resolve_binding(VariableMock.bound_func))
+
+    def testReadableObjBinding(self):
+        device = cloud4rpi.device.Device
+        self.assertEqual(42, device.resolve_binding(VariableMock(42)))
