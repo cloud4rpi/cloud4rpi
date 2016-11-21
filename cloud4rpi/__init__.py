@@ -8,6 +8,8 @@ import cloud4rpi.api_client
 import cloud4rpi.config
 
 log = logging.getLogger(cloud4rpi.config.loggerName)
+log.setLevel(logging.INFO)
+log.addHandler(logging.StreamHandler())
 
 __messages = {
     KeyboardInterrupt: 'Interrupted',
