@@ -1,8 +1,6 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-import logging
-import logging.handlers
 import sys
 import time
 import cloud4rpi
@@ -10,44 +8,17 @@ import cloud4rpi
 from examples.raspberrypi.lib import ds18b20
 from examples.raspberrypi.lib import rpi
 
-import RPi.GPIO as GPIO  # pylint: disable=F0401
-
 # Put your device token here. To get the token,
 # sign up at https://cloud4rpi.io and create a device.
 DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
 
 # Constants
-LED_PIN = 12
 DATA_SENDING_INTERVAL = 30  # secs
 DIAG_SENDING_INTERVAL = 60  # secs
-POLL_INTERVAL = 0.1  # 100 ms
-
-log = logging.getLogger(cloud4rpi.config.loggerName)
-log.setLevel(logging.INFO)
-
-
-def configure_logging(logger):
-    console = logging.StreamHandler()
-    console.setFormatter(logging.Formatter('%(message)s'))
-    logger.addHandler(console)
-
-
-def configure_gpio():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(LED_PIN, GPIO.OUT)
-
-
-# handler for the button or switch variable
-def led_control(value=None):
-    GPIO.output(LED_PIN, value)
-    current = GPIO.input(LED_PIN)
-    return current
+POLL_INTERVAL = 0.5  # 500 ms
 
 
 def main():
-    configure_logging(log)
-    configure_gpio()
-
     # #  load w1 modules
     ds18b20.init_w1()
 
@@ -56,26 +27,18 @@ def main():
 
     # Put variable declarations here
     variables = {
-        'CurrentTemp_1': {
+        'RoomTemp': {
             'type': 'numeric',
             'bind': ds_sensors[0]
         },
-
-        # 'CurrentTemp_2': {
+        # 'OutsideTemp': {
         #     'type': 'numeric',
         #     'bind': ds_sensors[1]
         # },
-
-        'LEDOn': {
-            'type': 'bool',
-            'value': False,
-            'bind': led_control
-        },
-        #
-        # 'CPUTemp': {
-        #     'type': 'numeric',
-        #     'bind': rpi.cpu_temp() //TODO support for func
-        # }
+        'CPUTemp': {
+            'type': 'numeric',
+            'bind': rpi.cpu_temp
+        }
     }
 
     diagnostics = {
@@ -109,11 +72,11 @@ def main():
             time_passed += POLL_INTERVAL
 
     except KeyboardInterrupt:
-        log.info('Keyboard interrupt received. Stopping...')
+        cloud4rpi.log.info('Keyboard interrupt received. Stopping...')
 
     except Exception as e:
         error = cloud4rpi.get_error_message(e)
-        log.error("ERROR! %s %s", error, sys.exc_info()[0])
+        cloud4rpi.log.error("ERROR! %s %s", error, sys.exc_info()[0])
 
     finally:
         sys.exit(0)
