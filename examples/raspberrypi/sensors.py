@@ -61,12 +61,13 @@ def main():
         next_diag_sending = DIAG_SENDING_INTERVAL
         while True:
             if time_passed >= next_data_sending:
-                next_data_sending += DATA_SENDING_INTERVAL
                 device.send_data()
+                next_data_sending += DATA_SENDING_INTERVAL
 
             if time_passed >= next_diag_sending:
-                next_diag_sending += DIAG_SENDING_INTERVAL
                 device.send_diag()
+                device.send_config()
+                next_diag_sending += DIAG_SENDING_INTERVAL
 
             time.sleep(POLL_INTERVAL)
             time_passed += POLL_INTERVAL
