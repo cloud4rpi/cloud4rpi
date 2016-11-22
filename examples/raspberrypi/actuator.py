@@ -3,8 +3,8 @@
 
 import sys
 import time
+import RPi.GPIO as GPIO  # pylint: disable=F0401
 import cloud4rpi
-from examples.raspberrypi.lib import gpio
 
 # Put your device token here. To get the token,
 # sign up at https://cloud4rpi.io and create a device.
@@ -16,15 +16,15 @@ DATA_SENDING_INTERVAL = 30  # secs
 POLL_INTERVAL = 0.5  # 500 ms
 
 
-# use output GPIO pin
-ledOn = gpio.GpioActuator(LED_PIN)
-print('ACTUATOR_____', ledOn)
+# configure GPIO library
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(LED_PIN, GPIO.OUT)
 
 
 # handler for the button or switch variable
 def led_control(value=None):
-    cloud4rpi.log.error("User-function called with (%s)", value)
-    return ledOn.set(value)
+    GPIO.output(LED_PIN, value)
+    return GPIO.input(LED_PIN)
 
 
 def main():

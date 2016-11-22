@@ -35,6 +35,16 @@ class DiagFuncMock(object):
         return 'Linux'
 
 
+class BooleanMock(object):
+    @staticmethod
+    def true_func(value=None):
+        return True
+
+    @staticmethod
+    def false_func(value=None):
+        return False
+
+
 class TestDevice(unittest.TestCase):
     def testDeclareVariables(self):
         api = ApiClientMock()
@@ -129,21 +139,17 @@ class TestDevice(unittest.TestCase):
 
     def testSendDataAfterCommand(self):
         api = ApiClientMock()
-        led_handler = Mock(return_value=True)
-        del led_handler.read
-        cooler_handler = Mock(return_value=False)
-        del cooler_handler.read
         device = cloud4rpi.device.Device(api)
         device.declare({
             'LEDOn': {
                 'type': 'bool',
                 'value': False,
-                'bind': led_handler
+                'bind': BooleanMock.true_func
             },
             'Cooler': {
                 'type': 'bool',
                 'value': True,
-                'bind': cooler_handler
+                'bind': BooleanMock.false_func
             }
         })
         api.raise_on_command({'LEDOn': True, 'Cooler': False})
