@@ -48,9 +48,7 @@ class Device(object):
 
     def declare(self, variables):
         self.__variables = variables
-        declarations = [{'name': name, 'type': value['type']}
-                        for name, value in variables.items()]
-        self.__api.publish_config(declarations)
+        self.send_config()
 
     def declare_diag(self, diag):
         self.__diag = diag
@@ -75,3 +73,8 @@ class Device(object):
         for name, value in self.__diag.items():
             readings[name] = self.__resolve_binding(value)
         self.__api.publish_diag(readings)
+
+    def send_config(self):
+        declarations = [{'name': name, 'type': value['type']}
+                        for name, value in self.__variables.items()]
+        self.__api.publish_config(declarations)

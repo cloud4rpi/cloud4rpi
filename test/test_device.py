@@ -3,7 +3,7 @@
 import unittest
 import cloud4rpi.device
 
-from mock import Mock
+from mock import Mock, call
 
 
 class ApiClientMock(object):
@@ -58,6 +58,27 @@ class TestDevice(unittest.TestCase):
         api.publish_config.assert_called_with([
             {'name': 'CPUTemp', 'type': 'numeric'}
         ])
+
+    def testSendConfig(self):
+        api = ApiClientMock()
+        device = cloud4rpi.device.Device(api)
+        device.declare({
+            'CPUTemp': {
+                'type': 'numeric',
+                'bind': MockSensor()
+            }
+        })
+        expected_call = call([{'name': 'CPUTemp', 'type': 'numeric'}])
+        api.publish_config.assert_has_calls([expected_call])
+
+        device.send_config()
+        api.publish_config.assert_has_calls([expected_call, expected_call])
+
+    def testSendConfigIfNotDeclared(self):
+        api = ApiClientMock()
+        device = cloud4rpi.device.Device(api)
+        device.send_config()
+        api.publish_config.assert_called_with([])
 
     def testCallsBoundFunctionOnCommand(self):
         api = ApiClientMock()
