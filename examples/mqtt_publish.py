@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
 from cloud4rpi import api_client
