@@ -7,6 +7,8 @@ import re
 def parse_output(pattern, default, args):
     try:
         out_str = subprocess.check_output(args)
+        if type(out_str) == bytes:
+            out_str = out_str.decode()
     except:
         out_str = 'error'
     match = re.search(pattern, out_str)
