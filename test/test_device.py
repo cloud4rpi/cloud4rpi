@@ -25,26 +25,6 @@ class MockSensor(object):
         self.read = Mock(return_value=value)
 
 
-class DiagFuncMock(object):
-    @staticmethod
-    def ip_address():
-        return '8.8.8.8'
-
-    @staticmethod
-    def osname():
-        return 'Linux'
-
-
-class BooleanMock(object):
-    @staticmethod
-    def true_func(value=None):
-        return True
-
-    @staticmethod
-    def false_func(value=None):
-        return False
-
-
 class TestDevice(unittest.TestCase):
     def testDeclareVariables(self):
         api = ApiClientMock()
@@ -161,16 +141,17 @@ class TestDevice(unittest.TestCase):
     def testSendDataAfterCommand(self):
         api = ApiClientMock()
         device = cloud4rpi.device.Device(api)
+
         device.declare({
             'LEDOn': {
                 'type': 'bool',
                 'value': False,
-                'bind': BooleanMock.true_func
+                'bind': lambda x: True
             },
             'Cooler': {
                 'type': 'bool',
                 'value': True,
-                'bind': BooleanMock.false_func
+                'bind': lambda x: False
             }
         })
         api.raise_on_command({'LEDOn': True, 'Cooler': False})
@@ -188,8 +169,8 @@ class TestDevice(unittest.TestCase):
         device = cloud4rpi.device.Device(api)
         device.declare_diag({
             'CPUTemperature': temperature_sensor,
-            'IPAddress': DiagFuncMock.ip_address,
-            'OSName': DiagFuncMock.osname(),
+            'IPAddress': lambda x: '8.8.8.8',
+            'OSName': lambda x: 'Linux',
             'Host': 'weather_station'
         })
         device.send_diag()
