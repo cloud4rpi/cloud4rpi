@@ -7,6 +7,7 @@ import cloud4rpi.device
 import cloud4rpi.api_client
 import cloud4rpi.config
 
+
 log = logging.getLogger(cloud4rpi.config.loggerName)
 log.setLevel(logging.INFO)
 log.addHandler(logging.StreamHandler())
@@ -42,3 +43,13 @@ def __attempt_to_connect_with_retries(api, attempts=10):
             break
     else:
         raise Exception('Impossible to connect to MQTT broker. Quiting.')
+
+
+def set_logging_to_file(log_file_path):
+    log_file = logging.handlers.RotatingFileHandler(
+        log_file_path,
+        maxBytes=1024 * 1024,
+        backupCount=10
+    )
+    log_file.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    log.addHandler(log_file)
