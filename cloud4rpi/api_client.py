@@ -44,7 +44,7 @@ class MqttApi(object):
         def noop_on_command(cmd):
             pass
 
-        client_id = 'c4r-{0}'.format(device_token)
+        client_id = 'c4r-{0}-'.format(device_token)
         self.__client = mqtt.Client(client_id, clean_session=False)
         self.__host = host
         self.__port = port
@@ -65,7 +65,9 @@ class MqttApi(object):
         def on_message(client, userdata, msg):
             log.info('Command received %s: %s', msg.topic, msg.payload)
             if callable(self.on_command):
-                self.on_command(json.loads(msg.payload))
+                payload = msg.payload.decode() \
+                    if isinstance(msg.payload, bytes) else msg.payload
+                self.on_command(json.loads(payload))
 
         def on_disconnect(client, userdata, rc):
             log.info('MQTT disconnected with code: %s', rc)

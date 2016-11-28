@@ -2,9 +2,19 @@
 
 import os
 import re
+import subprocess
 
 W1_DEVICES = '/sys/bus/w1/devices/'
 W1_SENSOR_PATTERN = re.compile('(10|22|28)-.+', re.IGNORECASE)
+
+
+def modprobe(module):
+    return subprocess.check_call(['modprobe', module])
+
+
+def init_w1():
+    modprobe('w1-gpio')
+    modprobe('w1-therm')
 
 
 def is_w1_sensor(path):

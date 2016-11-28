@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 import unittest
 import pyfakefs.fake_filesystem_unittest as ffut
-import cloud4rpi
-import cloud4rpi.ds18b20
+
+from examples.raspberrypi.lib import ds18b20
+from examples.raspberrypi.lib import rpi
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -32,26 +31,31 @@ class TestDs18b20Sensors(ffut.TestCase):
         )
 
     def testFindDSSensors(self):
-        sensors = cloud4rpi.DS18b20.find_all()
+        sensors = ds18b20.DS18b20.find_all()
         self.assertEqual(len(sensors), 2)
         self.assertEqual(sensors[0].address, '10-000802824e58')
         self.assertEqual(sensors[1].address, '28-000802824e58')
 
     def testRead(self):
-        sensor = cloud4rpi.DS18b20('28-000802824e58')
+        sensor = ds18b20.DS18b20('28-000802824e58')
         result = sensor.read()
         self.assertEqual(result, 28.250)
 
     def testRaisesExceptionOnInvalidAddress(self):
-        with self.assertRaises(cloud4rpi.ds18b20.InvalidW1Address):
-            cloud4rpi.DS18b20('invalid address')
+        with self.assertRaises(ds18b20.InvalidW1Address):
+            ds18b20.DS18b20('invalid address')
 
 
-@unittest.skip("Not tests actually")
-class TestNet(unittest.TestCase):
-    def testTemporary(self):
-        host = cloud4rpi.Hostname()
-        ip = cloud4rpi.IPAddress()
+class TestRpi(unittest.TestCase):
 
-        print(host.read())
-        print(ip.read())
+    def testHostName(self):
+        self.assertIsNotNone(rpi.hostname)
+
+    def testCpuTemp(self):
+        self.assertIsNotNone(rpi.cpu_temp)
+
+    def testOSName(self):
+        self.assertIsNotNone(rpi.osname)
+
+    def testIPAddress(self):
+        self.assertIsNotNone(rpi.ip_address)

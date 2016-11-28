@@ -3,7 +3,7 @@
 import unittest
 import cloud4rpi.device
 
-from mock import Mock
+from mock import Mock, call
 
 
 class ApiClientMock(object):
@@ -38,6 +38,27 @@ class TestDevice(unittest.TestCase):
         api.publish_config.assert_called_with([
             {'name': 'CPUTemp', 'type': 'numeric'}
         ])
+
+    def testSendConfig(self):
+        api = ApiClientMock()
+        device = cloud4rpi.device.Device(api)
+        device.declare({
+            'CPUTemp': {
+                'type': 'numeric',
+                'bind': MockSensor()
+            }
+        })
+        expected_call = call([{'name': 'CPUTemp', 'type': 'numeric'}])
+        api.publish_config.assert_has_calls([expected_call])
+
+        device.send_config()
+        api.publish_config.assert_has_calls([expected_call, expected_call])
+
+    def testSendConfigIfNotDeclared(self):
+        api = ApiClientMock()
+        device = cloud4rpi.device.Device(api)
+        device.send_config()
+        api.publish_config.assert_called_with([])
 
     def testCallsBoundFunctionOnCommand(self):
         api = ApiClientMock()
@@ -90,8 +111,7 @@ class TestDevice(unittest.TestCase):
 
     def testSendData(self):
         api = ApiClientMock()
-        handler = Mock()
-        del handler.read
+        handler = {}
         temperature_sensor = MockSensor(73)
         device = cloud4rpi.device.Device(api)
         device.declare({
@@ -120,21 +140,18 @@ class TestDevice(unittest.TestCase):
 
     def testSendDataAfterCommand(self):
         api = ApiClientMock()
-        led_handler = Mock(return_value=True)
-        del led_handler.read
-        cooler_handler = Mock(return_value=False)
-        del cooler_handler.read
         device = cloud4rpi.device.Device(api)
+
         device.declare({
             'LEDOn': {
                 'type': 'bool',
                 'value': False,
-                'bind': led_handler
+                'bind': lambda x: True
             },
             'Cooler': {
                 'type': 'bool',
                 'value': True,
-                'bind': cooler_handler
+                'bind': lambda x: False
             }
         })
         api.raise_on_command({'LEDOn': True, 'Cooler': False})
@@ -147,16 +164,19 @@ class TestDevice(unittest.TestCase):
 
     def testSendDiag(self):
         api = ApiClientMock()
+
         temperature_sensor = MockSensor(73)
         device = cloud4rpi.device.Device(api)
         device.declare_diag({
             'CPUTemperature': temperature_sensor,
-            'IPAddress': '127.0.0.1',
+            'IPAddress': lambda x: '8.8.8.8',
+            'OSName': lambda x: 'Linux',
             'Host': 'weather_station'
         })
         device.send_diag()
         api.publish_diag.assert_called_with({
             'CPUTemperature': 73,
-            'IPAddress': '127.0.0.1',
+            'IPAddress': '8.8.8.8',
+            'OSName': 'Linux',
             'Host': 'weather_station'
         })
