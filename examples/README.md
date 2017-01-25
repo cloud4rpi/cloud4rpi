@@ -2,11 +2,10 @@
 Cloud4Rpi Examples
 -----
 
-## Raspberry Pi
-* [Mininal](raspberrypi/minimal.py)
-* [Sensors](raspberrypi/sensors.py)
-* [Actuator](raspberrypi/actuator.py)
-* [Input/Output Control](raspberrypi/control.py)
 
-## Common
+* [Mininal](minimal.py)
+* [Sensors](sensors.py)
+* [Actuator](actuator.py)
+* [Status](status.py)
+* [Input/Output Control](control.py)
 * [MQTT Publish](mqtt_publish.py)

@@ -3,8 +3,8 @@
 import unittest
 import pyfakefs.fake_filesystem_unittest as ffut
 
-from examples.raspberrypi.lib import ds18b20
-from examples.raspberrypi.lib import rpi
+from examples import ds18b20
+from examples import rpi
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \

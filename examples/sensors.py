@@ -3,14 +3,12 @@
 import sys
 import time
 import cloud4rpi
-
-from lib import ds18b20
-from lib import rpi
+import ds18b20
+import rpi
 
 # Put your device token here. To get the token,
 # sign up at https://cloud4rpi.io and create a device.
 DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
-DEVICE_TOKEN = '4d9drnjrzeM7v2Y1gYmHzKg9A'
 
 # Constants
 DATA_SENDING_INTERVAL = 30  # secs
