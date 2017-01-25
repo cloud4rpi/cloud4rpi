@@ -38,18 +38,16 @@ def main():
 
     device = cloud4rpi.connect_mqtt(DEVICE_TOKEN)
     device.declare(variables)
-    device.send_data()
 
     try:
-        time_passed = 0
-        next_data_sending = DATA_SENDING_INTERVAL
+        data_timer = 0
         while True:
-            if time_passed >= next_data_sending:
-                next_data_sending += DATA_SENDING_INTERVAL
+            if data_timer <= 0:
                 device.send_data()
+                data_timer = DATA_SENDING_INTERVAL
 
             time.sleep(POLL_INTERVAL)
-            time_passed += POLL_INTERVAL
+            data_timer -= POLL_INTERVAL
 
     except KeyboardInterrupt:
         cloud4rpi.log.info('Keyboard interrupt received. Stopping...')

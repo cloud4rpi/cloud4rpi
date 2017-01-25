@@ -29,11 +29,14 @@ def hostname():
 def osname():
     return 'osx'
 
-
+# Put your device token here. To get the token,
+# sign up at https://cloud4rpi.io and create a device.
 DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
+
+# Constants
 DATA_SENDING_INTERVAL = 30  # secs
 DIAG_SENDING_INTERVAL = 60  # secs
-POLL_INTERVAL = 0.1  # 100 ms
+POLL_INTERVAL = 0.5  # 500 ms
 
 
 def main():
@@ -62,22 +65,20 @@ def main():
     device.declare_diag(diagnostics)
 
     try:
+        diag_timer = 0
+        data_timer = 0
         while True:
-            time_passed = 0
-            next_data_sending = DATA_SENDING_INTERVAL
-            next_diag_sending = DIAG_SENDING_INTERVAL
+            if data_timer <= 0:
+                device.send_data()
+                data_timer = DATA_SENDING_INTERVAL
 
-            while True:
-                if time_passed >= next_data_sending:
-                    next_data_sending += DATA_SENDING_INTERVAL
-                    device.send_data()
+            if diag_timer <= 0:
+                device.send_diag()
+                diag_timer = DIAG_SENDING_INTERVAL
 
-                if time_passed >= next_diag_sending:
-                    next_diag_sending += DIAG_SENDING_INTERVAL
-                    device.send_diag()
-
-                time.sleep(POLL_INTERVAL)
-                time_passed += POLL_INTERVAL
+            diag_timer -= POLL_INTERVAL
+            data_timer -= POLL_INTERVAL
+            time.sleep(POLL_INTERVAL)
 
     except KeyboardInterrupt:
         cloud4rpi.log.info('Keyboard interrupt received. Stopping...')

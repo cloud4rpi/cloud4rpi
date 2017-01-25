@@ -2,6 +2,7 @@
 
 import sys
 import time
+import random
 import RPi.GPIO as GPIO  # pylint: disable=F0401
 import cloud4rpi
 
@@ -14,7 +15,7 @@ DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
 
 # Constants
 LOG_FILE_PATH = '/var/log/cloud4rpi.log'
-LED_PIN = 12
+LED_PIN = 13
 DATA_SENDING_INTERVAL = 30  # secs
 DIAG_SENDING_INTERVAL = 60  # secs
 POLL_INTERVAL = 0.5  # 500 ms
@@ -28,6 +29,18 @@ GPIO.setup(LED_PIN, GPIO.OUT)
 def led_control(value=None):
     GPIO.output(LED_PIN, value)
     return GPIO.input(LED_PIN)
+
+
+def listen_for_events():
+    # write your own logic here
+    result = random.randint(1, 5)
+    if result == 1:
+        return 'RING'
+
+    if result == 5:
+        return 'BOOM!'
+
+    return 'IDLE'
 
 
 def main():
@@ -58,7 +71,13 @@ def main():
         'CPUTemp': {
             'type': 'numeric',
             'bind': rpi.cpu_temp
+        },
+
+        'STATUS': {
+            'type': 'string',
+            'bind': listen_for_events
         }
+
     }
 
     diagnostics = {
@@ -72,26 +91,21 @@ def main():
     device.declare(variables)
     device.declare_diag(diagnostics)
 
-    device.send_data()
-    device.send_diag()
-
     try:
-        time_passed = 0
-        next_data_time = DATA_SENDING_INTERVAL
-        next_diag_time = DIAG_SENDING_INTERVAL
-
+        data_timer = 0
+        diag_timer = 0
         while True:
-            if time_passed >= next_data_time:
+            if data_timer <= 0:
                 device.send_data()
-                next_data_time += DATA_SENDING_INTERVAL
+                data_timer = DATA_SENDING_INTERVAL
 
-            if time_passed >= next_diag_time:
+            if diag_timer <= 0:
                 device.send_diag()
-                device.send_config()
-                next_diag_time += DIAG_SENDING_INTERVAL
+                diag_timer = DIAG_SENDING_INTERVAL
 
             time.sleep(POLL_INTERVAL)
-            time_passed += POLL_INTERVAL
+            diag_timer -= POLL_INTERVAL
+            data_timer -= POLL_INTERVAL
 
     except KeyboardInterrupt:
         cloud4rpi.log.info('Keyboard interrupt received. Stopping...')
