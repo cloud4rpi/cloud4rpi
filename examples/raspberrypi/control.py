@@ -15,7 +15,7 @@ DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
 
 # Constants
 LOG_FILE_PATH = '/var/log/cloud4rpi.log'
-LED_PIN = 13
+LED_PIN = 12
 DATA_SENDING_INTERVAL = 30  # secs
 DIAG_SENDING_INTERVAL = 60  # secs
 POLL_INTERVAL = 0.5  # 500 ms
