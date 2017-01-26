@@ -59,3 +59,8 @@ class TestRpi(unittest.TestCase):
 
     def testIPAddress(self):
         self.assertIsNotNone(rpi.ip_address)
+
+
+if __name__ == '__main__' and __package__ is None:
+    from os import sys, path
+    sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
