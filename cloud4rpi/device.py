@@ -14,11 +14,20 @@ class Device(object):
         self.__diag = {}
 
     @staticmethod
+    # pylint: disable=W1505,E1101
+    def get_func_args(func):
+        inspect_fn = inspect.getargspec
+        if inspect_fn is not None:
+            return inspect_fn(func).args
+
+        return inspect.getfullargspec(func).args
+
+    @staticmethod
     def __resolve_binding(binding, current=None):
         if hasattr(binding, 'read'):
             return binding.read()
         elif callable(binding):
-            if inspect.getargspec(binding).args.__len__() == 0:
+            if Device.get_func_args(binding).__len__() == 0:
                 return binding()
             else:
                 return binding(current)

@@ -46,7 +46,7 @@ class MqttCommandPublisher(object):
                               payload=json.dumps(command))
 
 
-class TimeoutError(Exception):
+class _TimeoutError(Exception):  # avoid from pylint redefined-builtin
     pass
 
 
@@ -67,7 +67,7 @@ class AsyncTestCase(unittest.TestCase):
         self._done.wait(timeout)
 
         if not self.is_done():
-            raise TimeoutError()
+            raise _TimeoutError()
 
     def stop(self):
         self._done.set()
