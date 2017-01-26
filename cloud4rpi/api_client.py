@@ -97,7 +97,7 @@ class MqttApi(object):
                 log.info("Reconnected!")
                 return
             except Exception as e:
-                log.info('Reconnection failed: %s', e.message)
+                log.info('Reconnection failed: %s', str(e))
                 time.sleep(retry_interval)
 
     def disconnect(self):
