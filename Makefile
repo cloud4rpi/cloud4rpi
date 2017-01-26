@@ -3,6 +3,7 @@
 build: init style lint test
 
 init:
+	pip install --upgrade setuptools
 	pip install --upgrade -r requirements.txt
 
 style:
