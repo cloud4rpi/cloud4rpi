@@ -14,11 +14,10 @@ class Device(object):
         self.__diag = {}
 
     @staticmethod
-    # pylint: disable=W1505,E1101
     def get_func_args(func):
-        inspect_fn = inspect.getargspec
-        if inspect_fn is not None:
-            return inspect_fn(func).args
+        # pylint: disable=E1101, W1505
+        if inspect.getargspec is not None:
+            return inspect.getargspec(func).args
 
         return inspect.getfullargspec(func).args
 
