@@ -40,10 +40,10 @@ def main():
     }
 
     diagnostics = {
-        'CPU Temperature': rpi.cpu_temp(),
-        'IPAddress': rpi.ip_address(),
-        'Host': rpi.hostname(),
-        'OS Name': rpi.osname()
+        'CPU Temperature': rpi.cpu_temp,
+        'IPAddress': rpi.ip_address,
+        'Host': rpi.hostname,
+        'OS Name': rpi.osname
     }
 
     device = cloud4rpi.connect_mqtt(DEVICE_TOKEN)
