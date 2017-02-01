@@ -5,8 +5,8 @@ import time
 import random
 import RPi.GPIO as GPIO  # pylint: disable=F0401
 import cloud4rpi
-from . import ds18b20
-from . import rpi
+import ds18b20
+import rpi
 
 # Put your device token here. To get the token,
 # sign up at https://cloud4rpi.io and create a device.
