@@ -3,8 +3,8 @@
 import sys
 import time
 import cloud4rpi
-import ds18b20
-import rpi
+import examples.ds18b20 as ds18b20
+import examples.rpi as rpi
 
 # Put your device token here. To get the token,
 # sign up at https://cloud4rpi.io and create a device.
