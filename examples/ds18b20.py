@@ -46,7 +46,8 @@ def guard_against_invalid_address(address):
 class DS18b20(object):
     @staticmethod
     def find_all():
-        return [DS18b20(x) for x in sorted(os.listdir(W1_DEVICES)) if is_w1_sensor(x)]
+        return [DS18b20(x)
+                for x in sorted(os.listdir(W1_DEVICES)) if is_w1_sensor(x)]
 
     def __init__(self, address):
         guard_against_invalid_address(address)
