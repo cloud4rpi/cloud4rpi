@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import cloud4rpi
 from os import uname
 from socket import gethostname
-from sys import exit, exc_info
+from sys import exc_info
 from time import sleep
 from subprocess import call, check_output
+import cloud4rpi
 
+# Put your device token here. To get the token,
+# sign up at https://cloud4rpi.io and create a device.
+DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
 
-DATA_SENDING_INTERVAL = 30  # secs
+DATA_SENDING_INTERVAL = 30  # seconds
 
 
 # find the path to the Omega LED
@@ -20,16 +23,7 @@ def omega_led_brightness(brightness):
     open(led_brightness_path, 'w').write('1' if brightness else '0')
     return bool(int(open(led_brightness_path, 'r').read()))
 
-# Should work but does not :(
-# import onionGpio
-# RGB_R = onionGpio.OnionGpio(17)
-# RGB_G = onionGpio.OnionGpio(16)
-# RGB_B = onionGpio.OnionGpio(15)
-# map(lambda g: g.setOutputDirection(), [RGB_R, RGB_G, RGB_B])
-# RGB_B.setValue(True)
-
 RGB = {'R': '17', 'G': '16', 'B': '15'}  # Expansion board
-
 for pin in RGB.itervalues():
     call("gpioctl dirout-high " + pin, shell=True)
 
@@ -38,7 +32,7 @@ def RGB_control(led, value):
     operation = 'clear' if value else 'set'  # (sic)
     try:
         return not call("gpioctl %s %s" % (operation, RGB[led]), shell=True)
-    except:
+    except KeyError:
         return False
 
 
@@ -62,7 +56,7 @@ def BLUE_control(val):
 
 
 def main():
-    device = cloud4rpi.connect_mqtt('884hB8jz1x71JWRQPWf88XaUM')
+    device = cloud4rpi.connect_mqtt(DEVICE_TOKEN)
     device.declare({
         'Omega LED': {
             'type': 'bool',
@@ -104,7 +98,7 @@ def main():
         cloud4rpi.log.error("ERROR! %s %s", error, exc_info()[0])
 
     finally:
-        exit(0)
+        exit()
 
 
 if __name__ == '__main__':
