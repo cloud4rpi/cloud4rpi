@@ -1,2 +1,7 @@
 paho-mqtt
-axel == 0.0.4
+pep8
+pylint
+mock
+pyfakefs
+twine
+pypandoc

@@ -1,1 +1,0 @@
-pep8 --show-source --config=tools/pep8_setup.cfg --show-pep8 .

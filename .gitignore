@@ -1,5 +1,16 @@
 .DS_Store
+
+# Compiled python modules.
 *.pyc
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+
+# Setuptools distribution folder.
+/dist/
+
+# bdist_wheel results
+/build/
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 

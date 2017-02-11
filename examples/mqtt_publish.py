@@ -1,18 +1,6 @@
-# =============================================================================
-# To run this sample,
-# 1. git clone https://github.com/cloud4rpi/cloud4rpi.git && cd cloud4rpi
-# 2. pip install -r requirements.txt
-# 3. python examples/simple_mqtt_messaging.py
-# =============================================================================
+# -*- coding: utf-8 -*-
 
-
-# This needed to be able to import the c4r directory from examples
-if __name__ == '__main__' and __package__ is None:
-    from os import sys, path
-
-    sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
-
-from c4r import mqtt_client
+from cloud4rpi import api_client
 
 
 def main():
@@ -20,8 +8,8 @@ def main():
     # and connect to the api.
     # The token looks something like "4GPZFMVuacadesU21dBw47zJi"
     # it is the key that allows the device to communicate with the cloud4rpi.
-    device_token = '!!! put your device token here !!!'
-    client = mqtt_client.MqttApi(device_token)
+    device_token = '__YOUR_DEVICE_TOKEN__'
+    client = api_client.MqttApi(device_token)
     client.connect()
 
     # Next declare the device _variables_. A device variable is
@@ -35,7 +23,8 @@ def main():
     ]
     client.publish_config(variables)
 
-    # After publishing the device config you can start sending some useful data.
+    # After publishing the device config
+    # you can start sending some useful data.
     # Data consists of key/value pairs of variable name and its value.
     data = {
         'Temperature': 36.6,

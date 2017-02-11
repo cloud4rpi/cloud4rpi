@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
 # These tests need a running mqtt broker instance
 
 import os
 import json
 import unittest
-import paho.mqtt.client as mqtt
+
 from threading import Event
-from c4r.mqtt_client import MqttApi
+from cloud4rpi.api_client import MqttApi, InvalidTokenError
+
+import paho.mqtt.client as mqtt
 
 
 class MqttMessageProbe(object):
@@ -13,6 +16,7 @@ class MqttMessageProbe(object):
         self.__client = mqtt.Client()
         self.__on_message = on_message
         self.__client.connect('localhost')
+        self.last_message = None
 
         def on_msg(client, userdata, message):
             self.last_message = message
@@ -27,7 +31,22 @@ class MqttMessageProbe(object):
         self.__client.disconnect()
 
 
-class TimeoutError(Exception):
+class MqttCommandPublisher(object):
+    def __init__(self):
+        self.__client = mqtt.Client()
+        self.__client.connect('localhost')
+        self.__client.loop_start()
+
+    def dispose(self):
+        self.__client.loop_stop()
+        self.__client.disconnect()
+
+    def publish_command(self, device_token, command):
+        self.__client.publish('iot-hub/commands/{0}'.format(device_token),
+                              payload=json.dumps(command))
+
+
+class _TimeoutError(Exception):  # avoid from pylint redefined-builtin
     pass
 
 
@@ -48,7 +67,7 @@ class AsyncTestCase(unittest.TestCase):
         self._done.wait(timeout)
 
         if not self.is_done():
-            raise TimeoutError()
+            raise _TimeoutError()
 
     def stop(self):
         self._done.set()
@@ -64,13 +83,14 @@ def get_async_test_timeout(default=5):
         return default
 
 
-class TestTemp(AsyncTestCase):
+@unittest.skip("The Real mqtt broker required")
+class TestMqttApi(AsyncTestCase):
     def setUp(self):
-        super(TestTemp, self).setUp()
-        self.test_probe = MqttMessageProbe(on_message=lambda: self.stop())
+        super(TestMqttApi, self).setUp()
+        self.test_probe = MqttMessageProbe(on_message=self.stop)
 
     def tearDown(self):
-        super(TestTemp, self).tearDown()
+        super(TestMqttApi, self).tearDown()
         self.test_probe.dispose()
 
     @staticmethod
@@ -78,6 +98,10 @@ class TestTemp(AsyncTestCase):
         client = MqttApi('4GPZFMVuacadesU21dBw47zJi', host='localhost')
         client.connect()
         return client
+
+    def testCtorThrowsOnInvalidToken(self):
+        with self.assertRaises(InvalidTokenError):
+            MqttApi('invalid device token')
 
     def testPublishConfig(self):
         client = self.create_api_client()
@@ -92,7 +116,8 @@ class TestTemp(AsyncTestCase):
         self.wait()
 
         actual_msg = self.test_probe.last_message
-        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi', actual_msg.topic)
+        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi',
+                         actual_msg.topic)
         self.assertEqual('config', json.loads(actual_msg.payload)['type'])
         self.assertEqual(variables, json.loads(actual_msg.payload)['payload'])
 
@@ -109,7 +134,8 @@ class TestTemp(AsyncTestCase):
         self.wait()
 
         actual_msg = self.test_probe.last_message
-        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi', actual_msg.topic)
+        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi',
+                         actual_msg.topic)
         self.assertEqual('data', json.loads(actual_msg.payload)['type'])
         self.assertEqual(data, json.loads(actual_msg.payload)['payload'])
 
@@ -126,6 +152,23 @@ class TestTemp(AsyncTestCase):
         self.wait()
 
         actual_msg = self.test_probe.last_message
-        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi', actual_msg.topic)
+        self.assertEqual('iot-hub/messages/4GPZFMVuacadesU21dBw47zJi',
+                         actual_msg.topic)
         self.assertEqual('system', json.loads(actual_msg.payload)['type'])
         self.assertEqual(diag, json.loads(actual_msg.payload)['payload'])
+
+    def testOnCommand(self):
+        def on_command(command):
+            self.assertEqual({'Cooler': True}, command)
+            self.stop()
+
+        client = self.create_api_client()
+        client.on_command = on_command
+
+        commander = MqttCommandPublisher()
+        commander.publish_command(
+            '4GPZFMVuacadesU21dBw47zJi',
+            {'Cooler': True}
+        )
+
+        self.wait()

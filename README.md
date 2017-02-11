@@ -1,9 +1,9 @@
-cloud4rpi
-=========
+[cloud4rpi](https://cloud4rpi.io "Cloud4Rpi's Homepage")
+========================================================
 
 [![Build Status](https://travis-ci.org/cloud4rpi/cloud4rpi.svg?branch=master)](https://travis-ci.org/cloud4rpi/cloud4rpi)
 
-**Easily connect your Raspberry Pi to the Internet**
+**Cloud4Rpi client library**
 
 For Impatient
 -------------
@@ -11,17 +11,29 @@ For Impatient
 On your Raspberry Pi:
 
 ```
-1. sudo apt-get install python-pip
-2. git clone https://github.com/cloud4rpi/cloud4rpi
-3. cd cloud4rpi
-4. sudo pip install -r requirements.txt
-5. nano app.py
-6. replace 'YOUR_DEVICE_TOKEN' with a personal device access token
-7. exit from nano with saving changes
-8. sudo python app.py &
+1. sudo apt-get update && sudo apt-get install git python python-pip
+2. sudo pip install cloud4rpi
+3. write your code (you could see some samples under the examples directory)
 ```
 
 Introduction
 ------------
 
 Under Construction
+
+
+Contributing
+------------
+
+```
+1. fork the repo
+2. hack
+3. make
+4. prepare a PR
+```
+
+Links
+-----
+* [Homepage](https://cloud4rpi.io "Cloud4Rpi's Homepage")
+* [Cloud4rpi on pypi](https://pypi.python.org/pypi/cloud4rpi)
+* [Docs](https://cloud4rpi.github.io/docs/)
