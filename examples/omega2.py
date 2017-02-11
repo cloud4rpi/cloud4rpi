@@ -14,8 +14,8 @@ DATA_SENDING_INTERVAL = 30  # secs
 # find the path to the Omega LED
 led_name = check_output(["uci", "get", "system.@led[0].sysfs"])
 led_brightness_path = "/sys/class/leds/%s/brightness" % (led_name.rstrip())
- 
- 
+
+
 def omega_led_brightness(brightness):
     open(led_brightness_path, 'w').write('1' if brightness else '0')
     return bool(int(open(led_brightness_path, 'r').read()))
