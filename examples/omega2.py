@@ -2,7 +2,7 @@
 
 from os import uname
 from socket import gethostname
-from sys import exc_info
+from sys import exc_info, version_info
 from time import sleep
 from subprocess import call, check_output
 import cloud4rpi
@@ -24,7 +24,7 @@ def omega_led_brightness(brightness):
     return bool(int(open(led_brightness_path, 'r').read()))
 
 RGB = {'R': '17', 'G': '16', 'B': '15'}  # Expansion board
-for pin in RGB.itervalues():
+for pin in RGB.itervalues() if version_info.major == 2 else RGB.values():
     call("gpioctl dirout-high " + pin, shell=True)
 
 
