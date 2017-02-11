@@ -14,7 +14,8 @@ DATA_SENDING_INTERVAL = 30  # secs
 # find the path to the Omega LED
 led_name = check_output(["uci", "get", "system.@led[0].sysfs"])
 led_brightness_path = "/sys/class/leds/%s/brightness" % (led_name.rstrip())
-
+ 
+ 
 def omega_led_brightness(brightness):
     open(led_brightness_path, 'w').write('1' if brightness else '0')
     return bool(int(open(led_brightness_path, 'r').read()))
@@ -32,6 +33,7 @@ RGB = {'R': '17', 'G': '16', 'B': '15'}  # Expansion board
 for pin in RGB.itervalues():
     call("gpioctl dirout-high " + pin, shell=True)
 
+
 def RGB_control(led, value):
     operation = 'clear' if value else 'set'  # (sic)
     try:
@@ -39,40 +41,45 @@ def RGB_control(led, value):
     except:
         return False
 
+
 def RGB_check(led):
     return 'LOW' in check_output(["gpioctl", "get", RGB[led]])
+
 
 def RED_control(val):
     if RGB_control("R", val):
         return RGB_check("R")
-    
+
+
 def GREEN_control(val):
     if RGB_control("G", val):
         return RGB_check("G")
-        
+
+
 def BLUE_control(val):
     if RGB_control("B", val):
         return RGB_check("B")
-        
+
+
 def main():
     device = cloud4rpi.connect_mqtt('884hB8jz1x71JWRQPWf88XaUM')
     device.declare({
-        'Omega LED':{
+        'Omega LED': {
             'type': 'bool',
             'value': False,
             'bind': omega_led_brightness
         },
-        'RGB LED - Red':{
+        'RGB LED - Red': {
             'type': 'bool',
             'value': False,
             'bind': RED_control
         },
-        'RGB LED - Green':{
+        'RGB LED - Green': {
             'type': 'bool',
             'value': False,
             'bind': GREEN_control
         },
-        'RGB LED - Blue':{
+        'RGB LED - Blue': {
             'type': 'bool',
             'value': False,
             'bind': BLUE_control
@@ -82,7 +89,7 @@ def main():
         'Host': gethostname(),
         'OS Name': " ".join(uname())
     })
-    
+
     try:
         device.send_diag()
         while True:
@@ -98,7 +105,7 @@ def main():
 
     finally:
         exit(0)
-    
+
 
 if __name__ == '__main__':
     main()
