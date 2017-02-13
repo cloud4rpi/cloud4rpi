@@ -24,7 +24,7 @@ def omega_led_brightness(brightness):
     return bool(int(open(led_brightness_path, 'r').read()))
 
 RGB = {'R': '17', 'G': '16', 'B': '15'}  # Expansion board
-for pin in RGB.itervalues():  # RGB.values() for Python 3
+for _, pin in RGB.items():
     call("gpioctl dirout-high " + pin, shell=True)
 
 
