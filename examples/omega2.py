@@ -38,7 +38,7 @@ def RGB_control(led, value):
 
 
 def RGB_check(led):
-    return 'LOW' in subprocess.check_output(["gpioctl", "get", RGB[led]])
+    return 'LOW' in str(subprocess.check_output(["gpioctl", "get", RGB[led]]))
 
 
 def RED_control(val):
