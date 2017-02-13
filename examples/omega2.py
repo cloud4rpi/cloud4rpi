@@ -19,11 +19,15 @@ led_name = subprocess.check_output(["uci", "get", "system.@led[0].sysfs"])
 led_brightness_path = "/sys/class/leds/%s/brightness" % (led_name.rstrip())
 
 
-def omega_led_brightness(brightness):
-    open(led_brightness_path, 'w').write('1' if brightness else '0')
+def omega_led(state):
+    open(led_brightness_path, 'w').write('1' if state else '0')
     return bool(int(open(led_brightness_path, 'r').read()))
 
-RGB = {'R': '17', 'G': '16', 'B': '15'}  # Expansion board
+RGB_pins = {'R': '17', 'G': '16', 'B': '15'}  # Expansion board
+
+# You can use onionGpio python module (if it is already working)
+# https://docs.onion.io/omega2-docs/gpio-python-module.html#using-the-python-module-2
+
 for _, pin in RGB.items():
     subprocess.call("gpioctl dirout-high " + pin, shell=True)
 
@@ -31,28 +35,29 @@ for _, pin in RGB.items():
 def RGB_control(led, value):
     operation = 'clear' if value else 'set'  # (sic)
     try:
-        return not subprocess.call("gpioctl %s %s" % (operation, RGB[led]),
-                                   shell=True)
+        return not subprocess.call("gpioctl %s %s" % 
+                                   (operation, RGB_pins[led]), shell=True)
     except KeyError:
         return False
 
 
 def RGB_check(led):
-    return 'LOW' in str(subprocess.check_output(["gpioctl", "get", RGB[led]]))
+    return 'LOW' in str(subprocess.check_output(["gpioctl", "get", 
+                                                 RGB_pins[led]]))
 
 
-def RED_control(val):
-    if RGB_control("R", val):
+def RED_control(state):
+    if RGB_control("R", state):
         return RGB_check("R")
 
 
-def GREEN_control(val):
-    if RGB_control("G", val):
+def GREEN_control(state):
+    if RGB_control("G", state):
         return RGB_check("G")
 
 
-def BLUE_control(val):
-    if RGB_control("B", val):
+def BLUE_control(state):
+    if RGB_control("B", state):
         return RGB_check("B")
 
 
@@ -62,7 +67,7 @@ def main():
         'Omega LED': {
             'type': 'bool',
             'value': False,
-            'bind': omega_led_brightness
+            'bind': omega_led
         },
         'RGB LED - Red': {
             'type': 'bool',
