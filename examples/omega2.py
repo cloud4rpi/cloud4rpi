@@ -28,7 +28,7 @@ RGB_pins = {'R': '17', 'G': '16', 'B': '15'}  # Expansion board
 # You can use onionGpio python module (if it is already working)
 # https://docs.onion.io/omega2-docs/gpio-python-module.html#using-the-python-module-2
 
-for _, pin in RGB.items():
+for _, pin in RGB_pins.items():
     subprocess.call("gpioctl dirout-high " + pin, shell=True)
 
 
