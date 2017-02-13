@@ -31,7 +31,7 @@ for _, pin in RGB.items():
 def RGB_control(led, value):
     operation = 'clear' if value else 'set'  # (sic)
     try:
-        return not subprocess.call("gpioctl %s %s" % (operation, RGB[led]), 
+        return not subprocess.call("gpioctl %s %s" % (operation, RGB[led]),
                                    shell=True)
     except KeyError:
         return False
