@@ -4,7 +4,7 @@ from os import uname
 from socket import gethostname
 from sys import exc_info
 from time import sleep
-from subprocess import call, check_output
+import subprocess
 import cloud4rpi
 
 # Put your device token here. To get the token,
@@ -15,7 +15,7 @@ DATA_SENDING_INTERVAL = 30  # seconds
 
 
 # find the path to the Omega LED
-led_name = check_output(["uci", "get", "system.@led[0].sysfs"])
+led_name = subprocess.check_output(["uci", "get", "system.@led[0].sysfs"])
 led_brightness_path = "/sys/class/leds/%s/brightness" % (led_name.rstrip())
 
 
@@ -25,19 +25,19 @@ def omega_led_brightness(brightness):
 
 RGB = {'R': '17', 'G': '16', 'B': '15'}  # Expansion board
 for _, pin in RGB.items():
-    call("gpioctl dirout-high " + pin, shell=True)
+    subprocess.call("gpioctl dirout-high " + pin, shell=True)
 
 
 def RGB_control(led, value):
     operation = 'clear' if value else 'set'  # (sic)
     try:
-        return not call("gpioctl %s %s" % (operation, RGB[led]), shell=True)
+        return not subprocess.call("gpioctl %s %s" % (operation, RGB[led]), shell=True)
     except KeyError:
         return False
 
 
 def RGB_check(led):
-    return 'LOW' in check_output(["gpioctl", "get", RGB[led]])
+    return 'LOW' in subprocess.check_output(["gpioctl", "get", RGB[led]])
 
 
 def RED_control(val):
