@@ -2,21 +2,49 @@
 
 import sys
 import time
+import random
+import RPi.GPIO as GPIO  # pylint: disable=F0401
 import cloud4rpi
-import examples.ds18b20 as ds18b20
-import examples.rpi as rpi
+import ds18b20
+import rpi
 
 # Put your device token here. To get the token,
 # sign up at https://cloud4rpi.io and create a device.
 DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
 
 # Constants
+LOG_FILE_PATH = '/var/log/cloud4rpi.log'
+LED_PIN = 12
 DATA_SENDING_INTERVAL = 30  # secs
 DIAG_SENDING_INTERVAL = 60  # secs
 POLL_INTERVAL = 0.5  # 500 ms
 
+# configure GPIO library
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(LED_PIN, GPIO.OUT)
+
+
+# handler for the button or switch variable
+def led_control(value=None):
+    GPIO.output(LED_PIN, value)
+    return GPIO.input(LED_PIN)
+
+
+def listen_for_events():
+    # write your own logic here
+    result = random.randint(1, 5)
+    if result == 1:
+        return 'RING'
+
+    if result == 5:
+        return 'BOOM!'
+
+    return 'IDLE'
+
 
 def main():
+    cloud4rpi.set_logging_to_file(LOG_FILE_PATH)
+
     # #  load w1 modules
     ds18b20.init_w1()
 
@@ -33,10 +61,22 @@ def main():
         #     'type': 'numeric',
         #     'bind': ds_sensors[1]
         # },
+        'LEDOn': {
+            'type': 'bool',
+            'value': False,
+            'bind': led_control
+        },
+
         'CPUTemp': {
             'type': 'numeric',
             'bind': rpi.cpu_temp
+        },
+
+        'STATUS': {
+            'type': 'string',
+            'bind': listen_for_events
         }
+
     }
 
     diagnostics = {
@@ -51,8 +91,8 @@ def main():
     device.declare_diag(diagnostics)
 
     try:
-        diag_timer = 0
         data_timer = 0
+        diag_timer = 0
         while True:
             if data_timer <= 0:
                 device.send_data()
@@ -62,9 +102,9 @@ def main():
                 device.send_diag()
                 diag_timer = DIAG_SENDING_INTERVAL
 
+            time.sleep(POLL_INTERVAL)
             diag_timer -= POLL_INTERVAL
             data_timer -= POLL_INTERVAL
-            time.sleep(POLL_INTERVAL)
 
     except KeyboardInterrupt:
         cloud4rpi.log.info('Keyboard interrupt received. Stopping...')

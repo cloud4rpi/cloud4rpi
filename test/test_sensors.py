@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
 
+# pylint:disable=wrong-import-order
+# pylint:disable=wrong-import-position
+
 import unittest
 import pyfakefs.fake_filesystem_unittest as ffut
 
-from examples import ds18b20
-from examples import rpi
+
+from os import sys, path
+root = path.abspath(path.join(path.dirname(__file__), path.pardir))
+sys.path.insert(0, path.join(root, 'examples/raspberrypi'))
+
+from ds18b20 import DS18b20, InvalidW1Address
+import rpi
+
 
 sensor_10 = \
     '2d 00 4d 46 ff ff 08 10 fe : crc=fe YES' '\n' \
@@ -31,23 +40,22 @@ class TestDs18b20Sensors(ffut.TestCase):
         )
 
     def testFindDSSensors(self):
-        sensors = ds18b20.DS18b20.find_all()
+        sensors = DS18b20.find_all()
         self.assertEqual(len(sensors), 2)
         self.assertEqual(sensors[0].address, '10-000802824e58')
         self.assertEqual(sensors[1].address, '28-000802824e58')
 
     def testRead(self):
-        sensor = ds18b20.DS18b20('28-000802824e58')
+        sensor = DS18b20('28-000802824e58')
         result = sensor.read()
         self.assertEqual(result, 28.250)
 
     def testRaisesExceptionOnInvalidAddress(self):
-        with self.assertRaises(ds18b20.InvalidW1Address):
-            ds18b20.DS18b20('invalid address')
+        with self.assertRaises(InvalidW1Address):
+            DS18b20('invalid address')
 
 
 class TestRpi(unittest.TestCase):
-
     def testHostName(self):
         self.assertIsNotNone(rpi.hostname)
 
