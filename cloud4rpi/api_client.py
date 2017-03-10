@@ -44,11 +44,11 @@ class MqttApi(object):
         def noop_on_command(cmd):
             pass
 
-        client_id = 'c4r-{0}-'.format(device_token)
-        self.__client = mqtt.Client(client_id, clean_session=False)
+        self.__device_token = device_token
+        self.__client = mqtt.Client(device_token, clean_session=False)
         self.__host = host
         self.__port = port
-        self.__msg_topic = 'iot-hub/messages/{0}'.format(device_token)
+        self.__msg_topic = 'iot-hub/messages'
         self.__cmd_topic = 'iot-hub/commands/{0}'.format(device_token)
         self.__username = username
         self.__password = password
@@ -120,4 +120,6 @@ class MqttApi(object):
             'payload': payload,
         }
         log.info('Publishing %s: %s', self.__msg_topic, msg)
+
+        msg["token"] = self.__device_token
         self.__client.publish(self.__msg_topic, payload=json.dumps(msg))
