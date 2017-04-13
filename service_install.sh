@@ -117,7 +117,7 @@ put_script(){
     mv "$2" "$1/$2"
     quit_on_error
     echo "Setting permissions..."
-    chmod 644 "$1/$2"
+    chmod $3 "$1/$2"
     quit_on_error
 }
 
@@ -128,7 +128,7 @@ install_sysv() {
     echo "Generating init script..."
     systemv_script | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > "$SERVICE_NAME"
 
-    put_script $SYSTEMV_DIR $SERVICE_NAME
+    put_script $SYSTEMV_DIR $SERVICE_NAME 755
 
     echo "Installing init script links..."
     update-rc.d "$SERVICE_NAME" defaults
@@ -146,7 +146,7 @@ install_sysd() {
     echo "Generating init script..."
     systemd_script | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > "$SERVICE_NAME"
 
-    put_script $SCRIPT_PATH $SYSTEMD_DIR $SERVICE_NAME
+    put_script $SYSTEMD_DIR $SERVICE_NAME 644
 
     echo "Configuring systemd..."
     systemctl daemon-reload
