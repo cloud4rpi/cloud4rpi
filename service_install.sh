@@ -18,7 +18,7 @@ After=network.target
 
 [Service]
 Type=idle
-ExecStart=$PYTHON_PATH $1
+ExecStart=$PYTHON_PATH $SCRIPT_PATH
 
 [Install]
 WantedBy=multi-user.target
@@ -47,7 +47,7 @@ put_systemv_script(){
 #                    Raspberry Pi GPIO from Python
 ### END INIT INFO
 
-SCRIPT=$1
+SCRIPT=$SCRIPT_PATH
 RUNAS=root
 
 PIDFILE=/var/run/cloud4rpi.pid
@@ -70,7 +70,7 @@ stop() {
     return 1
   fi
   echo 'Stopping service...' >&2
-  kill -15 \$(get_pid) && rm -f "\$PIDFILE"
+  kill -15 \$(cat "\$PIDFILE") && rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
 }
 
@@ -87,12 +87,9 @@ uninstall() {
   fi
 }
 
-get_pid() {
-    cat "\$PIDFILE"
-}
 
 is_running() {
-    [ -f "\$PIDFILE" ] && ps \$(get_pid) > /dev/null 2>&1
+    [ -f "\$PIDFILE" ] && ps \$(cat "\$PIDFILE") > /dev/null 2>&1
 }
 
 case "\$1" in
