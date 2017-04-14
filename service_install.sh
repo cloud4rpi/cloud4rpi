@@ -1,34 +1,45 @@
 #!/bin/bash
 
+PYTHON_PATH=/usr/bin/python
+
 quit_on_error() {
     test "0" = $? || {
         exit 1
     }
 }
 
-systemd_script(){
-    cat <<'EOF'
+put_systemd_script(){
+    INIT_MODULE_PATH=/lib/systemd/system/$1
+    echo "Writing init script to $INIT_MODULE_PATH..."
+    cat > "$INIT_MODULE_PATH" <<EOF
 [Unit]
 Description=Cloud4RPi daemon
 After=network.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/python %SCRIPT_PATH%
+ExecStart=$PYTHON_PATH $1
 
 [Install]
 WantedBy=multi-user.target
 EOF
+    quit_on_error
+
+    echo "Setting permissions..."
+    chmod 644 "$INIT_MODULE_PATH"
+    quit_on_error
 }
 
-systemv_script(){
-    cat <<'EOF'
+put_systemv_script(){
+    INIT_MODULE_PATH=/etc/init.d/$1
+    echo "Writing init script to $INIT_MODULE_PATH..."
+    cat > "$INIT_MODULE_PATH" <<EOF
 #!/bin/sh
 
 ### BEGIN INIT INFO
 # Provides:          cloud4rpi
-# Required-Start:    $local_fs $network $named $time $syslog
-# Required-Stop:     $local_fs $network $named $time $syslog
+# Required-Start:    \$local_fs \$network \$named \$time \$syslog
+# Required-Stop:     \$local_fs \$network \$named \$time \$syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Cloud4RPi demon
@@ -36,7 +47,7 @@ systemv_script(){
 #                    Raspberry Pi GPIO from Python
 ### END INIT INFO
 
-SCRIPT=%SCRIPT_PATH%
+SCRIPT=$1
 RUNAS=root
 
 PIDFILE=/var/run/cloud4rpi.pid
@@ -47,9 +58,9 @@ start() {
     echo 'Service already running' >&2
     return 1
   fi
-  echo 'Starting service…' >&2
-  local CMD="$SCRIPT &> \"$LOGFILE\" & echo \$!"
-  su -c "$CMD" $RUNAS > "$PIDFILE"
+  echo 'Starting service...' >&2
+  local CMD="$PYTHON_PATH \$SCRIPT &> \"\$LOGFILE\" & echo \\\$!"
+  su -c "\$CMD" \$RUNAS > "\$PIDFILE"
   echo 'Service started' >&2
 }
 
@@ -58,8 +69,8 @@ stop() {
     echo 'Service not running' >&2
     return 1
   fi
-  echo 'Stopping service…' >&2
-  kill -15 `get_pid` && rm -f "$PIDFILE"
+  echo 'Stopping service...' >&2
+  kill -15 \$(get_pid) && rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
 }
 
@@ -67,24 +78,24 @@ uninstall() {
   echo -n "Are you really sure you want to uninstall this service? That cannot be undone. [yes|No] "
   local SURE
   read SURE
-  if [ "$SURE" = "yes" ]; then
+  if [ "\$SURE" = "yes" ]; then
     stop
-    rm -f "$PIDFILE"
-    echo "Notice: log file is not be removed: '$LOGFILE'" >&2
+    rm -f "\$PIDFILE"
+    echo "Notice: log file is not be removed: '\$LOGFILE'" >&2
     update-rc.d -f cloud4rpi remove
-    rm -fv "$0"
+    rm -fv "\$0"
   fi
 }
 
 get_pid() {
-    cat "$PIDFILE"
+    cat "\$PIDFILE"
 }
 
 is_running() {
-    [ -f "$PIDFILE" ] && ps `get_pid` > /dev/null 2>&1
+    [ -f "\$PIDFILE" ] && ps \$(get_pid) > /dev/null 2>&1
 }
 
-case "$1" in
+case "\$1" in
   start)
     start
     ;;
@@ -107,28 +118,21 @@ case "$1" in
     fi
     ;;
   *)
-    echo "Usage: $0 {start|stop|status|restart|uninstall}"
+    echo "Usage: \$0 {start|stop|status|restart|uninstall}"
 esac
 EOF
+    quit_on_error
+
+    echo "Setting permissions..."
+    chmod 755 "$INIT_MODULE_PATH"
+    quit_on_error
 }
 
-put_script(){
-    echo "Moving init script into $1..."
-    mv "$2" "$1/$2"
-    quit_on_error
-    echo "Setting permissions..."
-    chmod $3 "$1/$2"
-    quit_on_error
-}
 
 install_sysv() {
-    SERVICE_NAME=cloud4rpid
-    SYSTEMV_DIR=/etc/init.d
+    SERVICE_NAME=cloud4rpi
 
-    echo "Generating init script..."
-    systemv_script | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > "$SERVICE_NAME"
-
-    put_script $SYSTEMV_DIR $SERVICE_NAME 755
+    put_systemv_script $SERVICE_NAME
 
     echo "Installing init script links..."
     update-rc.d "$SERVICE_NAME" defaults
@@ -136,17 +140,13 @@ install_sysv() {
 
     echo "All done!"
     echo "Usage example:"
-    echo -e "  $ sudo service \e[1m$SERVICE_NAME\e[0m start|stop|status"
+    echo -e "  $ sudo service \e[1m$SERVICE_NAME\e[0m start|stop|status|restart|uninstall"
 }
 
 install_sysd() {
     SERVICE_NAME=cloud4rpi.service
-    SYSTEMD_DIR=/lib/systemd/system
 
-    echo "Generating init script..."
-    systemd_script | sed "s;%SCRIPT_PATH%;$SCRIPT_PATH;" > "$SERVICE_NAME"
-
-    put_script $SYSTEMD_DIR $SERVICE_NAME 644
+    put_systemd_script $SERVICE_NAME
 
     echo "Configuring systemd..."
     systemctl daemon-reload
