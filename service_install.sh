@@ -55,13 +55,21 @@ LOGFILE=/var/log/cloud4rpi.log
 
 start() {
   if is_running; then
-    echo 'Service already running' >&2
+    echo 'Service is already running' >&2
     return 1
   fi
+  echo 'Logging started at' \$(date) > "\$LOGFILE"
   echo 'Starting service...' >&2
-  local CMD="$PYTHON_PATH \$SCRIPT &> \"\$LOGFILE\" & echo \\\$!"
-  su -c "\$CMD" \$RUNAS > "\$PIDFILE"
-  echo 'Service started' >&2
+  local CMD="$PYTHON_PATH -u \"\$SCRIPT\" >> \"\$LOGFILE\" 2>>\"\$LOGFILE\" & echo \\\$!"
+  local PID=\$(sudo -u \$RUNAS "\$CMD")
+  if [ -z \$PID ]; then
+    echo 'Failed to run. See the log in' \$LOGFILE >&2
+    return 1
+  else
+    echo \$PID > "\$PIDFILE"
+    echo 'Service started.' >&2
+  fi            
+  echo 'See the log for details:' \$LOGFILE >&2
 }
 
 stop() {
