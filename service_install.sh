@@ -65,7 +65,7 @@ start() {
   local PID=\$!
   
   if [ -z \$PID ]; then
-    echo 'Failed to run. See the log in' \$LOGFILE >&2
+    echo 'Failed to run.' >&2
     return 1
   else
     echo \$PID > "\$PIDFILE"
