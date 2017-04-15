@@ -62,7 +62,7 @@ start() {
   echo 'Starting service...' >&2
   
   sudo -u \$RUNAS $PYTHON_PATH -u \$SCRIPT >> \$LOGFILE 2>>\$LOGFILE &
-  local PID=$!
+  local PID=\$!
   
   if [ -z \$PID ]; then
     echo 'Failed to run. See the log in' \$LOGFILE >&2
