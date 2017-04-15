@@ -81,7 +81,10 @@ stop() {
   fi
   echo 'Stopping service...' >&2
   kill -15 \$(cat "\$PIDFILE")
-  quit_on_error
+  if [ $? -ne 0 ]; then
+    echo 'Failed to stop.' >&2
+    return 1
+  fi
   rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
 }
