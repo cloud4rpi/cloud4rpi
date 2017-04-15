@@ -87,7 +87,7 @@ stop() {
   fi
   rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
-  echo '--- Service stopped at' \$(date) ' ---' > "\$LOGFILE"
+  echo '--- Service stopped at' \$(date) ' ---' >> "\$LOGFILE"
 }
 
 uninstall() {
