@@ -58,8 +58,8 @@ start() {
     echo 'Service is already running' >&2
     return 1
   fi
-  echo 'Logging started at' \$(date) > "\$LOGFILE"
   echo 'Starting service...' >&2
+  echo '--- Service started at' \$(date) ' ---' > "\$LOGFILE"
   
   sudo -u \$RUNAS $PYTHON_PATH -u \$SCRIPT >> \$LOGFILE 2>>\$LOGFILE &
   local PID=\$!
@@ -87,10 +87,11 @@ stop() {
   fi
   rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
+  echo '--- Service stopped at' \$(date) ' ---' > "\$LOGFILE"
 }
 
 uninstall() {
-  echo -n "Are you really sure you want to uninstall this service? That cannot be undone. [yes|No] "
+  echo -n "Are you really sure you want to uninstall this service? That cannot be undone. [yes|no] "
   local SURE
   read SURE
   if [ "\$SURE" = "yes" ]; then
