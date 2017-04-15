@@ -60,8 +60,10 @@ start() {
   fi
   echo 'Logging started at' \$(date) > "\$LOGFILE"
   echo 'Starting service...' >&2
-  local CMD="$PYTHON_PATH -u \"\$SCRIPT\" >> \"\$LOGFILE\" 2>>\"\$LOGFILE\" & echo \\\$!"
-  local PID=\$(sudo -u \$RUNAS \$CMD)
+  
+  sudo -u \$RUNAS $PYTHON_PATH -u \$SCRIPT >> \$LOGFILE 2>>\$LOGFILE &
+  local PID=$!
+  
   if [ -z \$PID ]; then
     echo 'Failed to run. See the log in' \$LOGFILE >&2
     return 1
