@@ -64,14 +64,16 @@ start() {
   sudo -u \$RUNAS $PYTHON_PATH -u \$SCRIPT >> \$LOGFILE 2>>\$LOGFILE &
   local PID=\$!
   
+  local ERROR_LEVEL=0
   if [ -z \$PID ]; then
     echo 'Failed to run.' >&2
-    return 1
+    ERROR_LEVEL=1
   else
     echo \$PID > "\$PIDFILE"
     echo 'Service started.' >&2
   fi            
   echo 'See the log for details:' \$LOGFILE >&2
+  return \$ERROR_LEVEL
 }
 
 stop() {
