@@ -81,7 +81,7 @@ stop() {
   fi
   echo 'Stopping service...' >&2
   kill -15 \$(cat "\$PIDFILE")
-  if [ $? -ne 0 ]; then
+  if [ \$? -ne 0 ]; then
     echo 'Failed to stop.' >&2
     return 1
   fi
