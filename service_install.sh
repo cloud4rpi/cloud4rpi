@@ -13,7 +13,7 @@ put_systemd_script(){
     echo "Writing init script to $INIT_MODULE_PATH..."
     cat > "$INIT_MODULE_PATH" <<EOF
 [Unit]
-Description=Cloud4RPi daemon
+Description=Cloud4RPI daemon
 After=network.target
 
 [Service]
@@ -42,9 +42,9 @@ put_systemv_script(){
 # Required-Stop:     \$local_fs \$network \$named \$time \$syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Cloud4RPi demon
-# Description:       Cloud4RPi demon working with
-#                    Raspberry Pi GPIO from Python
+# Short-Description: Cloud4RPI demon
+# Description:       Cloud4RPI-enabled user script 
+#                    (https://cloud4rpi.io/)
 ### END INIT INFO
 
 SCRIPT=$SCRIPT_PATH
@@ -56,9 +56,11 @@ LOGFILE=/var/log/cloud4rpi.log
 start() {
   if is_running; then
     echo 'Service is already running' >&2
-    return 1
+    exit 1
   fi
   echo 'Starting service...' >&2
+  
+  # Clears the old log
   echo '--- Service started at' \$(date) ' ---' > "\$LOGFILE"
   
   sudo -u \$RUNAS $PYTHON_PATH -u \$SCRIPT >> \$LOGFILE 2>>\$LOGFILE &
@@ -73,19 +75,19 @@ start() {
     echo 'Service started.' >&2
   fi            
   echo 'See the log for details:' \$LOGFILE >&2
-  return \$ERROR_LEVEL
+  exit \$ERROR_LEVEL
 }
 
 stop() {
   if ! is_running; then
     echo 'Service not running' >&2
-    return 1
+    exit 1
   fi
   echo 'Stopping service...' >&2
-  kill -15 \$(cat "\$PIDFILE")
+  kill \$(cat "\$PIDFILE")
   if [ \$? -ne 0 ]; then
     echo 'Failed to stop.' >&2
-    return 1
+    exit 1
   fi
   rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
@@ -93,37 +95,26 @@ stop() {
 }
 
 uninstall() {
-  echo -n "Are you really sure you want to uninstall this service? That cannot be undone. [yes|no] "
+  echo -n "Do you really want to uninstall Cloud4RPI service? That cannot be undone. [yes|no] "
   local SURE
   read SURE
   if [ "\$SURE" = "yes" ]; then
     stop
-    rm -f "\$PIDFILE"
-    echo "Notice: log file is not be removed: '\$LOGFILE'" >&2
+    echo "Notice: log file was not removed: '\$LOGFILE'" >&2
     update-rc.d -f cloud4rpi remove
     rm -fv "\$0"
   fi
 }
-
 
 is_running() {
     [ -f "\$PIDFILE" ] && ps \$(cat "\$PIDFILE") > /dev/null 2>&1
 }
 
 case "\$1" in
-  start)
-    start
-    ;;
-  stop)
-    stop
-    ;;
-  uninstall)
-    uninstall
-    ;;
-  retart)
-    stop
-    start
-    ;;
+  start) start ;;
+  stop) stop ;;
+  uninstall) uninstall ;;
+  retart) stop; start ;;
   status)
     if is_running; then
         echo "Running"
@@ -142,7 +133,6 @@ EOF
     chmod 755 "$INIT_MODULE_PATH"
     quit_on_error
 }
-
 
 install_sysv() {
     SERVICE_NAME=cloud4rpi
