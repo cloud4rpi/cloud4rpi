@@ -80,7 +80,9 @@ stop() {
     return 1
   fi
   echo 'Stopping service...' >&2
-  kill -15 \$(cat "\$PIDFILE") && rm -f "\$PIDFILE"
+  kill -15 \$(cat "\$PIDFILE")
+  quit_on_error
+  rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
 }
 
