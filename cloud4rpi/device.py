@@ -72,10 +72,8 @@ class Device(object):
 
         readings = {varName: varConfig.get('value')
                     for varName, varConfig in self.__variables.items()}
-        if len(readings) == 0:
-            return
-
-        self.__api.publish_data(readings)
+        if readings:
+            self.__api.publish_data(readings)
 
     def send_diag(self):
         readings = {}
