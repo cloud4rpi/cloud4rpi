@@ -81,7 +81,7 @@ start() {
 stop() {
   if ! is_running; then
     echo 'Service not running' >&2
-    exit 1
+    return 0
   fi
   echo 'Stopping service...' >&2
   kill \$(cat "\$PIDFILE")
