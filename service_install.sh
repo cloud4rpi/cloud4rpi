@@ -87,11 +87,11 @@ stop() {
   kill \$(cat "\$PIDFILE")
   if [ \$? -ne 0 ]; then
     echo 'Failed to stop.' >&2
-  else
-    rm -f "\$PIDFILE"
-    echo 'Service stopped' >&2
-    echo '--- Service stopped at' \$(date) ' ---' >> "\$LOGFILE"
+    exit 1
   fi
+  rm -f "\$PIDFILE"
+  echo 'Service stopped' >&2
+  echo '--- Service stopped at' \$(date) ' ---' >> "\$LOGFILE"
 }
 
 uninstall() {
