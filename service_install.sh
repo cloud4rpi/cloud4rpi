@@ -114,7 +114,7 @@ case "\$1" in
   start) start ;;
   stop) stop ;;
   uninstall) uninstall ;;
-  retart) stop; start ;;
+  restart) stop; start ;;
   status)
     if is_running; then
         echo "Running"
