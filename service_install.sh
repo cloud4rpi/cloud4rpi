@@ -168,7 +168,7 @@ main() {
     local DIR=$(dirname "$0")
 
     if [ ! -f "$SCRIPT_PATH" ]; then
-        echo "Usage: $0 path/to/the/script"
+        echo "Usage: path/to/service_install.sh path/to/target_script.py"
         echo "Invalid script path. Make sure it exists."
         exit 1
     fi
@@ -186,4 +186,4 @@ main() {
     exit 0
 }
 
-main
+main $1
