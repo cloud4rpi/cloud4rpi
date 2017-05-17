@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON_PATH=/usr/bin/python
+readonly PYTHON_PATH=/usr/bin/python
 
 quit_on_error() {
     test "0" = $? || {
@@ -9,7 +9,7 @@ quit_on_error() {
 }
 
 put_systemd_script(){
-    INIT_MODULE_PATH=/lib/systemd/system/$1
+    local INIT_MODULE_PATH=/lib/systemd/system/$1
     echo "Writing init script to $INIT_MODULE_PATH..."
     cat > "$INIT_MODULE_PATH" <<EOF
 [Unit]
@@ -31,7 +31,7 @@ EOF
 }
 
 put_systemv_script(){
-    INIT_MODULE_PATH=/etc/init.d/$1
+    local INIT_MODULE_PATH=/etc/init.d/$1
     echo "Writing init script to $INIT_MODULE_PATH..."
     cat > "$INIT_MODULE_PATH" <<EOF
 #!/bin/sh
@@ -43,7 +43,7 @@ put_systemv_script(){
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Cloud4RPI demon
-# Description:       Cloud4RPI-enabled user script 
+# Description:       Cloud4RPI-enabled user script
 #                    (https://cloud4rpi.io/)
 ### END INIT INFO
 
@@ -59,13 +59,13 @@ start() {
     exit 1
   fi
   echo 'Starting service...' >&2
-  
+
   # Clears the old log
   echo '--- Service started at' \$(date) ' ---' > "\$LOGFILE"
-  
+
   sudo -u \$RUNAS $PYTHON_PATH -u \$SCRIPT >> \$LOGFILE 2>>\$LOGFILE &
   local PID=\$!
-  
+
   local ERROR_LEVEL=0
   if [ -z \$PID ]; then
     echo 'Failed to run.' >&2
@@ -73,7 +73,7 @@ start() {
   else
     echo \$PID > "\$PIDFILE"
     echo 'Service started.' >&2
-  fi            
+  fi
   echo 'See the log for details:' \$LOGFILE >&2
   exit \$ERROR_LEVEL
 }
@@ -135,7 +135,7 @@ EOF
 }
 
 install_sysv() {
-    SERVICE_NAME=cloud4rpi
+    local SERVICE_NAME=cloud4rpi
 
     put_systemv_script $SERVICE_NAME
 
@@ -149,7 +149,7 @@ install_sysv() {
 }
 
 install_sysd() {
-    SERVICE_NAME=cloud4rpi.service
+    local SERVICE_NAME=cloud4rpi.service
 
     put_systemd_script $SERVICE_NAME
 
@@ -163,23 +163,27 @@ install_sysd() {
     echo -e "  $ sudo systemctl start|stop|status \e[0m$SERVICE_NAME\e[1m"
 }
 
-SCRIPT_PATH=$(readlink -f "$1")
-DIR=$(dirname "$0")
+main() {
+    local SCRIPT_PATH=$(readlink -f "$1")
+    local DIR=$(dirname "$0")
 
-if [ ! -f "$SCRIPT_PATH" ]; then
-    echo "Usage: $0 path/to/the/script"
-    echo "Invalid script path. Make sure it exists."
-    exit 1
-fi
-
-chmod +x "$SCRIPT_PATH"
-quit_on_error
-
-case $(ps -p 1 -o comm=) in
-    "init") install_sysv ;;
-    "systemd") install_sysd ;;
-    *)
-        echo "Unfortunately we can\'t automate service installation on your system."
+    if [ ! -f "$SCRIPT_PATH" ]; then
+        echo "Usage: $0 path/to/the/script"
+        echo "Invalid script path. Make sure it exists."
         exit 1
-esac
-exit 0
+    fi
+
+    chmod +x "$SCRIPT_PATH"
+    quit_on_error
+
+    case $(ps -p 1 -o comm=) in
+        "init") install_sysv ;;
+        "systemd") install_sysd ;;
+        *)
+            echo "Unfortunately we can\'t automate service installation on your system."
+            exit 1
+    esac
+    exit 0
+}
+
+main
