@@ -61,7 +61,7 @@ start() {
   echo 'Starting service...' >&2
 
   # Clears the old log
-  echo '--- Service started at' "\$(date)" ' ---' > "\$LOGFILE"
+  echo '--- Service started at' "\$(date)" '---' > "\$LOGFILE"
 
   sudo -u \$RUNAS $PYTHON_PATH -u "\$SCRIPT" >> \$LOGFILE 2>>\$LOGFILE &
   PID=\$!
@@ -91,7 +91,7 @@ stop() {
   fi
   rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
-  echo '--- Service stopped at' "\$(date)" ' ---' >> "\$LOGFILE"
+  echo '--- Service stopped at' "\$(date)" '---' >> "\$LOGFILE"
 }
 
 uninstall() {
