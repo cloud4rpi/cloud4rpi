@@ -166,7 +166,7 @@ main() {
     SCRIPT_PATH=$(readlink -f "$1")
 
     if [ ! -f "$SCRIPT_PATH" ]; then
-        echo "Usage: path/to/service_install.sh path/to/target_script.py"
+        echo "Usage: sudo path/to/service_install.sh path/to/target_script.py"
         echo "Invalid script path. Make sure it exists."
         exit 1
     fi
