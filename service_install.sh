@@ -95,8 +95,8 @@ stop() {
 }
 
 uninstall() {
-  echo -n "Do you really want to uninstall Cloud4RPI service? That cannot be undone. [yes|no] "
-  read -r
+  printf "Do you really want to uninstall Cloud4RPI service? That cannot be undone. [yes|no] "
+  read -r REPLY
   if [ "\$REPLY" = "yes" ]; then
     stop
     echo "Notice: log file was not removed: '\$LOGFILE'" >&2
