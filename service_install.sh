@@ -61,12 +61,12 @@ start() {
   echo 'Starting service...' >&2
 
   # Clears the old log
-  echo '--- Service started at' \$(date) ' ---' > "\$LOGFILE"
+  echo '--- Service started at' "\$(date)" ' ---' > "\$LOGFILE"
 
-  sudo -u \$RUNAS $PYTHON_PATH -u \$SCRIPT >> \$LOGFILE 2>>\$LOGFILE &
-  local PID=\$!
+  sudo -u \$RUNAS $PYTHON_PATH -u "\$SCRIPT" >> \$LOGFILE 2>>\$LOGFILE &
+  PID=\$!
 
-  local ERROR_LEVEL=0
+  ERROR_LEVEL=0
   if [ -z \$PID ]; then
     echo 'Failed to run.' >&2
     ERROR_LEVEL=1
@@ -84,21 +84,20 @@ stop() {
     return 0
   fi
   echo 'Stopping service...' >&2
-  kill \$(cat "\$PIDFILE")
-  if [ \$? -ne 0 ]; then
+  
+  if ! kill \$(cat "\$PIDFILE"); then
     echo 'Failed to stop.' >&2
     exit 1
   fi
   rm -f "\$PIDFILE"
   echo 'Service stopped' >&2
-  echo '--- Service stopped at' \$(date) ' ---' >> "\$LOGFILE"
+  echo '--- Service stopped at' "\$(date)" ' ---' >> "\$LOGFILE"
 }
 
 uninstall() {
   echo -n "Do you really want to uninstall Cloud4RPI service? That cannot be undone. [yes|no] "
-  local SURE
-  read SURE
-  if [ "\$SURE" = "yes" ]; then
+  read -r
+  if [ "\$REPLY" = "yes" ]; then
     stop
     echo "Notice: log file was not removed: '\$LOGFILE'" >&2
     update-rc.d -f cloud4rpi remove
@@ -164,8 +163,7 @@ install_sysd() {
 }
 
 main() {
-    local SCRIPT_PATH=$(readlink -f "$1")
-    local DIR=$(dirname "$0")
+    SCRIPT_PATH=$(readlink -f "$1")
 
     if [ ! -f "$SCRIPT_PATH" ]; then
         echo "Usage: path/to/service_install.sh path/to/target_script.py"
@@ -186,4 +184,4 @@ main() {
     exit 0
 }
 
-main $1
+main "$1"
