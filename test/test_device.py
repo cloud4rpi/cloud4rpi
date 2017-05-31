@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import cloud4rpi.device
+import cloud4rpi
 
-from mock import Mock, call
+from mock import Mock
 
 
 class ApiClientMock(object):
@@ -27,43 +27,34 @@ class MockSensor(object):
 
 class TestDevice(unittest.TestCase):
     def testDeclareVariables(self):
-        api = ApiClientMock()
-        device = cloud4rpi.device.Device(api)
+        device = cloud4rpi.Device()
         device.declare({
             'CPUTemp': {
                 'type': 'numeric',
                 'bind': MockSensor()
             }
         })
-        api.publish_config.assert_called_with([
-            {'name': 'CPUTemp', 'type': 'numeric'}
-        ])
+        cfg = device.read_config()
+        self.assertEqual(cfg, [{'name': 'CPUTemp', 'type': 'numeric'}])
 
-    def testSendConfig(self):
-        api = ApiClientMock()
-        device = cloud4rpi.device.Device(api)
+    def testReadConfig(self):
+        device = cloud4rpi.Device()
         device.declare({
             'CPUTemp': {
                 'type': 'numeric',
                 'bind': MockSensor()
             }
         })
-        expected_call = call([{'name': 'CPUTemp', 'type': 'numeric'}])
-        api.publish_config.assert_has_calls([expected_call])
+        cfg = device.read_config()
+        self.assertEqual(cfg, [{'name': 'CPUTemp', 'type': 'numeric'}])
 
-        device.send_config()
-        api.publish_config.assert_has_calls([expected_call, expected_call])
-
-    def testSendConfigIfNotDeclared(self):
-        api = ApiClientMock()
-        device = cloud4rpi.device.Device(api)
-        device.send_config()
-        api.publish_config.assert_called_with([])
+    def testReadConfigIfNotDeclared(self):
+        device = cloud4rpi.Device()
+        self.assertEqual(device.read_config(), [])
 
     def testCallsBoundFunctionOnCommand(self):
-        api = ApiClientMock()
         handler = Mock()
-        device = cloud4rpi.device.Device(api)
+        device = cloud4rpi.Device()
         device.declare({
             'LEDOn': {
                 'type': 'bool',
@@ -71,76 +62,12 @@ class TestDevice(unittest.TestCase):
                 'bind': handler
             }
         })
-        api.raise_on_command({'LEDOn': True})
+        device.apply_commands({'LEDOn': True})
         handler.assert_called_with(True)
 
     def testSendsBackActualVarValuesOnCommand(self):
         api = ApiClientMock()
-        led_handler = Mock(return_value=True)
-        cooler_handler = Mock(return_value=False)
-        device = cloud4rpi.device.Device(api)
-        device.declare({
-            'LEDOn': {
-                'type': 'bool',
-                'value': False,
-                'bind': led_handler
-            },
-            'Cooler': {
-                'type': 'bool',
-                'value': True,
-                'bind': cooler_handler
-            }
-        })
-        api.raise_on_command({'LEDOn': True, 'Cooler': False})
-        api.publish_data.assert_called_with({
-            'LEDOn': True,
-            'Cooler': False
-        })
-
-    def testSkipsVarIfItsBindIsNotAFunctionOnCommand(self):
-        api = ApiClientMock()
-        device = cloud4rpi.device.Device(api)
-        device.declare({
-            'LEDOn': {
-                'type': 'bool',
-                'value': False,
-                'bind': 'this is not a function'
-            }
-        })
-        api.raise_on_command({'LEDOn': True})
-
-    def testSendData(self):
-        api = ApiClientMock()
-        handler = {}
-        temperature_sensor = MockSensor(73)
-        device = cloud4rpi.device.Device(api)
-        device.declare({
-            'LEDOn': {
-                'type': 'bool',
-                'value': False,
-                'bind': handler
-            },
-            'Temperature': {
-                'type': 'numeric',
-                'value': True,
-                'bind': temperature_sensor
-            }
-        })
-        device.send_data()
-        api.publish_data.assert_called_with({
-            'LEDOn': False,
-            'Temperature': 73
-        })
-
-    def testSendDataDoesNotSendEmptyVars(self):
-        api = ApiClientMock()
-        device = cloud4rpi.device.Device(api)
-        device.send_data()
-        api.publish_data.assert_not_called()
-
-    def testSendDataAfterCommand(self):
-        api = ApiClientMock()
-        device = cloud4rpi.device.Device(api)
+        device = cloud4rpi.Device()
 
         device.declare({
             'LEDOn': {
@@ -154,27 +81,99 @@ class TestDevice(unittest.TestCase):
                 'bind': lambda x: False
             }
         })
+        api.on_command = device.handle_mqtt_commands(api)
         api.raise_on_command({'LEDOn': True, 'Cooler': False})
-        api.publish_data.reset_mock()
-        device.send_data()
+
+        self.assertEqual(device.read_data(), {
+            'LEDOn': True,
+            'Cooler': False
+        })
+
         api.publish_data.assert_called_with({
             'LEDOn': True,
             'Cooler': False
         })
 
-    def testSendDiag(self):
+    def testSkipsVarIfItsBindIsNotAFunctionOnCommand(self):
         api = ApiClientMock()
+        device = cloud4rpi.Device()
+        device.declare({
+            'LEDOn': {
+                'type': 'bool',
+                'value': False,
+                'bind': 'this is not a function'
+            }
+        })
+        api.on_command = device.handle_mqtt_commands(api)
+        api.raise_on_command({'LEDOn': True})
 
+        # consider behavior in the case of the incorrect bind implementation
+        data = device.read_data()
+        # result of conversation 'this is not a function' to bool
+        self.assertEqual(data, {
+            'LEDOn': True  # False
+        })
+        # api.publish_data.assert_not_called()
+
+    def testReadVariables(self):
+        handler = {}
         temperature_sensor = MockSensor(73)
-        device = cloud4rpi.device.Device(api)
+        device = cloud4rpi.Device()
+        device.declare({
+            'LEDOn': {
+                'type': 'bool',
+                'value': False,
+                'bind': handler
+            },
+            'Temperature': {
+                'type': 'numeric',
+                'value': True,
+                'bind': temperature_sensor
+            }
+        })
+        data = device.read_data()
+        self.assertEqual(data, {
+            'LEDOn': False,
+            'Temperature': 73
+        })
+
+    def testReadVariablesDoesNotContainsEmptyVars(self):
+        device = cloud4rpi.Device()
+        self.assertEqual(device.read_data(), {})
+
+    def testReadVariablesAfterCommandApplied(self):
+        device = cloud4rpi.Device()
+
+        device.declare({
+            'LEDOn': {
+                'type': 'bool',
+                'value': False,
+                'bind': lambda x: True
+            },
+            'Cooler': {
+                'type': 'bool',
+                'value': True,
+                'bind': lambda x: False
+            }
+        })
+        device.apply_commands({'LEDOn': True, 'Cooler': False})
+        data = device.read_data()
+        self.assertEqual(data, {
+            'LEDOn': True,
+            'Cooler': False
+        })
+
+    def testReadDiag(self):
+        temperature_sensor = MockSensor(73)
+        device = cloud4rpi.Device()
         device.declare_diag({
             'CPUTemperature': temperature_sensor,
             'IPAddress': lambda x: '8.8.8.8',
             'OSName': lambda x: 'Linux',
             'Host': 'weather_station'
         })
-        device.send_diag()
-        api.publish_diag.assert_called_with({
+        diag = device.read_diag()
+        self.assertEqual(diag, {
             'CPUTemperature': 73,
             'IPAddress': '8.8.8.8',
             'OSName': 'Linux',

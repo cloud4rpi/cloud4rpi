@@ -10,7 +10,7 @@ except Exception:
     pass
 
 setup(name='cloud4rpi',
-      version='0.0.15',
+      version='0.0.2',
       description='cloud4rpi client library',
       long_description=description,
       url='https://github.com/cloud4rpi/cloud4rpi',
@@ -20,4 +20,5 @@ setup(name='cloud4rpi',
       packages=['cloud4rpi'],
       install_requires=[
           'paho-mqtt',
+          'requests',
       ])

@@ -46,20 +46,26 @@ def main():
         'OS Name': rpi.osname
     }
 
-    device = cloud4rpi.connect_mqtt(DEVICE_TOKEN)
+    device = cloud4rpi.Device()
     device.declare(variables)
     device.declare_diag(diagnostics)
+
+    api = cloud4rpi.connect_mqtt(DEVICE_TOKEN)
+    cfg = device.read_config()
+    api.publish_config(cfg)
 
     try:
         diag_timer = 0
         data_timer = 0
         while True:
             if data_timer <= 0:
-                device.send_data()
+                data = device.read_data()
+                api.publish_data(data)
                 data_timer = DATA_SENDING_INTERVAL
 
             if diag_timer <= 0:
-                device.send_diag()
+                diag = device.read_diag()
+                api.publish_diag(diag)
                 diag_timer = DIAG_SENDING_INTERVAL
 
             diag_timer -= POLL_INTERVAL

@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from cloud4rpi import api_client
+from cloud4rpi import MqttApi
+
+# First of all obtain the _token_ for your device from the device page
+# and connect to the api.
+# The token looks something like "4GPZFMVuacadesU21dBw47zJi"
+# it is the key that allows the device to communicate with the cloud4rpi.
+DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
 
 
 def main():
-    # First of all obtain the _token_ for your device from the device page
-    # and connect to the api.
-    # The token looks something like "4GPZFMVuacadesU21dBw47zJi"
-    # it is the key that allows the device to communicate with the cloud4rpi.
-    device_token = '__YOUR_DEVICE_TOKEN__'
-    client = api_client.MqttApi(device_token)
+
+    client = MqttApi(DEVICE_TOKEN)
     client.connect()
 
     # Next declare the device _variables_. A device variable is

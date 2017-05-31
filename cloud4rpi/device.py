@@ -4,12 +4,7 @@ import inspect
 
 
 class Device(object):
-    def __init__(self, api):
-        def on_command(cmd):
-            self.__on_command(cmd)
-
-        self.__api = api
-        self.__api.on_command = on_command
+    def __init__(self):
         self.__variables = {}
         self.__diag = {}
 
@@ -39,30 +34,17 @@ class Device(object):
             if variable.get('type', None) == 'bool' \
             else value
 
-    def __on_command(self, cmd):
-        actual_var_values = {}
-        for varName, value in cmd.items():
-            variable = self.__variables.get(varName, {})
-            handler = variable.get('bind', None)
-            if not callable(handler):
-                continue
-            actual = handler(value)
-            if actual is None:
-                continue
-
-            actual = self.__validate_bool_var(variable, value)
-            actual_var_values[varName] = actual
-            variable['value'] = actual
-        self.__api.publish_data(actual_var_values)
-
     def declare(self, variables):
         self.__variables = variables
-        self.send_config()
 
     def declare_diag(self, diag):
         self.__diag = diag
 
-    def send_data(self):
+    def read_config(self):
+        return [{'name': name, 'type': value['type']}
+                for name, value in self.__variables.items()]
+
+    def read_data(self):
         for _, varConfig in self.__variables.items():
             bind = varConfig.get('bind', None)
             if bind:
@@ -72,16 +54,32 @@ class Device(object):
 
         readings = {varName: varConfig.get('value')
                     for varName, varConfig in self.__variables.items()}
-        if readings:
-            self.__api.publish_data(readings)
 
-    def send_diag(self):
+        return readings
+
+    def read_diag(self):
         readings = {}
         for name, value in self.__diag.items():
             readings[name] = self.__resolve_binding(value)
-        self.__api.publish_diag(readings)
+        return readings
 
-    def send_config(self):
-        declarations = [{'name': name, 'type': value['type']}
-                        for name, value in self.__variables.items()]
-        self.__api.publish_config(declarations)
+    def handle_mqtt_commands(self, api):
+        def wrapped(cmd):
+            self.apply_commands(cmd)
+            data = self.read_data()
+            if data is not None:
+                api.publish_data(data)
+
+        return wrapped
+
+    def apply_commands(self, cmd):
+        for varName, value in cmd.items():
+            variable = self.__variables.get(varName, {})
+
+            handler = variable.get('bind', None)
+            if not callable(handler):
+                continue
+            actual = handler(value)
+            if actual is None:
+                continue
+            variable['value'] = self.__validate_bool_var(variable, value)

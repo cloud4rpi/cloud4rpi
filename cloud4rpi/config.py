@@ -6,4 +6,7 @@ mqttBrokerPort = 1883
 mqqtBrokerUsername = 'c4r-user'
 mqttBrokerPassword = 'c4r-password'
 
+# HTTP
+baseApiUrl = 'https://cloud4rpi.io/api'
+
 loggerName = 'cloud4rpi logger'

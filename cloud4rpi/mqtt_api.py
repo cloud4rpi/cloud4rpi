@@ -2,11 +2,12 @@
 
 import time
 import logging
-import re
 import json
 
 from datetime import datetime
 from cloud4rpi import config
+from cloud4rpi import utils
+from cloud4rpi.errors import MqttConnectionError
 
 import paho.mqtt.client as mqtt
 
@@ -16,20 +17,25 @@ MQTT_ERR_SUCCESS = 0
 log = logging.getLogger(config.loggerName)
 
 
-def guard_against_invalid_token(token):
-    token_re = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
-    if not token_re.match(token):
-        raise InvalidTokenError(token)
+def connect_mqtt(device_token):
+    api = MqttApi(device_token)
+    __attempt_to_connect_with_retries(api)
+    return api
 
 
-class InvalidTokenError(Exception):
-    pass
-
-
-class MqttConnectionError(Exception):
-    def __init__(self, code):
-        super(MqttConnectionError, self).__init__()
-        self.code = code
+def __attempt_to_connect_with_retries(api, attempts=10):
+    retry_interval = 5
+    for attempt in range(attempts):
+        try:
+            api.connect()
+        except Exception as e:
+            log.debug('MQTT connection error %s. Attempt %s', e, attempt)
+            time.sleep(retry_interval)
+            continue
+        else:
+            break
+    else:
+        raise Exception('Impossible to connect to MQTT broker. Quiting.')
 
 
 class MqttApi(object):
@@ -39,7 +45,7 @@ class MqttApi(object):
                  password=config.mqttBrokerPassword,
                  host=config.mqqtBrokerHost,
                  port=config.mqttBrokerPort):
-        guard_against_invalid_token(device_token)
+        utils.guard_against_invalid_token(device_token)
 
         def noop_on_command(cmd):
             pass
@@ -113,7 +119,10 @@ class MqttApi(object):
     def publish_diag(self, diag):
         self.__publish('system', diag)
 
-    def __publish(self, msg_type, payload):
+    def __publish(self, msg_type, payload=None):
+        if payload is None:
+            return
+
         msg = {
             'type': msg_type,
             'ts': datetime.utcnow().isoformat(),
