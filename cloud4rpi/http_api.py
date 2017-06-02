@@ -67,8 +67,9 @@ class HttpApi(object):
         return post_request(url, HttpApi.__format_stream(data))
 
     def publish_diag(self, diag):
-        log.info('Sending diagnostic: %s', diag)
-        url = self.__format_url('/system')
+        log.info('Sending diagnostics: %s', diag)
+
+        url = self.__format_url('/diagnostics')
         return post_request(url, HttpApi.__format_stream(diag))
 
     def fetch_commands(self):

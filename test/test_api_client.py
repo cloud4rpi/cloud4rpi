@@ -238,7 +238,8 @@ class TestHttpApi(unittest.TestCase):
 
     def testPublishDiag(self):
         client = self.create_http_client()
-        self.setup_request_params(201, 'POST', '/system')
+
+        self.setup_request_params(201, 'POST', '/diagnostics')
 
         diag = {
             'IPAddress': '127.0.0.1',

@@ -44,6 +44,9 @@ def main():
     cfg = device.read_config()
     api.publish_config(cfg)
 
+    # Adds a 1 second delay to ensure device variables are created
+    time.sleep(1)
+
     try:
         data_timer = 0
         while True:
