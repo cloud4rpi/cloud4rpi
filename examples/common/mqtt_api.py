@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 from cloud4rpi import MqttApi
 
 # First of all obtain the _token_ for your device from the device page
@@ -24,6 +25,9 @@ def main():
         {'name': 'TheAnswer', 'type': 'numeric'},
     ]
     client.publish_config(variables)
+
+    # Adds a 1 second delay to ensure device variables are created
+    time.sleep(1)
 
     # After publishing the device config
     # you can start sending some useful data.

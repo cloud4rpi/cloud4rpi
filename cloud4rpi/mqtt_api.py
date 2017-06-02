@@ -41,8 +41,6 @@ def __attempt_to_connect_with_retries(api, attempts=10):
 class MqttApi(object):
     def __init__(self,
                  device_token,
-                 username=config.mqqtBrokerUsername,
-                 password=config.mqttBrokerPassword,
                  host=config.mqqtBrokerHost,
                  port=config.mqttBrokerPort):
         utils.guard_against_invalid_token(device_token)
@@ -54,19 +52,20 @@ class MqttApi(object):
         self.__client = mqtt.Client(device_token, clean_session=False)
         self.__host = host
         self.__port = port
-        self.__msg_topic = 'iot-hub/messages'
-        self.__cmd_topic = 'iot-hub/commands/{0}'.format(device_token)
-        self.__username = username
-        self.__password = password
+
         self.on_command = noop_on_command
+
+    def __format_topic(self, tail):
+        return 'devices/{0}/{1}'.format(self.__device_token, tail)
 
     def connect(self):
         def on_connect(client, userdata, flags, rc):
             if rc != MQTT_ERR_SUCCESS:
                 log.error('Connection failed: %s', rc)
                 raise MqttConnectionError(rc)
-            log.debug('Listen for %s', self.__cmd_topic)
-            self.__client.subscribe(self.__cmd_topic, qos=1)
+            topic = self.__format_topic('commands')
+            log.debug('Listen for %s', topic)
+            self.__client.subscribe(topic, qos=1)
 
         def on_message(client, userdata, msg):
             log.info('Command received %s: %s', msg.topic, msg.payload)
@@ -82,7 +81,7 @@ class MqttApi(object):
         self.__client.on_connect = on_connect
         self.__client.on_message = on_message
         self.__client.on_disconnect = on_disconnect
-        self.__client.username_pw_set(self.__username, self.__password)
+
         log.info('MQTT connecting %s:%s', config.mqqtBrokerHost,
                  config.mqttBrokerPort)
         self.__client.connect(self.__host, self.__port,
@@ -111,24 +110,20 @@ class MqttApi(object):
         self.__client.disconnect()
 
     def publish_config(self, cfg):
-        self.__publish('config', cfg)
+        self.__publish(self.__format_topic('config'), cfg)
 
     def publish_data(self, data):
-        self.__publish('data', data)
+        self.__publish(self.__format_topic('data'), data)
 
     def publish_diag(self, diag):
-        self.__publish('system', diag)
+        self.__publish(self.__format_topic('diagnostics'), diag)
 
-    def __publish(self, msg_type, payload=None):
+    def __publish(self, topic, payload=None):
         if payload is None:
             return
-
         msg = {
-            'type': msg_type,
             'ts': datetime.utcnow().isoformat(),
             'payload': payload,
         }
-        log.info('Publishing %s: %s', self.__msg_topic, msg)
-
-        msg["token"] = self.__device_token
-        self.__client.publish(self.__msg_topic, payload=json.dumps(msg))
+        log.info('Publishing %s: %s', topic, msg)
+        self.__client.publish(topic, payload=json.dumps(msg))
