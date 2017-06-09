@@ -2,6 +2,7 @@
 
 import re
 import cloud4rpi.errors
+import arrow
 
 
 def guard_against_invalid_token(token):
@@ -13,3 +14,7 @@ def guard_against_invalid_token(token):
 def variables_to_config(variables):
     return [{'name': name, 'type': value['type']}
             for name, value in variables.items()]
+
+
+def utcnow():
+    return arrow.utcnow().isoformat()

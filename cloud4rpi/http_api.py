@@ -2,8 +2,6 @@
 
 import logging
 import json
-from datetime import datetime
-
 import requests
 from cloud4rpi import utils
 from cloud4rpi import config
@@ -52,7 +50,7 @@ class HttpApi(object):
     @staticmethod
     def __format_stream(payload):
         return {
-            'ts': datetime.utcnow().isoformat(),
+            'ts': utils.utcnow(),
             'payload': payload
         }
 

@@ -4,7 +4,6 @@ import time
 import logging
 import json
 
-from datetime import datetime
 from cloud4rpi import config
 from cloud4rpi import utils
 from cloud4rpi.errors import MqttConnectionError
@@ -122,7 +121,7 @@ class MqttApi(object):
         if payload is None:
             return
         msg = {
-            'ts': datetime.utcnow().isoformat(),
+            'ts': utils.utcnow(),
             'payload': payload,
         }
         log.info('Publishing %s: %s', topic, msg)
