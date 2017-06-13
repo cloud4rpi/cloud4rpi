@@ -21,7 +21,7 @@ This package provides a client library that simplifies the connection to the **C
     ```
 1. Get examples:
     ```bash
-    git clone https://github.com/cloud4rpi/cloud4rpi.git && cd cloud4rpi/examples && cat README.md
+    git clone https://github.com/cloud4rpi/cloud4rpi-examples.git && cd cloud4rpi-examples && cat README.md
     ```
 1. Create a free account on [Cloud4RPI](https://cloud4rpi.io).
 2. Create a device on the [Devices](https://cloud4rpi.io/devices) page.
