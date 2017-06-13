@@ -1,6 +1,3 @@
-[cloud4rpi package description](https://pypi.python.org/pypi/cloud4rpi)
-=========
-
 **Cloud4RPI** is a cloud control panel for your [IoT](https://en.wikipedia.org/wiki/Internet_of_things) device.
 
 This package provides a client library that simplifies the connection to the **Cloud4RPI** service.
@@ -35,3 +32,7 @@ For detailed instructions, refer to the [documentation](https://cloud4rpi.github
 ## Source Code
 
 The source code of this package is available on [GitHub](https://github.com/cloud4rpi/cloud4rpi).
+
+## See Also
+
+* [PyPI Package](https://pypi.python.org/pypi/cloud4rpi)
