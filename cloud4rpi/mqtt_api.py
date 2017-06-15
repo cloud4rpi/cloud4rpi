@@ -16,8 +16,8 @@ MQTT_ERR_SUCCESS = 0
 log = logging.getLogger(config.loggerName)
 
 
-def connect_mqtt(device_token):
-    api = MqttApi(device_token)
+def connect_mqtt(device_token, host, port):
+    api = MqttApi(device_token, host, port)
     __attempt_to_connect_with_retries(api)
     return api
 
