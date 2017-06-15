@@ -1,4 +1,6 @@
 **Cloud4RPI** is a cloud control panel for your [IoT](https://en.wikipedia.org/wiki/Internet_of_things) device.
+-----
+[![Build Status](https://travis-ci.org/cloud4rpi/cloud4rpi.svg?branch=master)](https://travis-ci.org/cloud4rpi/cloud4rpi)
 
 This package provides a client library that simplifies the connection to the **Cloud4RPI** service.
 
