@@ -31,10 +31,7 @@ This package provides a client library that simplifies the connection to the [Cl
 
 For detailed instructions, refer to the [documentation](https://cloud4rpi.github.io/docs/).
 
-## Source Code
-
-The source code of this package is available on [GitHub](https://github.com/cloud4rpi/cloud4rpi).
-
 ## See Also
 
 * [PyPI Package](https://pypi.python.org/pypi/cloud4rpi)
+* [Usage Examples](https://github.com/cloud4rpi/cloud4rpi-examples)
