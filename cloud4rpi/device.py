@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import inspect
+import utils
 
 
 class Device(object):
@@ -9,22 +10,14 @@ class Device(object):
         self.__diag = {}
 
     @staticmethod
-    def get_func_args(func):
-        # pylint: disable=E1101, W1505
-        if inspect.getargspec is not None:
-            return inspect.getargspec(func).args
-
-        return inspect.getfullargspec(func).args
-
-    @staticmethod
     def __resolve_binding(binding, current=None):
         if hasattr(binding, 'read'):
             return binding.read()
         elif callable(binding):
-            if Device.get_func_args(binding).__len__() == 0:
-                return binding()
+            if inspect.ismethod(binding):
+                return utils.resolve_method_binding(binding, current)
             else:
-                return binding(current)
+                return utils.resolve_func_binding(binding, current)
         else:
             return binding
 

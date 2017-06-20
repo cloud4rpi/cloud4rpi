@@ -23,6 +23,13 @@ class ApiClientMock(object):
 class MockSensor(object):
     def __init__(self, value=42):
         self.read = Mock(return_value=value)
+        self.__innerValue__ = value
+
+    def get_state(self):
+        return self.__innerValue__
+
+    def get_incremented_state(self, value):
+        return self.__innerValue__ + value
 
 
 class TestDevice(unittest.TestCase):
@@ -161,6 +168,37 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(data, {
             'LEDOn': True,
             'Cooler': False
+        })
+
+    def testReadVariablesFromClassMethod(self):
+        device = cloud4rpi.Device()
+        sensor = MockSensor(10)
+
+        device.declare({
+            'MyParam': {
+                'type': 'numeric',
+                'bind': sensor.get_state
+            },
+        })
+        data = device.read_data()
+        self.assertEqual(data, {
+            'MyParam': 10,
+        })
+
+    def testReadVariablesFromClassMethodWithCurrent(self):
+        device = cloud4rpi.Device()
+        sensor = MockSensor(10)
+
+        device.declare({
+            'MyParam': {
+                'type': 'numeric',
+                'value': 1,
+                'bind': sensor.get_incremented_state
+            },
+        })
+        data = device.read_data()
+        self.assertEqual(data, {
+            'MyParam': 11,
         })
 
     def testReadDiag(self):

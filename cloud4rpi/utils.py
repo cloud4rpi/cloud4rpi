@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import inspect
 import cloud4rpi.errors
 import arrow
 
@@ -18,3 +19,27 @@ def variables_to_config(variables):
 
 def utcnow():
     return arrow.utcnow().isoformat()
+
+
+def args_count(binding):
+    # pylint: disable=E1101, W1505
+    if inspect.getargspec is not None:
+        args = inspect.getargspec(binding).args
+    else:
+        args = inspect.getfullargspec(binding).args
+
+    return args.__len__()
+
+
+def resolve_method_binding(binding, current=None):
+    if args_count(binding) > 1:
+        return binding(current)
+    else:
+        return binding()
+
+
+def resolve_func_binding(binding, current=None):
+    if args_count(binding) > 0:
+        return binding(current)
+    else:
+        return binding()
