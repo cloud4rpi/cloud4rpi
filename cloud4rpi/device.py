@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import inspect
-import utils
+from cloud4rpi import utils
 
 
 class Device(object):
