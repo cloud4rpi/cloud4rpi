@@ -1,15 +1,15 @@
-**Cloud4RPI** is a cloud control panel for your [IoT](https://en.wikipedia.org/wiki/Internet_of_things) device.
+**Cloud4RPi** is a cloud control panel for your [IoT](https://en.wikipedia.org/wiki/Internet_of_things) device.
 -----
 [![Build Status](https://travis-ci.org/cloud4rpi/cloud4rpi.svg?branch=master)](https://travis-ci.org/cloud4rpi/cloud4rpi)
 
 This package provides a client library that simplifies the connection to the [Cloud4RRI](https://cloud4rpi.io/) service.
 
 
-## Cloud4RPI Features
+## Cloud4RPi Features
 
 - You can use widgets to display device data and send commands in real time.
 - You can control your IoT devices remotely.
-- You can connect any device to **Cloud4RPI**.
+- You can connect any device to **Cloud4RPi**.
 - You can use [MQTT](https://pypi.python.org/pypi/paho-mqtt) or HTTP to send data and receive control commands.
 
 ## Start Using
@@ -22,7 +22,7 @@ This package provides a client library that simplifies the connection to the [Cl
     ```bash
     wget https://github.com/cloud4rpi/cloud4rpi-examples/archive/master.zip && unzip master.zip && rm master.zip
     ```
-1. Create a free account on [Cloud4RPI](https://cloud4rpi.io).
+1. Create a free account on [Cloud4RPi](https://cloud4rpi.io).
 2. Create a device on the [Devices](https://cloud4rpi.io/devices) page.
 3. Copy the **Device Token** from the device page.
 4. Replace the `__YOUR_DEVICE_TOKEN__` string in one of the examples with your real device token.

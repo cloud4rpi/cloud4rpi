@@ -13,7 +13,7 @@ put_systemd_script(){
     echo "Writing init script to $INIT_MODULE_PATH..."
     cat > "$INIT_MODULE_PATH" <<EOF
 [Unit]
-Description=Cloud4RPI daemon
+Description=Cloud4RPi daemon
 After=network.target
 
 [Service]
@@ -42,8 +42,8 @@ put_systemv_script(){
 # Required-Stop:     \$local_fs \$network \$named \$time \$syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Cloud4RPI demon
-# Description:       Cloud4RPI-enabled user script
+# Short-Description: Cloud4RPi demon
+# Description:       Cloud4RPi-enabled user script
 #                    (https://cloud4rpi.io/)
 ### END INIT INFO
 
@@ -95,7 +95,7 @@ stop() {
 }
 
 uninstall() {
-  printf "Do you really want to uninstall Cloud4RPI service? That cannot be undone. [yes|no] "
+  printf "Do you really want to uninstall Cloud4RPi service? That cannot be undone. [yes|no] "
   read -r REPLY
   if [ "\$REPLY" = "yes" ]; then
     stop
