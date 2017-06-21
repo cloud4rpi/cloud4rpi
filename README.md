@@ -2,7 +2,7 @@
 -----
 [![Build Status](https://travis-ci.org/cloud4rpi/cloud4rpi.svg?branch=master)](https://travis-ci.org/cloud4rpi/cloud4rpi)
 
-This package provides a client library that simplifies the connection to the [Cloud4RRi](https://cloud4rpi.io/) service.
+This package provides a client library that simplifies the connection to the [Cloud4RPi](https://cloud4rpi.io/) service.
 
 
 ## Cloud4RPi Features
