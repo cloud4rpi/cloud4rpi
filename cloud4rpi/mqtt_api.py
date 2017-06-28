@@ -3,6 +3,7 @@
 import time
 import logging
 import json
+from math import floor
 
 from cloud4rpi import config
 from cloud4rpi import utils
@@ -93,10 +94,11 @@ class MqttApi(object):
             return
 
         attempts = 0
-        retry_interval = 1
+        retry_interval = 0.5
         while True:
             attempts += 1
-            log.info('Attempting to reconnect... %s', attempts)
+            log.info('Attempt #%s to reconnect after %s sec', attempts, floor(retry_interval))
+            retry_interval = min(retry_interval * 2, 100)
             try:
                 self.__client.reconnect()
                 log.info("Reconnected!")
