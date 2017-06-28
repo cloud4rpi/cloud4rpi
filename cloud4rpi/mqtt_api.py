@@ -83,8 +83,7 @@ class MqttApi(object):
         self.__client.on_message = on_message
         self.__client.on_disconnect = on_disconnect
 
-        log.info('MQTT connecting %s:%s', config.mqqtBrokerHost,
-                 config.mqttBrokerPort)
+        log.info('MQTT connecting %s:%s', self.__host, self.__port)
         self.__client.connect(self.__host, self.__port,
                               keepalive=KEEP_ALIVE_INTERVAL)
         self.__client.loop_start()
