@@ -97,7 +97,8 @@ class MqttApi(object):
         retry_interval = 0.5
         while True:
             attempts += 1
-            log.info('Attempt #%s to reconnect after %s sec', attempts, floor(retry_interval))
+            log.info('Attempt #%s to reconnect after %s sec', attempts,
+                     floor(retry_interval))
             retry_interval = min(retry_interval * 2, 100)
             try:
                 self.__client.reconnect()
