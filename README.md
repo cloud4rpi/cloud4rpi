@@ -34,4 +34,5 @@ For detailed instructions, refer to the [documentation](https://cloud4rpi.github
 ## See Also
 
 * [PyPI Package](https://pypi.python.org/pypi/cloud4rpi)
+* [Documentation Repository](https://github.com/cloud4rpi/docs)
 * [Usage Examples](https://github.com/cloud4rpi/cloud4rpi-examples)
