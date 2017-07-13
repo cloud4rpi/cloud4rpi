@@ -13,6 +13,7 @@ import paho.mqtt.client as mqtt
 
 KEEP_ALIVE_INTERVAL = 60 * 10
 MQTT_ERR_SUCCESS = 0
+CONNECT_RESULT_UNDEFINED = 255
 
 log = logging.getLogger(config.loggerName)
 
@@ -54,6 +55,7 @@ class MqttApi(object):
         self.__client = mqtt.Client(device_token, clean_session=False)
         self.__host = host
         self.__port = port
+        self.__connect_result = None
 
         self.on_command = noop_on_command
 
@@ -62,6 +64,7 @@ class MqttApi(object):
 
     def connect(self):
         def on_connect(client, userdata, flags, rc):
+            self.__connect_result = rc
             if rc != MQTT_ERR_SUCCESS:
                 log.error('Connection failed: %s', rc)
                 raise MqttConnectionError(rc)
@@ -87,7 +90,12 @@ class MqttApi(object):
         log.info('MQTT connecting %s:%s', self.__host, self.__port)
         self.__client.connect(self.__host, self.__port,
                               keepalive=KEEP_ALIVE_INTERVAL)
+
+        self.__connect_result = CONNECT_RESULT_UNDEFINED
         self.__client.loop_start()
+
+        while self.__connect_result == CONNECT_RESULT_UNDEFINED:
+            time.sleep(.01)
 
     def __on_disconnect(self, rc):
         if rc == MQTT_ERR_SUCCESS:
