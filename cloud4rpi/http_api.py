@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import time
 import logging
 import json
+from math import floor
 import requests
 from cloud4rpi import utils
 from cloud4rpi import config
@@ -12,25 +14,26 @@ log = logging.getLogger(config.loggerName)
 HEADERS = {"Content-type": "application/json"}
 
 
-def __http_request(request):
-    def wrapper(*args):
-        try:
-            return request(*args)
-        except Exception as e:
-            log.error('Error: %s', str(e))
-            raise e
-
-    return wrapper
-
-
-@__http_request
-def post_request(url, data):
-    return requests.post(url, headers=HEADERS, data=json.dumps(data))
+def post_request(url, data, retry_interval=1):
+    try:
+        return requests.post(url, headers=HEADERS, data=json.dumps(data))
+    except requests.exceptions.RequestException as e:
+        log.error(str(e))
+        time.sleep(retry_interval)
+        log.info('Attempting to make POST request in %s sec',
+                 floor(retry_interval))
+        return post_request(url, data, min(retry_interval * 2, 100))
 
 
-@__http_request
-def get_request(url):
-    return requests.get(url, headers=HEADERS)
+def get_request(url, retry_interval=1):
+    try:
+        return requests.get(url, headers=HEADERS)
+    except requests.exceptions.RequestException as e:
+        log.error(str(e))
+        time.sleep(retry_interval)
+        log.info('Attempting to make GET request in %s sec',
+                 floor(retry_interval))
+        return get_request(url, min(retry_interval * 2, 100))
 
 
 class HttpApi(object):
