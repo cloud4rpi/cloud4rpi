@@ -4,7 +4,4 @@
 mqqtBrokerHost = 'mq.cloud4rpi.io'
 mqttBrokerPort = 1883
 
-# HTTP
-baseApiUrl = 'https://cloud4rpi.io/api'
-
 loggerName = 'cloud4rpi logger'

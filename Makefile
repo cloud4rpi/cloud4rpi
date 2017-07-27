@@ -10,7 +10,7 @@ style:
 	pep8 --show-source --show-pep8 .
 
 lint:
-	pylint --rcfile=.pylintrc --reports=n *.py cloud4rpi/*.py test/*.py
+	pylint --rcfile=.pylintrc --reports=n *.py cloud4rpi/*.py test/*.py examples/*.py
 
 test:
 	python -m unittest discover test

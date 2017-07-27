@@ -18,29 +18,6 @@ CONNECT_RESULT_UNDEFINED = 255
 log = logging.getLogger(config.loggerName)
 
 
-def connect_mqtt(device_token,
-                 host=config.mqqtBrokerHost,
-                 port=config.mqttBrokerPort):
-    api = MqttApi(device_token, host, port)
-    __attempt_to_connect_with_retries(api)
-    return api
-
-
-def __attempt_to_connect_with_retries(api, attempts=10):
-    retry_interval = 5
-    for attempt in range(attempts):
-        try:
-            api.connect()
-        except Exception as e:
-            log.debug('MQTT connection error %s. Attempt %s', e, attempt)
-            time.sleep(retry_interval)
-            continue
-        else:
-            break
-    else:
-        raise Exception('Impossible to connect to MQTT broker. Quiting.')
-
-
 class MqttApi(object):
     def __init__(self,
                  device_token,

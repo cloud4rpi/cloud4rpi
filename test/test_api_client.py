@@ -5,9 +5,7 @@ import os
 import json
 import unittest
 from threading import Event
-from httmock import HTTMock, all_requests
-
-from cloud4rpi import MqttApi, HttpApi
+from cloud4rpi import MqttApi
 from cloud4rpi.errors import InvalidTokenError
 
 import paho.mqtt.client as mqtt
@@ -174,87 +172,3 @@ class TestMqttApi(AsyncTestCase):
         )
 
         self.wait()
-
-
-TOKEN = '4GPZFMVuacadesU21dBw47zJi'
-
-
-class TestHttpApi(unittest.TestCase):
-    def setUp(self):
-        super(TestHttpApi, self).setUp()
-        self.expected_suffix = None
-        self.expected_method = None
-        self.expected_status = None
-
-    @staticmethod
-    def create_http_client():
-        client = HttpApi(device_token=TOKEN, base_api_url='localhost:3000/api')
-        return client
-
-    def testCtorThrowsOnInvalidToken(self):
-        with self.assertRaises(InvalidTokenError):
-            HttpApi('invalid device token')
-
-    @all_requests
-    def response_content(self, url, request):
-        expected_url = "/devices/{0}{1}".format(TOKEN, self.expected_suffix)
-        self.assertTrue(request.url.endswith(expected_url))
-        self.assertEqual(self.expected_method, request.method)
-
-        return {
-            'status_code': self.expected_status,
-            'content': {}
-        }
-
-    def setup_request_params(self, status, method, suffix):
-        self.expected_method = method
-        self.expected_suffix = suffix
-        self.expected_status = status
-
-    def testPublishConfig(self):
-        client = self.create_http_client()
-        self.setup_request_params(201, 'POST', '/config')
-
-        cfg = [{'name': 'Temperature', 'type': 'numeric'},
-               {'name': 'Cooler', 'type': 'bool'}]
-
-        with HTTMock(self.response_content):
-            r = client.publish_config(cfg)
-            self.assertEqual(r.status_code, 201)
-
-    def testPublishData(self):
-        client = self.create_http_client()
-        self.setup_request_params(201, 'POST', '/data')
-
-        data = {
-            'Temperature': 36.6,
-            'Cooler': True,
-            'TheAnswer': 42
-        }
-
-        with HTTMock(self.response_content):
-            r = client.publish_data(data)
-            self.assertEqual(r.status_code, 201)
-
-    def testPublishDiag(self):
-        client = self.create_http_client()
-
-        self.setup_request_params(201, 'POST', '/diagnostics')
-
-        diag = {
-            'IPAddress': '127.0.0.1',
-            'Hostname': 'weather_station',
-            'CPU Load': 99
-        }
-
-        with HTTMock(self.response_content):
-            r = client.publish_diag(diag)
-            self.assertEqual(r.status_code, 201)
-
-    def testFetchCommands(self):
-        client = self.create_http_client()
-        self.setup_request_params(200, 'GET', '/commands/latest')
-
-        with HTTMock(self.response_content):
-            r = client.fetch_commands()
-            self.assertEqual(r.status_code, 200)

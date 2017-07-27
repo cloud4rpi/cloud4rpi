@@ -5,7 +5,12 @@ from cloud4rpi import utils
 
 
 class Device(object):
-    def __init__(self):
+    def __init__(self, api):
+        def on_command(cmd):
+            self.__on_command(cmd)
+
+        self.__api = api
+        self.__api.on_command = on_command
         self.__variables = {}
         self.__diag = {}
 
@@ -26,6 +31,24 @@ class Device(object):
         return bool(value) \
             if variable.get('type', None) == 'bool' \
             else value
+
+    def __on_command(self, cmd):
+        self.__apply_commands(cmd)
+        data = self.read_data()
+        if data is not None:
+            self.__api.publish_data(data)
+
+    def __apply_commands(self, cmd):
+        for varName, value in cmd.items():
+            variable = self.__variables.get(varName, {})
+
+            handler = variable.get('bind', None)
+            if not callable(handler):
+                continue
+            actual = handler(value)
+            if actual is None:
+                continue
+            variable['value'] = self.__validate_bool_var(variable, value)
 
     def declare(self, variables):
         self.__variables = variables
@@ -56,23 +79,17 @@ class Device(object):
             readings[name] = self.__resolve_binding(value)
         return readings
 
-    def handle_mqtt_commands(self, api):
-        def wrapped(cmd):
-            self.apply_commands(cmd)
+    def publish_config(self, cfg=None):
+        if cfg is None:
+            cfg = self.read_config()
+        return self.__api.publish_config(cfg)
+
+    def publish_data(self, data=None):
+        if data is None:
             data = self.read_data()
-            if data is not None:
-                api.publish_data(data)
+        return self.__api.publish_data(data)
 
-        return wrapped
-
-    def apply_commands(self, cmd):
-        for varName, value in cmd.items():
-            variable = self.__variables.get(varName, {})
-
-            handler = variable.get('bind', None)
-            if not callable(handler):
-                continue
-            actual = handler(value)
-            if actual is None:
-                continue
-            variable['value'] = self.__validate_bool_var(variable, value)
+    def publish_diag(self, diag=None):
+        if diag is None:
+            diag = self.read_diag()
+        return self.__api.publish_diag(diag)

@@ -1,5 +1,4 @@
 paho-mqtt
-requests
 arrow
 pep8
 pylint
@@ -7,4 +6,3 @@ mock
 pyfakefs
 twine
 pypandoc
-httmock
