@@ -19,9 +19,9 @@ This package provides a client library that simplifies the connection to the [Cl
     sudo pip install cloud4rpi
     ```
 1. Get examples for your platform:
-    - Raspberry Pi: `wget https://github.com/cloud4rpi/raspberrypi-examples/archive/master.zip && unzip master.zip && rm master.zip && cd raspberrypi-examples-master`
-    - C.H.I.P.: `wget https://github.com/cloud4rpi/chip-examples/archive/master.zip && unzip master.zip && rm master.zip && cd chip-examples-master`
-    - Omega2: `wget https://github.com/cloud4rpi/omega2-examples/archive/master.zip && unzip master.zip && rm master.zip && cd omega2-examples-master`
+    - Raspberry Pi: `wget https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-raspberrypi-python-master`
+    - C.H.I.P.: `wget https://github.com/cloud4rpi/cloud4rpi-chip-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-chip-python-master`
+    - Omega2: `wget https://github.com/cloud4rpi/cloud4rpi-omega2-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-omega2-python-master`
 1. Create a free account on [Cloud4RPi](https://cloud4rpi.io).
 2. Create a device on the [Devices](https://cloud4rpi.io/devices) page.
 3. Copy the **Device Token** from the device page.
@@ -35,4 +35,4 @@ For detailed instructions, refer to the [documentation](https://cloud4rpi.github
 
 * [PyPI Package](https://pypi.python.org/pypi/cloud4rpi)
 * [Documentation Repository](https://github.com/cloud4rpi/docs)
-* [Usage Examples for Raspberry Pi](https://github.com/cloud4rpi/raspberrypi-examples)
+* [Usage Examples for Raspberry Pi](https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python)
