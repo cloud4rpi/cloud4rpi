@@ -10,8 +10,8 @@ except Exception:
     pass
 
 setup(name='cloud4rpi',
-      version='0.0.52',
-      description='cloud4rpi client library',
+      version='0.1.0',
+      description='Cloud4RPi client library',
       long_description=description,
       url='https://github.com/cloud4rpi/cloud4rpi',
       author='Cloud4RPi team',
