@@ -11,7 +11,7 @@ from cloud4rpi.errors import MqttConnectionError
 
 import paho.mqtt.client as mqtt
 
-KEEP_ALIVE_INTERVAL = 60 * 10
+KEEP_ALIVE_INTERVAL = 30
 MQTT_ERR_SUCCESS = 0
 CONNECT_RESULT_UNDEFINED = 255
 
