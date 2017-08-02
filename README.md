@@ -18,10 +18,10 @@ This package provides a client library that simplifies the connection to the [Cl
     ```bash
     sudo pip install cloud4rpi
     ```
-1. Get examples:
-    ```bash
-    wget https://github.com/cloud4rpi/cloud4rpi-examples/archive/master.zip && unzip master.zip && rm master.zip
-    ```
+1. Get examples for your platform:
+    - Raspberry Pi: `wget https://github.com/cloud4rpi/raspberrypi-examples/archive/master.zip && unzip master.zip && rm master.zip && cd raspberrypi-examples-master`
+    - C.H.I.P.: `wget https://github.com/cloud4rpi/chip-examples/archive/master.zip && unzip master.zip && rm master.zip && cd chip-examples-master`
+    - Omega2: `wget https://github.com/cloud4rpi/omega2-examples/archive/master.zip && unzip master.zip && rm master.zip && cd omega2-examples-master`
 1. Create a free account on [Cloud4RPi](https://cloud4rpi.io).
 2. Create a device on the [Devices](https://cloud4rpi.io/devices) page.
 3. Copy the **Device Token** from the device page.
