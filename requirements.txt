@@ -1,5 +1,4 @@
 paho-mqtt
-arrow
 pep8
 pylint
 mock

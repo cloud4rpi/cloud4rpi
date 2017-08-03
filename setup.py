@@ -19,6 +19,5 @@ setup(name='cloud4rpi',
       license='MIT',
       packages=['cloud4rpi'],
       install_requires=[
-          'paho-mqtt',
-          'arrow',
+          'paho-mqtt'
       ])

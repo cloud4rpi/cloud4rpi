@@ -2,8 +2,16 @@
 
 import re
 import inspect
+from datetime import datetime, tzinfo, timedelta
 import cloud4rpi.errors
-import arrow
+
+
+class UtcTzInfo(tzinfo):
+    def tzname(self):
+        return "UTC"
+
+    def utcoffset(self, dt):
+        return timedelta(0)
 
 
 def guard_against_invalid_token(token):
@@ -18,7 +26,7 @@ def variables_to_config(variables):
 
 
 def utcnow():
-    return arrow.utcnow().isoformat()
+    return datetime.utcnow().replace(tzinfo=UtcTzInfo()).isoformat()
 
 
 def args_count(binding):
