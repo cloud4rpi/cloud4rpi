@@ -7,7 +7,8 @@ import cloud4rpi.errors
 
 
 class UtcTzInfo(tzinfo):
-    def tzname(self):
+    # pylint: disable=W0223
+    def tzname(self, dt):
         return "UTC"
 
     def utcoffset(self, dt):
