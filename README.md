@@ -19,9 +19,9 @@ This package provides a client library that simplifies the connection to the [Cl
     sudo pip install cloud4rpi
     ```
 1. Get examples for your platform:
-    - Raspberry Pi: `wget https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-raspberrypi-python-master`
-    - C.H.I.P.: `wget https://github.com/cloud4rpi/cloud4rpi-chip-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-chip-python-master`
-    - Omega2: `mkdir c4r && cd c4r && r="https://raw.githubusercontent.com/cloud4rpi/cloud4rpi-omega2-python/master" && wget $r"/omega2.py" $r"/led.py" $r"/rgb_led.py"`
+    - [Raspberry Pi](https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python): `wget https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-raspberrypi-python-master`
+    - [C.H.I.P.](https://github.com/cloud4rpi/cloud4rpi-chip-python): `wget https://github.com/cloud4rpi/cloud4rpi-chip-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-chip-python-master`
+    - [Omega2](https://github.com/cloud4rpi/cloud4rpi-omega2-python): `mkdir c4r && cd c4r && r="https://raw.githubusercontent.com/cloud4rpi/cloud4rpi-omega2-python/master" && wget $r"/omega2.py" $r"/led.py" $r"/rgb_led.py"`
 1. Create a free account on [Cloud4RPi](https://cloud4rpi.io).
 2. Create a device on the [Devices](https://cloud4rpi.io/devices) page.
 3. Copy the **Device Token** from the device page.
@@ -29,7 +29,7 @@ This package provides a client library that simplifies the connection to the [Cl
 5. Run the example with `python`.
 6. Read the sample code and write your own code!
 
-For detailed instructions, refer to the [documentation](https://cloud4rpi.github.io/docs/).
+For detailed instructions, refer to the [documentation](https://cloud4rpi.github.io/docs/) and corresponding repositories.
 
 ## See Also
 
