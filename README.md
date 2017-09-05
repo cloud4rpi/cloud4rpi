@@ -29,7 +29,7 @@ This package provides a client library that simplifies the connection to the [Cl
 5. Run the example with `python`.
 6. Read the sample code and write your own code!
 
-For detailed instructions, refer to the [documentation](https://cloud4rpi.github.io/docs/) and corresponding repositories.
+For detailed instructions, refer to the [documentation](http://docs.cloud4rpi.io/) and corresponding repositories.
 
 ## See Also
 
