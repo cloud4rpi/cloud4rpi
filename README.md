@@ -7,10 +7,10 @@ This package provides a client library that simplifies the connection to the [Cl
 
 ## Cloud4RPi Features
 
-- You can use widgets to display device data and send commands in real time.
-- You can control your IoT devices remotely.
-- You can connect any device to **Cloud4RPi**.
-- You can use [MQTT](https://pypi.python.org/pypi/paho-mqtt) or HTTP to send data and receive control commands.
+- Use widgets to display device data and send commands in real time.
+- Control your IoT devices remotely.
+- Connect any device to **Cloud4RPi**.
+- Use [MQTT](https://pypi.python.org/pypi/paho-mqtt) or HTTP to send data and receive control commands.
 
 ## Start Using
 
@@ -27,7 +27,7 @@ This package provides a client library that simplifies the connection to the [Cl
 3. Copy the **Device Token** from the device page.
 4. Replace the `__YOUR_DEVICE_TOKEN__` string in one of the examples with your real device token.
 5. Run the example with `python`.
-6. Read the sample code and write your own code!
+6. Create your own scripts based on the examples.
 
 For detailed instructions, refer to the [documentation](http://docs.cloud4rpi.io/) and corresponding repositories.
 
