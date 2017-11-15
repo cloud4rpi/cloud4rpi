@@ -39,6 +39,7 @@ class MqttApi(object):
         self.__connect_result = None
 
         self.on_command = noop_on_command
+        self.__outgoing_messages = {}
 
     @property
     def commands_topic(self):
@@ -67,6 +68,7 @@ class MqttApi(object):
 
             log.info('Connected')
             self.__connect_result = rc
+            self.__outgoing_messages = {}
 
             log.info('Subscribing %s with QoS %s',
                      self.commands_topic, str(self.__qos))
@@ -84,7 +86,9 @@ class MqttApi(object):
             self.__on_disconnect(rc)
 
         def on_publish(client, packet, mid):
-            log.info('Published %s: %s', packet['topic'], packet['msg'])
+            info = self.__outgoing_messages.pop(mid, None)
+            if info is not None:
+                log.info('Published %s: %s', info['topic'], info['msg'])
 
         self.__client.on_connect = on_connect
         self.__client.on_message = on_message
@@ -138,9 +142,11 @@ class MqttApi(object):
             'payload': payload,
         }
 
-        self.__client.user_data_set({
+        (_, mid) = self.__client.publish(topic,
+                                         qos=self.__qos,
+                                         payload=json.dumps(msg))
+
+        self.__outgoing_messages[mid] = {
             'topic': topic,
             'msg': msg,
-        })
-
-        self.__client.publish(topic, qos=self.__qos, payload=json.dumps(msg))
+        }
