@@ -27,7 +27,7 @@ This package provides a client library that simplifies the connection to the [Cl
 2. Create a device on the [Devices](https://cloud4rpi.io/devices) page.
 3. Copy the **Device Token** from the device page.
 4. Replace the `__YOUR_DEVICE_TOKEN__` string in one of the examples with your real device token.
-5. Run the example with `python` (if you use ESP8266, upload it to the board and reset it).
+5. Run the example with `python` (if you use ESP8266, upload the required files to the board and reset it).
 6. Create your own scripts based on the examples.
 
 For detailed instructions, refer to the [documentation](http://docs.cloud4rpi.io/) and corresponding repositories.
