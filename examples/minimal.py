@@ -29,6 +29,7 @@ def hostname():
 def osname():
     return 'osx'
 
+
 # Put your device token here. To get the token,
 # sign up at https://cloud4rpi.io and create a device.
 DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'

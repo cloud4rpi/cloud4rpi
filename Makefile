@@ -7,7 +7,7 @@ init:
 	pip install --upgrade -r requirements.txt
 
 style:
-	pep8 --show-source --show-pep8 .
+	pycodestyle --show-source --show-pep8 .
 
 lint:
 	pylint --rcfile=.pylintrc --reports=n cloud4rpi/*.py test/*.py examples/*.py
