@@ -51,3 +51,7 @@ def set_logging_to_file(log_file_path):
     )
     log_file.setFormatter(Formatter('%(asctime)s: %(message)s'))
     log.addHandler(log_file)
+
+
+def set_logging_level(level=logging.INFO):
+    log.setLevel(level)
