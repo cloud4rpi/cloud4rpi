@@ -1,9 +1,23 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import re
 import inspect
+import logging
+import numbers
 from datetime import datetime, tzinfo, timedelta
-import cloud4rpi.errors
+from cloud4rpi import config
+from cloud4rpi.errors import InvalidTokenError
+from cloud4rpi.errors import UnexpectedVariableValueTypeError
+from cloud4rpi.errors import TYPE_WARN_MSG
+
+if sys.version_info[0] > 2:
+    from cloud4rpi.utils_v3 import is_string
+else:
+    from cloud4rpi.utils_v2 import is_string
+
+
+log = logging.getLogger(config.loggerName)
 
 
 class UtcTzInfo(tzinfo):
@@ -18,7 +32,55 @@ class UtcTzInfo(tzinfo):
 def guard_against_invalid_token(token):
     token_re = re.compile('[1-9a-km-zA-HJ-NP-Z]{23,}')
     if not token_re.match(token):
-        raise cloud4rpi.errors.InvalidTokenError(token)
+        raise InvalidTokenError(token)
+
+
+def to_bool(value):
+    if isinstance(value, bool):
+        return value
+    elif isinstance(value, numbers.Number):
+        return bool(value)
+    else:
+        raise Exception()
+
+
+def to_numeric(value):
+    if isinstance(value, bool):
+        return float(value)
+    elif isinstance(value, numbers.Number):
+        return value
+    elif is_string(value):
+        log.warning(TYPE_WARN_MSG, value)
+        return float(value)
+    else:
+        raise Exception()
+
+
+def to_string(value):
+    if isinstance(value, str):
+        return value
+    elif isinstance(value, bool):
+        return str(value).lower()
+    else:
+        return str(value)
+
+
+def validate_variable_value(name, var_type, value):
+    if value is None:
+        return value
+
+    convert = {
+        'bool': to_bool,
+        'numeric': to_numeric,
+        'string': to_string,
+    }
+    c = convert.get(var_type, None)
+    if c is None:
+        return None
+    try:
+        return c(value)
+    except Exception:
+        raise UnexpectedVariableValueTypeError('"{0}"={1}'.format(name, value))
 
 
 def variables_to_config(variables):
@@ -40,15 +102,15 @@ def args_count(binding):
     return args.__len__()
 
 
-def resolve_method_binding(binding, current=None):
-    if args_count(binding) > 1:
-        return binding(current)
+def has_args(binding):
+    if inspect.ismethod(binding):
+        return args_count(binding) > 1
     else:
-        return binding()
+        return args_count(binding) > 0
 
 
-def resolve_func_binding(binding, current=None):
-    if args_count(binding) > 0:
+def resolve_callable(binding, current=None):
+    if has_args(binding):
         return binding(current)
     else:
         return binding()

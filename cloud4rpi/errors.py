@@ -2,8 +2,16 @@
 
 import subprocess
 
+TYPE_WARN_MSG = 'WARNING! A string "%s" passed to a numeric variable. ' \
+                'Change the variable type or the passed value.' \
+
+
 
 class InvalidTokenError(Exception):
+    pass
+
+
+class UnexpectedVariableValueTypeError(TypeError):
     pass
 
 
@@ -22,6 +30,8 @@ __messages = {
     subprocess.CalledProcessError: 'Try run with sudo',
     InvalidTokenError:
         'Device token {0} is invalid. Please verify it.',
+    UnexpectedVariableValueTypeError:
+        'Unexpected value type for variable: {0}',
 }
 
 

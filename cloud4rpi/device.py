@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import inspect
 from cloud4rpi import utils
 
 
@@ -15,40 +14,49 @@ class Device(object):
         self.__diag = {}
 
     @staticmethod
-    def __resolve_binding(binding, current=None):
+    def __resolve_binding(binding, current=None, default=None):
         if hasattr(binding, 'read'):
             return binding.read()
         elif callable(binding):
-            if inspect.ismethod(binding):
-                return utils.resolve_method_binding(binding, current)
-            else:
-                return utils.resolve_func_binding(binding, current)
+            return utils.resolve_callable(binding, current)
         else:
-            return binding
+            return default
 
-    @staticmethod
-    def __validate_bool_var(variable, value):
-        return bool(value) \
-            if variable.get('type', None) == 'bool' \
-            else value
+    def __validate_payload(self, payload):
+        result = {}
+        for name, value in payload.items():
+            variable = self.__variables.get(name, None)
+            if not variable:
+                continue
+            t = variable.get('type', None)
+            result[name] = utils.validate_variable_value(name, t, value)
+
+        return result
 
     def __on_command(self, cmd):
-        self.__apply_commands(cmd)
-        data = self.read_data()
-        if data is not None:
-            self.__api.publish_data(data)
+        update = self.__apply_commands(cmd)
+        if bool(update):
+            self.__api.publish_data(update)
 
     def __apply_commands(self, cmd):
+        update = {}
         for varName, value in cmd.items():
-            variable = self.__variables.get(varName, {})
-
+            variable = self.__variables.get(varName, None)
+            if not variable:
+                continue
+            # consider to use resolve binding here
+            new_value = value
             handler = variable.get('bind', None)
-            if not callable(handler):
-                continue
-            actual = handler(value)
-            if actual is None:
-                continue
-            variable['value'] = self.__validate_bool_var(variable, value)
+            if callable(handler):
+                new_value = handler(new_value)
+
+            t = variable.get('type', None)
+            new_value = utils.validate_variable_value(varName, t, new_value)
+            variable['value'] = new_value
+
+            update[varName] = new_value
+
+        return update
 
     def declare(self, variables):
         self.__variables = variables
@@ -61,11 +69,13 @@ class Device(object):
                 for name, value in self.__variables.items()]
 
     def read_data(self):
-        for _, varConfig in self.__variables.items():
+        for name, varConfig in self.__variables.items():
             bind = varConfig.get('bind', None)
             if bind:
-                new_val = self.__resolve_binding(bind, varConfig.get('value'))
-                new_val = self.__validate_bool_var(varConfig, new_val)
+                curr = varConfig.get('value')
+                result = self.__resolve_binding(bind, curr, curr)
+                t = varConfig.get('type')
+                new_val = utils.validate_variable_value(name, t, result)
                 varConfig['value'] = new_val
 
         readings = {varName: varConfig.get('value')
@@ -76,7 +86,7 @@ class Device(object):
     def read_diag(self):
         readings = {}
         for name, value in self.__diag.items():
-            readings[name] = self.__resolve_binding(value)
+            readings[name] = self.__resolve_binding(value, None, value)
         return readings
 
     def publish_config(self, cfg=None):
@@ -87,6 +97,9 @@ class Device(object):
     def publish_data(self, data=None):
         if data is None:
             data = self.read_data()
+        else:
+            data = self.__validate_payload(data)
+
         return self.__api.publish_data(data)
 
     def publish_diag(self, diag=None):

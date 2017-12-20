@@ -1,3 +1,6 @@
+[MASTER]
+ignore=utils_v2.py
+
 [MESSAGES CONTROL]
 # Show all warnings
 confidence=
