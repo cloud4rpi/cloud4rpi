@@ -5,10 +5,10 @@ import os
 import json
 import unittest
 from threading import Event
+import paho.mqtt.client as mqtt
+
 from cloud4rpi import MqttApi
 from cloud4rpi.errors import InvalidTokenError
-
-import paho.mqtt.client as mqtt
 
 
 class MqttMessageProbe(object):

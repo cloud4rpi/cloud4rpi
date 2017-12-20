@@ -3,12 +3,12 @@
 import time
 import logging
 import json
+import paho.mqtt.client as mqtt
 
 from cloud4rpi import config
 from cloud4rpi import utils
 from cloud4rpi.errors import MqttConnectionError
 
-import paho.mqtt.client as mqtt
 
 KEEP_ALIVE_INTERVAL = 30  # sec
 RETRY_INTERVAL = 5  # sec
