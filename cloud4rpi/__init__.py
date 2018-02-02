@@ -7,7 +7,7 @@ from logging.handlers import RotatingFileHandler
 
 
 from cloud4rpi.config import mqqtBrokerHost
-from cloud4rpi.config import mqttBrokerPort
+from cloud4rpi.config import mqttBrokerPort, mqttsBrokerPort
 from cloud4rpi.config import loggerName
 
 from cloud4rpi.device import Device
@@ -21,8 +21,12 @@ log.addHandler(StreamHandler())
 
 def connect(device_token,
             host=mqqtBrokerHost,
-            port=mqttBrokerPort):
-    api = MqttApi(device_token, host, port)
+            port=None,
+            tls_config=None):
+    if port is None:
+        port = mqttsBrokerPort if isinstance(tls_config, dict) \
+            else mqttBrokerPort
+    api = MqttApi(device_token, host, port, tls_config)
     __attempt_to_connect_with_retries(api)
     return Device(api)
 

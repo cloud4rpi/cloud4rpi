@@ -25,7 +25,8 @@ class MqttApi(object):
     def __init__(self,
                  device_token,
                  host=config.mqqtBrokerHost,
-                 port=config.mqttBrokerPort):
+                 port=config.mqttBrokerPort,
+                 tls_config=None):
         utils.guard_against_invalid_token(device_token)
 
         def noop_on_command(cmd):
@@ -35,6 +36,10 @@ class MqttApi(object):
         self.__client = mqtt.Client(device_token, clean_session=False)
         self.__host = host
         self.__port = port
+        if isinstance(tls_config, dict):
+            log.info('Configuring TLS')
+            self.__client.tls_set(**tls_config)
+
         self.__qos = 1
         self.__connect_result = None
 
