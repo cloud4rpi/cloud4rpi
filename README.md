@@ -23,6 +23,7 @@ This package provides a client library that simplifies the connection to the [Cl
     - [C.H.I.P.](https://github.com/cloud4rpi/cloud4rpi-chip-python): `wget https://github.com/cloud4rpi/cloud4rpi-chip-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-chip-python-master`
     - [Omega2](https://github.com/cloud4rpi/cloud4rpi-omega2-python): `r="https://raw.githubusercontent.com/cloud4rpi/cloud4rpi-omega2-python/master" && wget $r"/omega2.py" $r"/led.py" $r"/rgb_led.py"`
     - [ESP8266 on MicroPython](https://github.com/cloud4rpi/cloud4rpi-esp8266-micropython)
+    - [ESP8266 on Arduino framework](https://github.com/cloud4rpi/cloud4rpi-esp-arduino)
 1. Create a free account on [Cloud4RPi](https://cloud4rpi.io).
 2. Create a device on the [Devices](https://cloud4rpi.io/devices) page.
 3. Copy the **Device Token** from the device page.
