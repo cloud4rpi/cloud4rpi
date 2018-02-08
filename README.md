@@ -42,4 +42,5 @@ For detailed instructions, refer to the [documentation](http://docs.cloud4rpi.io
 * [Usage Examples for Raspberry Pi](https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python)
 * [Usage Examples for Next Thing Co. C.H.I.P.](https://github.com/cloud4rpi/cloud4rpi-chip-python)
 * [Usage Examples for Onion Omega2](https://github.com/cloud4rpi/cloud4rpi-omega2-python)
-* [Usage Examples for ESP8266](https://github.com/cloud4rpi/cloud4rpi-esp8266-micropython)
+* [Usage Examples for ESP8266 on MicroPython](https://github.com/cloud4rpi/cloud4rpi-esp8266-micropython)
+* [Usage Examples for ESP8266 on Arduino framework](https://github.com/cloud4rpi/cloud4rpi-esp-arduino)
