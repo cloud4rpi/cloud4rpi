@@ -36,6 +36,7 @@ For detailed instructions, refer to the [documentation](http://docs.cloud4rpi.io
 ## See Also
 
 * [GitHub Repository](https://github.com/cloud4rpi/cloud4rpi/)
+* [Cloud4RPi Gists](https://gist.github.com/c4r-gists)
 * [PyPI Package](https://pypi.python.org/pypi/cloud4rpi)
 * [Documentation Repository](https://github.com/cloud4rpi/docs)
 * [Usage Examples for Raspberry Pi](https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python)
