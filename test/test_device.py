@@ -3,6 +3,8 @@
 import unittest
 from mock import Mock
 import cloud4rpi
+from cloud4rpi.errors import InvalidConfigError
+from cloud4rpi.errors import UnexpectedVariableTypeError
 from cloud4rpi.errors import UnexpectedVariableValueTypeError
 
 
@@ -48,6 +50,17 @@ class TestDevice(unittest.TestCase):
         })
         cfg = device.read_config()
         self.assertEqual(cfg, [{'name': 'CPUTemp', 'type': 'numeric'}])
+
+    def testDeclareVariablesValidation(self):
+        api = ApiClientMock()
+        device = cloud4rpi.Device(api)
+        with self.assertRaises(UnexpectedVariableTypeError):
+            device.declare({
+                'CPUTemp': {
+                    'type': 'number',
+                    'bind': MockSensor()
+                }
+            })
 
     def testDeclareDiag(self):
         api = ApiClientMock()
@@ -182,6 +195,26 @@ class TestDevice(unittest.TestCase):
         device.publish_config()
         cfg = [{'name': 'CPUTemp', 'type': 'numeric'}]
         api.publish_config.assert_called_with(cfg)
+
+    def testPublishConfigFail_NotAnArray(self):
+        api = ApiClientMock()
+        device = cloud4rpi.Device(api)
+
+        cfg = {'name': 'CPUTemp', 'type': 'numeric'}
+        with self.assertRaises(InvalidConfigError):
+            device.publish_config(cfg)
+
+        api.publish_config.assert_not_called()
+
+    def testPublishConfigFail_UnexpectedVariableType(self):
+        api = ApiClientMock()
+        device = cloud4rpi.Device(api)
+
+        cfg = [{'name': 'CPUTemp', 'type': 'number'}]
+        with self.assertRaises(UnexpectedVariableTypeError):
+            device.publish_config(cfg)
+
+        api.publish_config.assert_not_called()
 
     def testPublishDiag(self):
         api = ApiClientMock()

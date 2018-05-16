@@ -11,6 +11,14 @@ class InvalidTokenError(Exception):
     pass
 
 
+class InvalidConfigError(TypeError):
+    pass
+
+
+class UnexpectedVariableTypeError(TypeError):
+    pass
+
+
 class UnexpectedVariableValueTypeError(TypeError):
     pass
 
@@ -30,8 +38,13 @@ __messages = {
     subprocess.CalledProcessError: 'Try run with sudo',
     InvalidTokenError:
         'Device token {0} is invalid. Please verify it.',
+    InvalidConfigError:
+        'Configuration is invalid. It must be an array.',
+    UnexpectedVariableTypeError:
+        ('Unexpected type for the "{0}" variable. '
+         'It must be "bool", "numeric" or "string".'),
     UnexpectedVariableValueTypeError:
-        'Unexpected value type for variable: {0}',
+        'Unexpected value type for variable: {0}'
 }
 
 

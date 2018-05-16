@@ -8,6 +8,8 @@ import numbers
 from datetime import datetime, tzinfo, timedelta
 from cloud4rpi import config
 from cloud4rpi.errors import InvalidTokenError
+from cloud4rpi.errors import InvalidConfigError
+from cloud4rpi.errors import UnexpectedVariableTypeError
 from cloud4rpi.errors import UnexpectedVariableValueTypeError
 from cloud4rpi.errors import TYPE_WARN_MSG
 
@@ -18,6 +20,12 @@ else:
 
 
 log = logging.getLogger(config.loggerName)
+
+BOOL_TYPE = 'bool'
+NUMERIC_TYPE = 'numeric'
+STRING_TYPE = 'string'
+
+SUPPORTED_VARIABLE_TYPES = [BOOL_TYPE, NUMERIC_TYPE, STRING_TYPE]
 
 
 class UtcTzInfo(tzinfo):
@@ -70,9 +78,9 @@ def validate_variable_value(name, var_type, value):
         return value
 
     convert = {
-        'bool': to_bool,
-        'numeric': to_numeric,
-        'string': to_string,
+        BOOL_TYPE: to_bool,
+        NUMERIC_TYPE: to_numeric,
+        STRING_TYPE: to_string,
     }
     c = convert.get(var_type, None)
     if c is None:
@@ -83,9 +91,21 @@ def validate_variable_value(name, var_type, value):
         raise UnexpectedVariableValueTypeError('"{0}"={1}'.format(name, value))
 
 
-def variables_to_config(variables):
-    return [{'name': name, 'type': value['type']}
-            for name, value in variables.items()]
+def validate_config(cfg):
+    if not isinstance(cfg, list):
+        raise InvalidConfigError()
+
+    for item in cfg:
+        guard_against_invalid_variable_type(
+            item.get('name', None),
+            item.get('type', None)
+        )
+    return cfg
+
+
+def guard_against_invalid_variable_type(name, var_type):
+    if var_type not in SUPPORTED_VARIABLE_TYPES:
+        raise UnexpectedVariableTypeError(name)
 
 
 def utcnow():

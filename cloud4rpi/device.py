@@ -59,6 +59,9 @@ class Device(object):
         return update
 
     def declare(self, variables):
+        for name, value in variables.items():
+            utils.guard_against_invalid_variable_type(name,
+                                                      value.get('type', None))
         self.__variables = variables
 
     def declare_diag(self, diag):
@@ -92,6 +95,9 @@ class Device(object):
     def publish_config(self, cfg=None):
         if cfg is None:
             cfg = self.read_config()
+        else:
+            cfg = utils.validate_config(cfg)
+
         return self.__api.publish_config(cfg)
 
     def publish_data(self, data=None):
