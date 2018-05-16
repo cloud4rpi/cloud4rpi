@@ -42,6 +42,7 @@ POLL_INTERVAL = 0.5  # secs
 
 def main():
     # Put variable declarations here
+    # Available types: 'bool', 'numeric', 'string'
     variables = {
         'Room Temp': {
             'type': 'numeric',
