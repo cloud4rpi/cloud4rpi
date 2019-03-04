@@ -328,6 +328,20 @@ class TestDevice(unittest.TestCase):
         data = {'ReadyState': 'true'}
         api.publish_data.assert_called_with(data)
 
+    def testDataReadValidation_Location(self):
+        api = ApiClientMock()
+        device = cloud4rpi.Device(api)
+        device.declare({
+            'MyLocation': {
+                'type': 'location',
+                'value': True,
+                'bind': lambda x: {'lat': 37.89, 'lng': 75.43}
+            }
+        })
+        device.publish_data()
+        data = {'MyLocation': {'lat': 37.89, 'lng': 75.43}}
+        api.publish_data.assert_called_with(data)
+
 
 class CommandHandling(unittest.TestCase):
     def setUp(self):
@@ -609,3 +623,44 @@ class PayloadValidation(unittest.TestCase):
         self.device.declare({'Status': {'type': 'string'}})
         self.device.publish_data({'Status': True})
         self.api.publish_data.assert_called_with({'Status': 'true'})
+
+    def testLocation(self):
+        location = {'lat': 37.89, 'lng': 75.43}
+        self.device.declare({'Pos': {'type': 'location'}})
+        self.device.publish_data({'Pos': location})
+        self.api.publish_data.assert_called_with({'Pos': location})
+
+    def testLocation_Filtering(self):
+        obj = {'some': 'foo', 'lng': 75.43, 'lat': 37.89, 'other': 42}
+        self.device.declare({'Pos': {'type': 'location'}})
+        self.device.publish_data({'Pos': obj})
+        location = {'lat': 37.89, 'lng': 75.43}
+        self.api.publish_data.assert_called_with({'Pos': location})
+
+    def testLocationAsNull(self):
+        self.device.declare({'Pos': {'type': 'location'}})
+        self.device.publish_data({'Pos': None})
+        self.api.publish_data.assert_called_with({'Pos': None})
+
+    def testLocationAsEmptyObject(self):
+        self.device.declare({'Pos': {'type': 'location'}})
+        with self.assertRaises(UnexpectedVariableValueTypeError):
+            self.device.publish_data({'Pos': {}})
+
+    def testLocationWithIncorrectFields(self):
+        location = {'Latitude': 37.89, 'LNG': 75.43}
+        self.device.declare({'Pos': {'type': 'location'}})
+        with self.assertRaises(UnexpectedVariableValueTypeError):
+            self.device.publish_data({'Pos': location})
+
+    def testLocationWithoutLatitude(self):
+        location = {'lng': 75.43}
+        self.device.declare({'Pos': {'type': 'location'}})
+        with self.assertRaises(UnexpectedVariableValueTypeError):
+            self.device.publish_data({'Pos': location})
+
+    def testLocationWithoutLongitude(self):
+        location = {'lat': 37.89}
+        self.device.declare({'Pos': {'type': 'location'}})
+        with self.assertRaises(UnexpectedVariableValueTypeError):
+            self.device.publish_data({'Pos': location})

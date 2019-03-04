@@ -18,14 +18,14 @@ if sys.version_info[0] > 2:
 else:
     from cloud4rpi.utils_v2 import is_string
 
-
 log = logging.getLogger(config.loggerName)
 
 BOOL_TYPE = 'bool'
 NUMERIC_TYPE = 'numeric'
 STRING_TYPE = 'string'
+LOCATION_TYPE = 'location'
 
-SUPPORTED_VARIABLE_TYPES = [BOOL_TYPE, NUMERIC_TYPE, STRING_TYPE]
+SUPPORTED_VARIABLE_TYPES = [BOOL_TYPE, NUMERIC_TYPE, STRING_TYPE, LOCATION_TYPE]
 
 
 class UtcTzInfo(tzinfo):
@@ -73,6 +73,13 @@ def to_string(value):
         return str(value)
 
 
+def to_location(value):
+    if isinstance(value, dict):
+        return {x: value[x] for x in ('lat', 'lng')}
+    else:
+        raise Exception()
+
+
 def validate_variable_value(name, var_type, value):
     if value is None:
         return value
@@ -81,6 +88,7 @@ def validate_variable_value(name, var_type, value):
         BOOL_TYPE: to_bool,
         NUMERIC_TYPE: to_numeric,
         STRING_TYPE: to_string,
+        LOCATION_TYPE: to_location
     }
     c = convert.get(var_type, None)
     if c is None:

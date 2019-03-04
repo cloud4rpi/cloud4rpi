@@ -42,7 +42,7 @@ __messages = {
         'Configuration is invalid. It must be an array.',
     UnexpectedVariableTypeError:
         ('Unexpected type for the "{0}" variable. '
-         'It must be "bool", "numeric" or "string".'),
+         'It must be "bool", "numeric", "string" or "location".'),
     UnexpectedVariableValueTypeError:
         'Unexpected value type for variable: {0}'
 }
