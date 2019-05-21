@@ -569,6 +569,21 @@ class PayloadValidation(unittest.TestCase):
         self.device.publish_data({'Temp': True})
         self.api.publish_data.assert_called_with({'Temp': 1.0})
 
+    def testNumericAsNaN(self):
+        self.device.declare({'Temp': {'type': 'numeric'}})
+        self.device.publish_data({'Temp': float('NaN')})
+        self.api.publish_data.assert_called_with({'Temp': None})
+
+    def testNumericAsPositiveInfinity(self):
+        self.device.declare({'Temp': {'type': 'numeric'}})
+        self.device.publish_data({'Temp': float('Inf')})
+        self.api.publish_data.assert_called_with({'Temp': None})
+
+    def testNumericAsNegativeInfinity(self):
+        self.device.declare({'Temp': {'type': 'numeric'}})
+        self.device.publish_data({'Temp': -float('Inf')})
+        self.api.publish_data.assert_called_with({'Temp': None})
+
     def testBool(self):
         self.device.declare({'PowerOn': {'type': 'bool'}})
         self.device.publish_data({'PowerOn': True})
@@ -599,6 +614,21 @@ class PayloadValidation(unittest.TestCase):
         self.device.publish_data({'PowerOn': 0})
         self.api.publish_data.assert_called_with({'PowerOn': False})
 
+    def testBoolAsNaN(self):
+        self.device.declare({'PowerOn': {'type': 'bool'}})
+        self.device.publish_data({'PowerOn': float('NaN')})
+        self.api.publish_data.assert_called_with({'PowerOn': True})
+
+    def testBoolAsPositiveInfinity(self):
+        self.device.declare({'PowerOn': {'type': 'bool'}})
+        self.device.publish_data({'PowerOn': float('Inf')})
+        self.api.publish_data.assert_called_with({'PowerOn': True})
+
+    def testBoolAsNegativeInfinity(self):
+        self.device.declare({'PowerOn': {'type': 'bool'}})
+        self.device.publish_data({'PowerOn': -float('Inf')})
+        self.api.publish_data.assert_called_with({'PowerOn': True})
+
     def testString(self):
         self.device.declare({'Status': {'type': 'string'}})
         self.device.publish_data({'Status': '100'})
@@ -613,6 +643,21 @@ class PayloadValidation(unittest.TestCase):
         self.device.declare({'Status': {'type': 'string'}})
         self.device.publish_data({'Status': 100.100})
         self.api.publish_data.assert_called_with({'Status': '100.1'})
+
+    def testStringAsNaN(self):
+        self.device.declare({'Status': {'type': 'string'}})
+        self.device.publish_data({'Status': float('NaN')})
+        self.api.publish_data.assert_called_with({'Status': 'nan'})
+
+    def testStringAsPositiveInfinity(self):
+        self.device.declare({'Status': {'type': 'string'}})
+        self.device.publish_data({'Status': float('Inf')})
+        self.api.publish_data.assert_called_with({'Status': 'inf'})
+
+    def testStringAsNegativeInfinity(self):
+        self.device.declare({'Status': {'type': 'string'}})
+        self.device.publish_data({'Status': -float('Inf')})
+        self.api.publish_data.assert_called_with({'Status': '-inf'})
 
     def testStringAsInt(self):
         self.device.declare({'Status': {'type': 'string'}})
@@ -641,6 +686,16 @@ class PayloadValidation(unittest.TestCase):
         self.device.declare({'Pos': {'type': 'location'}})
         self.device.publish_data({'Pos': None})
         self.api.publish_data.assert_called_with({'Pos': None})
+
+    def testLocationAsNaN(self):
+        self.device.declare({'Pos': {'type': 'location'}})
+        with self.assertRaises(UnexpectedVariableValueTypeError):
+            self.device.publish_data({'Pos': float('NaN')})
+
+    def testLocationAsInfinity(self):
+        self.device.declare({'Pos': {'type': 'location'}})
+        with self.assertRaises(UnexpectedVariableValueTypeError):
+            self.device.publish_data({'Pos': float('Inf')})
 
     def testLocationAsEmptyObject(self):
         self.device.declare({'Pos': {'type': 'location'}})

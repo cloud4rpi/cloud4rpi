@@ -5,6 +5,7 @@ import re
 import inspect
 import logging
 import numbers
+from math import isnan, isinf
 from datetime import datetime, tzinfo, timedelta
 from cloud4rpi import config
 from cloud4rpi.errors import InvalidTokenError
@@ -56,7 +57,7 @@ def to_numeric(value):
     if isinstance(value, bool):
         return float(value)
     elif isinstance(value, numbers.Number):
-        return value
+        return None if isnan(value) or isinf(value) else value
     elif is_string(value):
         log.warning(TYPE_WARN_MSG, value)
         return float(value)
