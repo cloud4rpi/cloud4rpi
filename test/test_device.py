@@ -18,6 +18,9 @@ class ApiClientMock(object):
         self.publish_diag = Mock()
         self.on_command = noop_on_command
 
+    def assert_publish_data_called_with(self, expected):
+        return self.publish_data.assert_called_with(expected, data_type='cr')
+
     def raise_on_command(self, cmd):
         self.on_command(cmd)
 
@@ -371,7 +374,7 @@ class CommandHandling(unittest.TestCase):
             }
         })
         self.api.raise_on_command({'Status': 20})
-        self.api.publish_data.assert_called_with({'Status': 20})
+        self.api.assert_publish_data_called_with({'Status': 20})
 
     def testBindIsNotCallableFunction(self):
         self.device.declare({
@@ -383,7 +386,7 @@ class CommandHandling(unittest.TestCase):
         })
         expected = {'LEDOn': True}
         self.api.raise_on_command(expected)
-        self.api.publish_data.assert_called_with(expected)
+        self.api.assert_publish_data_called_with(expected)
 
         data = self.device.read_data()
         self.assertEqual(data, expected)
@@ -397,7 +400,7 @@ class CommandHandling(unittest.TestCase):
         })
         expected = {'LEDOn': True}
         self.api.raise_on_command(expected)
-        self.api.publish_data.assert_called_with(expected)
+        self.api.assert_publish_data_called_with(expected)
         data = self.device.read_data()
         self.assertEqual(data, expected)
 
@@ -421,7 +424,7 @@ class CommandHandling(unittest.TestCase):
             }
         })
         self.api.raise_on_command({'LEDOn': True})
-        self.api.publish_data.assert_called_with({'LEDOn': None})
+        self.api.assert_publish_data_called_with({'LEDOn': None})
 
     def testValidateCommandValueForBool(self):
         self.device.declare({
@@ -443,7 +446,7 @@ class CommandHandling(unittest.TestCase):
             }
         })
         self.api.raise_on_command({'Status': '100'})
-        self.api.publish_data.assert_called_with({'Status': 100})
+        self.api.assert_publish_data_called_with({'Status': 100})
 
     def testValidateCommandValueUnicodeToNumeric(self):
         self.device.declare({
@@ -455,7 +458,7 @@ class CommandHandling(unittest.TestCase):
         })
         unicode_val = u'38.5'
         self.api.raise_on_command({'Status': unicode_val})
-        self.api.publish_data.assert_called_with({'Status': 38.5})
+        self.api.assert_publish_data_called_with({'Status': 38.5})
 
     def testValidateCommandValueBoolToNumeric(self):
         self.device.declare({
@@ -466,7 +469,7 @@ class CommandHandling(unittest.TestCase):
             }
         })
         self.api.raise_on_command({'Status': True})
-        self.api.publish_data.assert_called_with({'Status': 1})
+        self.api.assert_publish_data_called_with({'Status': 1})
 
     def testValidateCommandValueUnicodeToString(self):
         self.device.declare({
@@ -478,7 +481,7 @@ class CommandHandling(unittest.TestCase):
         })
         unicode_val = u'38.5%'
         self.api.raise_on_command({'Percent': unicode_val})
-        self.api.publish_data.assert_called_with({'Percent': '38.5%'})
+        self.api.assert_publish_data_called_with({'Percent': '38.5%'})
 
     def testPublishBackUpdatedVariableValues(self):
         sensor = MockSensor(36.6)
@@ -514,7 +517,7 @@ class CommandHandling(unittest.TestCase):
             'LEDOn': True,
             'Temp': 36.6
         }
-        self.api.publish_data.assert_called_with(expected)
+        self.api.assert_publish_data_called_with(expected)
 
     def testPublishBackOnlyCommandVariables(self):
         self.device.declare({
@@ -530,7 +533,7 @@ class CommandHandling(unittest.TestCase):
             },
         })
         self.api.raise_on_command({'Actuator': 'ON'})
-        self.api.publish_data.assert_called_with({'Actuator': 'ON'})
+        self.api.assert_publish_data_called_with({'Actuator': 'ON'})
 
 
 class PayloadValidation(unittest.TestCase):

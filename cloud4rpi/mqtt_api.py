@@ -132,8 +132,11 @@ class MqttApi(object):
     def publish_config(self, msg):
         self.__publish(self.config_topic, msg)
 
-    def publish_data(self, msg):
-        self.__publish(self.data_topic, msg)
+    def publish_data(self, msg, **kwargs):
+        dt = kwargs.get('data_type')
+        topic = '{0}/{1}'.format(self.data_topic, dt) if dt else self.data_topic
+
+        self.__publish(topic, msg)
 
     def publish_diag(self, msg):
         self.__publish(self.diag_topic, msg)

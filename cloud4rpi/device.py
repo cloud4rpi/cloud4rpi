@@ -36,7 +36,7 @@ class Device(object):
     def __on_command(self, cmd):
         update = self.__apply_commands(cmd)
         if bool(update):
-            self.__api.publish_data(update)
+            self.__api.publish_data(update, data_type='cr')
 
     def __apply_commands(self, cmd):
         update = {}
