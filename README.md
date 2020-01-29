@@ -18,17 +18,15 @@ This package provides a client library that simplifies the connection to the [Cl
 
    Install the library using your preferred Python version.
    The following command installs and integrates Cloud4RPi with your OS's default Python interpreter (usually Python 3):
-
     ```bash
     sudo pip3 install cloud4rpi
-   ```
-    
+    ```
+
     If you are using Python 2, use the following command:
-    
+
     ```bash
     sudo python2 -m pip install cloud4rpi
     ```
-  
 1. Get examples for your platform:
     - [Raspberry Pi](https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python): `wget https://github.com/cloud4rpi/cloud4rpi-raspberrypi-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-raspberrypi-python-master`
     - [C.H.I.P.](https://github.com/cloud4rpi/cloud4rpi-chip-python): `wget https://github.com/cloud4rpi/cloud4rpi-chip-python/archive/master.zip && unzip master.zip && rm master.zip && cd cloud4rpi-chip-python-master`
