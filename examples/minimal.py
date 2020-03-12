@@ -30,6 +30,10 @@ def osname():
     return 'osx'
 
 
+def get_version():
+    return cloud4rpi.__version__
+
+
 # Put your device token here. To get the token,
 # sign up at https://cloud4rpi.io and create a device.
 DEVICE_TOKEN = '__YOUR_DEVICE_TOKEN__'
@@ -59,7 +63,8 @@ def main():
         'CPU Temp': cpu_temp,
         'IP Address': ip_address,
         'Host Name': hostname,
-        'Operating System': osname
+        'Operating System': osname,
+        'Client version': get_version
     }
 
     device = cloud4rpi.connect(DEVICE_TOKEN)

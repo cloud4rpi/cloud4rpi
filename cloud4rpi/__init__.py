@@ -5,7 +5,7 @@ import logging
 from logging import StreamHandler, Formatter
 from logging.handlers import RotatingFileHandler
 
-
+from cloud4rpi.version import __version__
 from cloud4rpi.config import mqqtBrokerHost
 from cloud4rpi.config import mqttBrokerPort, mqttsBrokerPort
 from cloud4rpi.config import loggerName
