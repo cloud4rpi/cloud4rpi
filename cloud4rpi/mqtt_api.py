@@ -7,8 +7,8 @@ import paho.mqtt.client as mqtt
 
 from cloud4rpi import config
 from cloud4rpi import utils
+from cloud4rpi import __version__
 from cloud4rpi.errors import MqttConnectionError
-
 
 KEEP_ALIVE_INTERVAL = 30  # sec
 RETRY_INTERVAL = 5  # sec
@@ -146,6 +146,8 @@ class MqttApi(object):
             return
 
         msg = {
+            'v': __version__,
+            'l': 'py',
             'ts': utils.utcnow(),
             'payload': payload,
         }
