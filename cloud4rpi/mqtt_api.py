@@ -130,7 +130,11 @@ class MqttApi(object):
         self.__client.disconnect()
 
     def publish_config(self, msg):
-        self.__publish(self.config_topic, msg)
+        client = {
+            'v': __version__,
+            'l': 'py',
+        }
+        self.__publish(self.config_topic, payload=msg, client_info=client)
 
     def publish_data(self, msg, **kwargs):
         dt = kwargs.get('data_type')
@@ -141,16 +145,16 @@ class MqttApi(object):
     def publish_diag(self, msg):
         self.__publish(self.diag_topic, msg)
 
-    def __publish(self, topic, payload=None):
+    def __publish(self, topic, payload=None, client_info=None):
         if payload is None:
             return
 
         msg = {
-            'v': __version__,
-            'l': 'py',
             'ts': utils.utcnow(),
             'payload': payload,
         }
+        if client_info:
+            msg.update(client_info)
 
         (_, mid) = self.__client.publish(topic,
                                          qos=self.__qos,
