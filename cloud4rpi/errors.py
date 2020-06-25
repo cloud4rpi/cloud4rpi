@@ -49,4 +49,5 @@ __messages = {
 
 
 def get_error_message(e):
-    return __messages.get(type(e), 'Unexpected error: {0}').format(str(type(e)) + str(e.args))
+    msg = getattr(e, 'message', repr(e))
+    return __messages.get(type(e), 'Unexpected error: {0}').format(msg)
